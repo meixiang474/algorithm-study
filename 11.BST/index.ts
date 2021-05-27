@@ -126,7 +126,7 @@ class BST {
   }
   minimum() {
     if (this.size === 0) {
-      throw new Error('error');
+      throw new Error("error");
     }
     let res = this.minimumNode(this.root as TreeNode);
     return res.e;
@@ -139,7 +139,7 @@ class BST {
   }
   maximum() {
     if (this.size === 0) {
-      throw new Error('error');
+      throw new Error("error");
     }
     let res = this.maximumNode(this.root as TreeNode);
     return res.e;
@@ -152,7 +152,7 @@ class BST {
   }
   removeMin() {
     if (this.size === 0) {
-      throw new Error('error');
+      throw new Error("error");
     }
     let { res, next } = this.removeMinNode(this.root!);
     this.root = next;
@@ -176,16 +176,16 @@ class BST {
   }
   removeMax() {
     if (this.size === 0) {
-      throw new Error('error');
+      throw new Error("error");
     }
     let { res, next } = this.removeMaxNode(this.root!);
     this.root = next;
-    this.size--;
     return res;
   }
   removeMaxNode(node: TreeNode): { res: number; next: TreeNode | null } {
     if (!node.right) {
       let res = node.e;
+      this.size--;
       return {
         res,
         next: node.left,
