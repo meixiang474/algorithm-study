@@ -1,5 +1,5 @@
 /**
- * @description 剑指offer 53
+ * @description 剑指offer 53-I
  */
 
 export default function search(nums: number[], target: number): number {
