@@ -5,7 +5,7 @@ export function findContentChildren(g: number[], s: number[]) {
   s.sort((a, b) => a - b);
   let res = 0;
   s.forEach((item) => {
-    if (item > g[res]) {
+    if (item >= g[res]) {
       res++;
     }
   });
