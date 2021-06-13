@@ -1,83 +1,81 @@
-export function climbStairs(n: number) {
-  const dp = [1, 1];
-  for (let i = 2; i <= n; i++) {
-    dp[i] = dp[i - 1] + dp[i - 2];
-  }
-  return dp[n];
+export function isObj(obj: any) {
+  return typeof obj === "object" && obj !== null;
 }
 
-export function rob(nums: number[]) {
-  const dp = [0, nums[0]];
-  for (let i = 2; i <= nums.length; i++) {
-    dp[i] = Math.max(dp[i - 2] + nums[i - 1], dp[i - 1]);
-  }
-  return dp[nums.length];
-}
-
-export function rob1(nums: number[]) {
-  const _rob = (nums: number[]) => {
-    const dp = [0, nums[0]];
-    for (let i = 2; i <= nums.length; i++) {
-      dp[i] = Math.max(dp[i - 2] + nums[i - 1], dp[i - 1]);
+export function isEqual(obj1: any, obj2: any): boolean {
+  if (!isObj(obj1) || !isObj(obj2)) return obj1 === obj2;
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+  if (keys1.length !== keys2.length) return false;
+  for (let key in keys1) {
+    if (obj1.hasOwnProperty(key)) {
+      const flag = isEqual(obj1[key], obj2[key]);
+      if (!flag) return false;
     }
-    return dp[nums.length];
+  }
+  return true;
+}
+
+export function linearSearch<T>(arr: T[], target: T) {
+  for (let i = 0; i < arr.length; i++) {
+    if (isEqual(arr[i], target)) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+export function selectionSort(arr: number[]) {
+  const res = [...arr];
+  const swap = (arr: number[], i: number, j: number) => {
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   };
-  return Math.max(_rob(nums.slice(1)), _rob(nums.slice(0, -1)));
-}
-
-export function fn(g: number[], s: number[]) {
-  g.sort((a, b) => a - b);
-  s.sort((a, b) => a - b);
-  let res = 0;
-  s.forEach((item) => {
-    if (item >= g[res]) {
-      res++;
+  for (let i = 0; i < res.length; i++) {
+    let minIndex = i;
+    for (let j = i + 1; j < res.length; j++) {
+      minIndex = res[j] < res[minIndex] ? j : minIndex;
     }
-  });
+    if (minIndex !== i) {
+      swap(res, minIndex, i);
+    }
+  }
   return res;
 }
 
-export function fn1(prices: number[]) {
-  let profit = 0;
-  for (let i = 0; i < prices.length; i++) {
-    if (i > 0 && prices[i] > prices[i - 1]) {
-      profit += prices[i] - prices[i - 1];
-    }
-  }
-  return profit;
-}
-
-export function permute(nums: number[]) {
-  const res: number[][] = [];
-  const dfs = (path: number[]) => {
-    if (path.length === nums.length) {
-      res.push(path);
-      return;
-    }
-    for (let i = 0; i < nums.length; i++) {
-      if (!path.includes(nums[i])) {
-        dfs(path.concat(nums[i]));
+export function insertionSort(arr: number[]) {
+  const res = [...arr];
+  for (let i = 0; i < res.length; i++) {
+    let swapIndex = i;
+    let current = res[i];
+    for (let j = i - 1; j >= 0; j--) {
+      if (res[j] > current) {
+        res[j + 1] = res[j];
+        swapIndex = j;
+      } else {
+        break;
       }
     }
-  };
-  dfs([]);
+    if (swapIndex !== i) {
+      res[swapIndex] = current;
+    }
+  }
   return res;
 }
 
-export function subsets(nums: number[]) {
-  const res: number[][] = [];
-  const dfs = (path: number[], len: number, index: number) => {
-    if (path.length === len) {
-      res.push(path);
-      return;
-    }
-    if (path.length + nums.length - index < len) return;
-    for (let i = index; i < nums.length; i++) {
-      dfs(path.concat(nums[i]), len, i + 1);
-    }
+export function bubbleSort(arr: number[]) {
+  const res = [...arr];
+  const swap = (arr: number[], i: number, j: number) => {
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   };
-  for (let i = 0; i <= nums.length; i++) {
-    dfs([], i, 0);
+  for (let i = 0; i < res.length - 1; i++) {
+    let flag = false;
+    for (let j = 0; j < res.length - i - 1; j++) {
+      if (res[j] > res[j + 1]) {
+        swap(res, j, j + 1);
+        flag = true;
+      }
+    }
+    if (!flag) break;
   }
   return res;
 }
