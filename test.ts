@@ -1,81 +1,105 @@
-export function isObj(obj: any) {
-  return typeof obj === "object" && obj !== null;
-}
-
-export function isEqual(obj1: any, obj2: any): boolean {
-  if (!isObj(obj1) || !isObj(obj2)) return obj1 === obj2;
-  const keys1 = Object.keys(obj1);
-  const keys2 = Object.keys(obj2);
-  if (keys1.length !== keys2.length) return false;
-  for (let key in keys1) {
-    if (obj1.hasOwnProperty(key)) {
-      const flag = isEqual(obj1[key], obj2[key]);
-      if (!flag) return false;
-    }
+export class MyArray<T = number> {
+  data: T[];
+  size: number;
+  constructor(capacity = 10) {
+    this.data = new Array(capacity).fill(null);
+    this.size = 0;
   }
-  return true;
-}
-
-export function linearSearch<T>(arr: T[], target: T) {
-  for (let i = 0; i < arr.length; i++) {
-    if (isEqual(arr[i], target)) {
-      return i;
-    }
+  getCapacity() {
+    return this.data.length;
   }
-  return -1;
-}
-
-export function selectionSort(arr: number[]) {
-  const res = [...arr];
-  const swap = (arr: number[], i: number, j: number) => {
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  };
-  for (let i = 0; i < res.length; i++) {
-    let minIndex = i;
-    for (let j = i + 1; j < res.length; j++) {
-      minIndex = res[j] < res[minIndex] ? j : minIndex;
-    }
-    if (minIndex !== i) {
-      swap(res, minIndex, i);
-    }
+  getSize() {
+    return this.size;
   }
-  return res;
-}
-
-export function insertionSort(arr: number[]) {
-  const res = [...arr];
-  for (let i = 0; i < res.length; i++) {
-    let swapIndex = i;
-    let current = res[i];
-    for (let j = i - 1; j >= 0; j--) {
-      if (res[j] > current) {
-        res[j + 1] = res[j];
-        swapIndex = j;
-      } else {
-        break;
-      }
-    }
-    if (swapIndex !== i) {
-      res[swapIndex] = current;
-    }
+  isEmpty() {
+    return this.size === 0;
   }
-  return res;
-}
-
-export function bubbleSort(arr: number[]) {
-  const res = [...arr];
-  const swap = (arr: number[], i: number, j: number) => {
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  };
-  for (let i = 0; i < res.length - 1; i++) {
-    let flag = false;
-    for (let j = 0; j < res.length - i - 1; j++) {
-      if (res[j] > res[j + 1]) {
-        swap(res, j, j + 1);
-        flag = true;
-      }
+  resize(newCapacity: number) {
+    const newData: T[] = new Array(newCapacity).fill(null);
+    for (let i = 0; i < this.size; i++) {
+      newData[i] = this.data[i];
     }
-    if (!flag) break;
+    this.data = newData;
   }
-  return res;
+  add(index: number, e: T) {
+    if (index < 0 || index > this.size) throw new Error("error");
+    if (this.size === this.getCapacity()) {
+      this.resize(2 * this.data.length);
+    }
+    for (let i = this.size; i > index; i--) {
+      this.data[i] = this.data[i - 1];
+    }
+    this.data[index] = e;
+    this.size++;
+  }
+  addFirst(e: T) {
+    this.add(0, e);
+  }
+  addLast(e: T) {
+    this.add(this.size, e);
+  }
+  get(index: number) {
+    if (index < 0 || index >= this.size) throw new Error("error");
+    return this.data[index] as T;
+  }
+  getFirst() {
+    return this.get(0);
+  }
+  getLast() {
+    return this.get(this.size - 1);
+  }
+  contains(e: T) {
+    for (let i = 0; i < this.size; i++) {
+      if (this.data[i] === e) return true;
+    }
+    return false;
+  }
+  find(e: T) {
+    for (let i = 0; i < this.size; i++) {
+      if (this.data[i] === e) return i;
+    }
+    return -1;
+  }
+  remove(index: number) {
+    if (index < 0 || index >= this.size) throw new Error("error");
+    const res = this.data[index];
+    for (let i = index; i < this.size; i++) {
+      this.data[i] = this.data[i + 1];
+    }
+    this.size--;
+    if (
+      this.size <= Math.floor(this.getCapacity() / 4) &&
+      Math.floor(this.getCapacity() / 2) !== 0
+    ) {
+      this.resize(Math.floor(this.getCapacity() / 2));
+    }
+    return res;
+  }
+  removeFirst() {
+    return this.remove(0);
+  }
+  removeLast() {
+    return this.remove(this.size - 1);
+  }
+  removeElement(e: T) {
+    const index = this.find(e);
+    if (index !== -1) {
+      this.remove(index);
+      return true;
+    }
+    return false;
+  }
+  set(index: number, e: T) {
+    if (index < 0 || index >= this.size) throw new Error("error");
+    this.data[index] = e;
+  }
+  toString() {
+    let res = `Array: size=${this.size} capacity=${this.getCapacity()}\r\n`;
+    res += "[";
+    for (let i = 0; i < this.size; i++) {
+      res += JSON.stringify(this.data[i]) + ",";
+    }
+    res = res.slice(0, -1) + "]";
+    return res;
+  }
 }
