@@ -1,52 +1,62 @@
-// 7
-class TreeNode {
-  val: number;
-  left: TreeNode | null;
-  right: TreeNode | null;
-  constructor(val: number) {
-    this.val = val;
-    this.left = null;
-    this.right = null;
+// 11
+export const minArray = (nums: number[]) => {
+  let l = 0,
+    r = nums.length - 1;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    if (nums[mid] < nums[r]) {
+      r = mid;
+    } else if (nums[mid] > nums[r]) {
+      l = mid + 1;
+    } else {
+      r--;
+    }
   }
-}
-export const buildTree = (
-  preorder: number[],
-  inorder: number[]
-): TreeNode | null => {
-  if (preorder.length === 0 || inorder.length === 0) return null;
-  const rootVal = preorder[0];
-  const rootNode = new TreeNode(rootVal);
-  const rootIndex = inorder.indexOf(rootVal);
-  rootNode.left = buildTree(
-    preorder.slice(1, rootIndex + 1),
-    inorder.slice(0, rootIndex)
-  );
-  rootNode.right = buildTree(
-    preorder.slice(rootIndex + 1),
-    inorder.slice(rootIndex + 1)
-  );
-  return rootNode;
+  return nums[l];
 };
 
-export class QueueBasedOnStack<T> {
-  stack1: T[];
-  stack2: T[];
-  constructor() {
-    this.stack1 = [];
-    this.stack2 = [];
-  }
-  enqueue(item: T) {
-    this.stack1.push(item);
-  }
-  dequeue() {
-    if (this.stack1.length === 0) throw new Error("error");
-    while (this.stack1.length > 0) {
-      this.stack2.push(this.stack1.pop()!);
+// 12
+export const findPath = (matrix: string[][], word: string) => {
+  if (matrix.length === 0 || matrix[0].length === 0) return false;
+  const m = matrix.length;
+  const n = matrix[0].length;
+  const dfs = (r: number, c: number, index: number) => {
+    if (index === word.length - 1) {
+      return true;
     }
-    const res = this.stack2.pop()!;
-    while (this.stack2.length > 0) {
-      this.stack1.push(this.stack2.pop()!);
+    const temp = matrix[r][c];
+    const res = (matrix[r][c] = "");
+    [
+      [r + 1, c],
+      [r - 1, c],
+      [r, c + 1],
+      [r, c - 1],
+    ].some(([nextR, nextC]) => {
+      if (
+        nextR >= 0 &&
+        nextR < m &&
+        nextC >= 0 &&
+        nextC < n &&
+        matrix[nextR][nextC] === word[index + 1]
+      ) {
+        return dfs(nextR, nextC, index + 1);
+      }
+    });
+    if (res) {
+      return true;
     }
-    return res;
+    matrix[r][c] = temp;
+    return false;
+  };
+  for (let r = 0; r < m; r++) {
+    for (let c = 0; c < n; c++) {
+      if (matrix[r][c] === word[0]) {
+        const res = dfs(r, c, 0);
+        if (res) {
+          return true;
+        }
+      }
+    }
   }
-}
+  return false;
+};
