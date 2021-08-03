@@ -21,7 +21,7 @@ class LinkedList<T> {
     return this.size === 0;
   }
   add(index: number, e: T) {
-    if (index < 0 || index > this.size) throw new Error('error');
+    if (index < 0 || index > this.size) throw new Error("error");
     let prev = this.dummyHead;
     for (let i = 0; i < index; i++) {
       prev = prev.next!;
@@ -36,7 +36,7 @@ class LinkedList<T> {
     this.add(this.size, e);
   }
   get(index: number) {
-    if (index < 0 || index >= this.size) throw new Error('error');
+    if (index < 0 || index >= this.size) throw new Error("error");
     let current = this.dummyHead.next;
     for (let i = 0; i < index; i++) {
       current = current!.next;
@@ -50,7 +50,7 @@ class LinkedList<T> {
     return this.get(this.size - 1);
   }
   set(index: number, e: T) {
-    if (index < 0 || index >= this.size) throw new Error('error');
+    if (index < 0 || index >= this.size) throw new Error("error");
     let current = this.dummyHead.next;
     for (let i = 0; i < index; i++) {
       current = current!.next;
@@ -68,7 +68,7 @@ class LinkedList<T> {
     return false;
   }
   remove(index: number) {
-    if (index < 0 || index >= this.size) throw new Error('error');
+    if (index < 0 || index >= this.size) throw new Error("error");
     let prev = this.dummyHead;
     for (let i = 0; i < index; i++) {
       prev = prev.next!;
@@ -102,10 +102,10 @@ class LinkedList<T> {
     let res = ``;
     let current = this.dummyHead.next;
     while (current) {
-      res += JSON.stringify(current.e) + '->';
+      res += JSON.stringify(current.e) + "->";
       current = current.next;
     }
-    res += 'NULL';
+    res += "NULL";
     return res;
   }
 }
