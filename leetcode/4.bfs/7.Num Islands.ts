@@ -1,3 +1,5 @@
+// 200
+
 export default function numIslands(grid: string[][]): number {
   if (grid.length === 0 || grid[0].length === 0) return 0;
   const m = grid.length;
