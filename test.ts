@@ -1,188 +1,219 @@
-// 13
-export const movingCount = (m: number, n: number, k: number) => {
-  let res = 0;
-  const map: boolean[][] = Array.from({ length: m }, () =>
-    new Array(n).fill(false)
-  );
-  const dfs = (r: number, c: number) => {
-    res++;
-    map[r][c] = true;
-    [
-      [r - 1, c],
-      [r + 1, c],
-      [r, c - 1],
-      [r, c + 1],
-    ].forEach(([nextR, nextC]) => {
-      if (
-        nextR
-          .toString()
-          .split("")
-          .map((v) => parseInt(v))
-          .reduce((x, y) => x + y) +
-          nextC
-            .toString()
-            .split("")
-            .map((v) => parseInt(v))
-            .reduce((x, y) => x + y) <=
-          k &&
-        nextR >= 0 &&
-        nextR < m &&
-        nextC >= 0 &&
-        nextC < n &&
-        !map[nextR][nextC]
-      ) {
-        dfs(nextR, nextC);
-      }
-    });
-  };
-  dfs(0, 0);
-  return res;
-};
-
-// 14
-export const cuttingRope = (n: number) => {
-  const compute = (m: number) => {
-    const floor = Math.floor(n / m);
-    const ceil = Math.ceil(n / m);
-    return Math.max(
-      floor ** (m - 1) * (n - (m - 1) * floor),
-      ceil ** (m - 1) * (n - (m - 1) * ceil)
-    );
-  };
-  let res = 0;
-  for (let i = 2; i <= n; i++) {
-    res = Math.max(res, compute(i));
+// 14-II
+export function cuttingRope(n: number) {
+  const arr = [0, 0, 1, 2, 4];
+  if (n < 5) {
+    return arr[n];
   }
-  return res;
-};
-
-// mergesort
-
-export const mergeSort = (arr: number[]) => {
-  const sortArr = (arr: number[], l: number, r: number, temp: number[]) => {
-    if (l >= r) return;
-    const mid = Math.floor(l + (r - l) / 2);
-    sortArr(arr, l, mid, temp);
-    sortArr(arr, mid + 1, r, temp);
-    if (arr[mid] > arr[mid + 1]) {
-      merge(arr, l, mid, r, temp);
-    }
-  };
-  const merge = (
-    arr: number[],
-    l: number,
-    mid: number,
-    r: number,
-    temp: number[]
-  ) => {
-    for (let i = l; i <= r; i++) {
-      temp[i] = arr[i];
-    }
-    let i = l,
-      j = mid + 1;
-    for (let k = l; k <= r; k++) {
-      if (i > mid) {
-        arr[k] = temp[j];
-        j++;
-      } else if (j > r) {
-        arr[k] = temp[i];
-        i++;
-      } else if (temp[i] <= temp[j]) {
-        arr[k] = temp[i];
-        i++;
-      } else {
-        arr[k] = temp[j];
-        j++;
-      }
-    }
-  };
-  const res = [...arr];
-  const temp = [...arr];
-  sortArr(res, 0, res.length - 1, temp);
-  return res;
-};
-
-export const reversePairs = (arr: number[]) => {
-  let res = 0;
-  for (let i = 0; i < arr.length; i++) {
-    for (let j = i + 1; j < arr.length; j++) {
-      if (arr[i] > arr[j]) {
-        res++;
-      }
-    }
+  let res = 1;
+  while (n >= 5) {
+    res = res * 3;
+    n -= 3;
   }
-  return res;
-};
-
-export const reversePairs1 = (arr: number[]) => {
-  const sortArr = (arr: number[], l: number, r: number, temp: number[]) => {
-    if (l >= r) return;
-    const mid = Math.floor(l + (r - l) / 2);
-    sortArr(arr, l, mid, temp);
-    sortArr(arr, mid + 1, r, temp);
-    if (arr[mid] > arr[mid + 1]) {
-      merge(arr, l, mid, r, temp);
-    }
-  };
-  const merge = (
-    arr: number[],
-    l: number,
-    mid: number,
-    r: number,
-    temp: number[]
-  ) => {
-    for (let i = l; i <= r; i++) {
-      temp[i] = arr[i];
-    }
-    let i = l,
-      j = mid + 1;
-    for (let k = 0; k <= r; k++) {
-      if (i > mid) {
-        arr[k] = temp[j];
-        j++;
-      } else if (j > r) {
-        arr[k] = temp[i];
-        i++;
-      } else if (temp[i] <= temp[j]) {
-        arr[k] = temp[i];
-        i++;
-      } else {
-        res += mid - i + 1;
-        arr[k] = temp[j];
-        j++;
-      }
-    }
-  };
-  let res = 0;
-  sortArr([...arr], 0, arr.length - 1, [...arr]);
-  return res;
-};
-
-class ListNode {
-  val: number;
-  next: ListNode | null;
-  constructor(val: number) {
-    this.val = val;
-    this.next = null;
-  }
+  return res * n;
 }
 
-export const merge = (l1: ListNode | null, l2: ListNode | null) => {
-  const res = new ListNode(-1);
-  let p = res;
-  let p1 = l1;
-  let p2 = l2;
-  while (p1 && p2) {
-    if (p1.val <= p2.val) {
-      p.next = p1;
-      p1 = p1.next;
-    } else {
-      p.next = p2;
-      p2 = p2.next;
+// 14-I
+export function hammingWeight(num: number) {
+  return num
+    .toString(2)
+    .split("")
+    .reduce((memo, current) => {
+      if (current === "1") {
+        memo++;
+      }
+      return memo;
+    }, 0);
+}
+
+// quicksort
+
+export function quickSort(arr: number[]) {
+  const sortArr = (arr: number[], l: number, r: number) => {
+    if (l >= r) return;
+    const p = partition(arr, l, r);
+    sortArr(arr, l, p - 1);
+    sortArr(arr, p + 1, r);
+  };
+
+  const getRandom = (l: number, r: number) => {
+    return Math.floor(Math.random() * (r - l + 1) + l);
+  };
+
+  const swap = (arr: number[], i: number, j: number) => {
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  };
+
+  const partition = (arr: number[], l: number, r: number) => {
+    const p = getRandom(l, r);
+    swap(arr, p, l);
+    let i = l + 1,
+      j = r;
+    while (true) {
+      while (i <= j && arr[l] > arr[i]) {
+        i++;
+      }
+      while (j >= i && arr[l] < arr[j]) {
+        j--;
+      }
+      if (i >= j) break;
+      swap(arr, i, j);
+      i++;
+      j--;
     }
-    p = p.next;
+    swap(arr, l, j);
+    return j;
+  };
+  const res = [...arr];
+  sortArr(res, 0, res.length - 1);
+  return res;
+}
+
+export function quickSort1(arr: number[]) {
+  const sortArr = (arr: number[], l: number, r: number) => {
+    if (l >= r) return;
+    const { left, right } = partition(arr, l, r);
+    sortArr(arr, l, left);
+    sortArr(arr, right, r);
+  };
+  const getRandom = (l: number, r: number) => {
+    return Math.floor(Math.random() * (r - l + 1) + l);
+  };
+  const swap = (arr: number[], i: number, j: number) => {
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  };
+  const partition = (arr: number[], l: number, r: number) => {
+    const p = getRandom(l, r);
+    swap(arr, p, l);
+    let left = l,
+      i = l + 1,
+      right = r + 1;
+    while (i < right) {
+      if (arr[i] < arr[l]) {
+        left++;
+        swap(arr, left, i);
+        i++;
+      } else if (arr[i] > arr[l]) {
+        right--;
+        swap(arr, i, right);
+      } else {
+        i++;
+      }
+    }
+    swap(arr, l, left);
+    return {
+      left: left - 1,
+      right,
+    };
+  };
+  const res = [...arr];
+  sortArr(res, 0, res.length - 1);
+  return res;
+}
+
+export function sortColors(arr: (0 | 1 | 2)[]) {
+  const swap = (arr: number[], i: number, j: number) => {
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  };
+  let l = -1,
+    i = 0,
+    r = arr.length;
+  while (i < r) {
+    if (arr[i] === 0) {
+      l++;
+      swap(arr, i, l);
+      i++;
+    } else if (arr[i] === 2) {
+      r--;
+      swap(arr, i, r);
+    } else {
+      i++;
+    }
   }
-  if (p1) p.next = p1;
-  if (p2) p.next = p2;
-  return res.next;
-};
+  return arr;
+}
+
+export function findKMax(nums: number[], k: number) {
+  k = nums.length - k;
+  const arr = [...nums];
+  const sortArr = (arr: number[], l: number, r: number): number => {
+    if (l >= r) return arr[l];
+    const p = partition(arr, l, r);
+    if (p === k) {
+      return arr[p];
+    } else if (p < k) {
+      return sortArr(arr, p + 1, r);
+    } else {
+      return sortArr(arr, l, p - 1);
+    }
+  };
+  const getRandom = (l: number, r: number) => {
+    return Math.floor(Math.random() * (r - l + 1) + l);
+  };
+  const swap = (arr: number[], i: number, j: number) => {
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  };
+  const partition = (arr: number[], l: number, r: number) => {
+    const p = getRandom(l, r);
+    swap(arr, l, p);
+    let i = l + 1,
+      j = r;
+    while (true) {
+      while (i <= j && arr[i] < arr[l]) {
+        i++;
+      }
+      while (j >= i && arr[j] > arr[l]) {
+        j--;
+      }
+      if (i >= j) break;
+      swap(arr, i, j);
+      i++;
+      j--;
+    }
+    swap(arr, l, j);
+    return j;
+  };
+  return sortArr(arr, 0, arr.length - 1);
+}
+
+export function findKmin(nums: number[], k: number) {
+  if (k >= nums.length) return [...nums];
+  const arr = [...nums];
+  const sortArr = (arr: number[], l: number, r: number): number[] => {
+    if (l >= r) return nums.slice(0, k);
+    const p = partition(arr, l, r);
+    if (p === k) {
+      return nums.slice(0, p);
+    } else if (p > k) {
+      return sortArr(arr, l, p - 1);
+    } else {
+      return sortArr(arr, p + 1, r);
+    }
+  };
+  const getRandom = (l: number, r: number) => {
+    return Math.floor(Math.random() * (r - l + 1) + l);
+  };
+  const swap = (arr: number[], i: number, j: number) => {
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  };
+  const partition = (arr: number[], l: number, r: number) => {
+    const p = getRandom(l, r);
+    swap(arr, l, p);
+    let i = l + 1,
+      j = r;
+    while (true) {
+      while (i <= j && arr[i] < arr[l]) {
+        i++;
+      }
+      while (j >= i && arr[j] > arr[l]) {
+        j--;
+      }
+      if (i >= j) break;
+      swap(arr, i, j);
+      i++;
+      j--;
+    }
+    swap(arr, l, j);
+    return j;
+  };
+  return sortArr(arr, 0, arr.length - 1);
+}

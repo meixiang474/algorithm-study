@@ -82,32 +82,5 @@ function findKMin(nums: number[], k: number) {
     swap(nums, j, l);
     return j;
   }
-  k = k - 1;
   return sortArr(nums, 0, nums.length - 1);
 }
-
-function dicesProbability(n: number): number[] {
-  let sums: any[] = [];
-  const arr = [1, 2, 3, 4, 5, 6];
-  const backtrack = (sum: number, index: number) => {
-    if (index === n) {
-      sums.push(sum);
-      return;
-    }
-    arr.forEach((item) => {
-      backtrack(sum + item, index + 1);
-    });
-  };
-  backtrack(0, 0);
-  console.log(sums);
-  const map = new Map<number, number>();
-  for (let item of sums) {
-    map.set(item, map.has(item) ? (map.get(item) as number) + 1 : 1);
-  }
-  const res: any = [];
-  map.forEach((value, key) => {
-    res[key - n] = value / sums.length;
-  });
-  return res;
-}
-console.log(dicesProbability(9));
