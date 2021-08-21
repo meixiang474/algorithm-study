@@ -1,36 +1,4 @@
-// 25
-
-class ListNode {
-  val: number;
-  next: ListNode | null;
-  constructor(val: number) {
-    this.val = val;
-    this.next = null;
-  }
-}
-
-export function mergeList(h1: ListNode | null, h2: ListNode | null) {
-  const h3 = new ListNode(-1);
-  let p3 = h3;
-  let p1 = h1;
-  let p2 = h2;
-  while (p1 && p2) {
-    if (p1.val <= p2.val) {
-      p3.next = p1;
-      p1 = p1.next;
-    } else {
-      p3.next = p2;
-      p2 = p2.next;
-    }
-    p3 = p3.next;
-  }
-  if (p1) p3.next = p1;
-  if (p2) p3.next = p2;
-  return h3.next;
-}
-
-// 26
-
+// 27
 class TreeNode {
   val: number;
   left: TreeNode | null;
@@ -42,145 +10,148 @@ class TreeNode {
   }
 }
 
-export function isSubStructure(
-  A: TreeNode | null,
-  B: TreeNode | null
-): boolean {
-  if (!A || !B) return false;
-  const dfs = (A: TreeNode | null, B: TreeNode | null): boolean => {
-    if (!B) return true;
-    if (!A || A.val !== B.val) {
-      return false;
+export function mirror(root: TreeNode | null) {
+  if (!root) return null;
+  const dfs = (node: TreeNode, res: TreeNode) => {
+    if (node.left) {
+      res.right = new TreeNode(node.left.val);
+      dfs(node.left, res.right);
     }
-    return dfs(A.left, B.left) && dfs(A.right, B.right);
+    if (node.right) {
+      res.left = new TreeNode(node.right.val);
+      dfs(node.right, res.left);
+    }
   };
-  return dfs(A, B) || isSubStructure(A.left, B) || isSubStructure(A.right, B);
-}
-
-// graph
-
-export function dfs(
-  graph: { [key: number]: number[] },
-  node: number,
-  visited: Set<number>
-) {
-  console.log(node);
-  visited.add(node);
-  graph[node].forEach((item) => {
-    if (!visited.has(item)) {
-      dfs(graph, item, visited);
-    }
-  });
-}
-
-export function bfs(
-  graph: { [key: number]: number[] },
-  node: number,
-  visited: Set<number>
-) {
-  const queue = [node];
-  visited.add(node);
-  while (queue.length > 0) {
-    const current = queue.shift()!;
-    console.log(current);
-    graph[current].forEach((item) => {
-      if (!visited.has(item)) {
-        visited.add(item);
-        queue.push(item);
-      }
-    });
-  }
-}
-
-export function fn(matrix: number[][]) {
-  if (matrix.length === 0 || matrix[0].length === 0) return [];
-  const m = matrix.length;
-  const n = matrix[0].length;
-  const flow1: boolean[][] = Array.from({ length: m }, () =>
-    new Array(n).fill(false)
-  );
-  const flow2: boolean[][] = Array.from({ length: n }, () =>
-    new Array(n).fill(false)
-  );
-  const dfs = (r: number, c: number, flow: boolean[][]) => {
-    flow[r][c] = true;
-    [
-      [r - 1, c],
-      [r + 1, c],
-      [r, c - 1],
-      [r, c + 1],
-    ].forEach(([nextR, nextC]) => {
-      if (
-        nextR >= 0 &&
-        nextC >= 0 &&
-        nextR < m &&
-        nextC < n &&
-        !flow[nextR][nextC] &&
-        matrix[nextR][nextC] >= matrix[r][c]
-      ) {
-        dfs(nextR, nextC, flow);
-      }
-    });
-  };
-  for (let r = 0; r < m; r++) {
-    dfs(r, 0, flow1);
-    dfs(r, n - 1, flow2);
-  }
-  for (let c = 0; c < n; c++) {
-    dfs(0, c, flow1);
-    dfs(m - 1, c, flow2);
-  }
-  let res: number[][] = [];
-  for (let r = 0; r < m; r++) {
-    for (let c = 0; c < n; c++) {
-      if (flow1[r][c] && flow2[r][c]) {
-        res.push([r, c]);
-      }
-    }
-  }
+  const res = new TreeNode(root.val);
+  dfs(root, res);
   return res;
 }
 
-class GraphNode {
+// heap
+
+export class Heap<T = number> {
+  heap: T[];
+  constructor(compare?: (a: T, b: T) => boolean) {
+    this.heap = [];
+    this.compare = compare || this.compare;
+  }
+  compare(a: T, b: T) {
+    return a < b;
+  }
+  swap(i: number, j: number) {
+    [this.heap[i], this.heap[j]] = [this.heap[j], this.heap[i]];
+  }
+  insert(val: T) {
+    this.heap.push(val);
+    this.shiftUp(this.heap.length - 2);
+  }
+  getParentIndex(index: number) {
+    return Math.floor((index - 1) / 2);
+  }
+  getLeftIndex(index: number) {
+    return 2 * index + 1;
+  }
+  getRightIndex(index: number) {
+    return 2 * index + 2;
+  }
+  shiftUp(index: number) {
+    if (index === 0) return;
+    const parentIndex = this.getParentIndex(index);
+    if (
+      this.heap[parentIndex] != null &&
+      this.compare(this.heap[index], this.heap[parentIndex])
+    ) {
+      this.swap(index, parentIndex);
+      this.shiftUp(parentIndex);
+    }
+  }
+  pop() {
+    if (this.heap.length === 0) throw new Error("error");
+    if (this.heap.length === 1) return this.heap.pop() as T;
+    const res = this.heap[0];
+    this.heap[0] = this.heap.pop()!;
+    this.shiftDown(0);
+    return res;
+  }
+  shiftDown(index: number) {
+    const leftIndex = this.getLeftIndex(index);
+    const rightIndex = this.getRightIndex(index);
+    if (
+      this.heap[leftIndex] != null &&
+      this.compare(this.heap[leftIndex], this.heap[index])
+    ) {
+      this.swap(leftIndex, index);
+      this.shiftDown(leftIndex);
+    }
+    if (
+      this.heap[rightIndex] != null &&
+      this.compare(this.heap[rightIndex], this.heap[index])
+    ) {
+      this.swap(rightIndex, index);
+      this.shiftDown(rightIndex);
+    }
+  }
+  peek() {
+    if (this.heap.length === 0) throw new Error("error");
+    return this.heap[0];
+  }
+  size() {
+    return this.heap.length;
+  }
+}
+
+export function findKthLargest(nums: number[], k: number) {
+  const heap = new Heap();
+  for (let i = 0; i < nums.length; i++) {
+    const current = nums[i];
+    heap.insert(current);
+    if (heap.size() > k) {
+      heap.pop();
+    }
+  }
+  return heap.peek();
+}
+
+export function topKFrequent(nums: number[], k: number) {
+  const map = new Map<number, number>();
+  for (const item of nums) {
+    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
+  }
+  const heap = new Heap<{ key: number; val: number }>((a, b) => a.val < b.val);
+  map.forEach((val, key) => {
+    heap.insert({ val, key });
+    if (heap.size() > k) {
+      heap.pop();
+    }
+  });
+  return heap.heap.map((item) => item.key);
+}
+
+class ListNode {
   val: number;
-  neighbors: GraphNode[];
+  next: ListNode | null;
   constructor(val: number) {
     this.val = val;
-    this.neighbors = [];
+    this.next = null;
   }
 }
 
-export function cloneGraph(graph: GraphNode | null) {
-  if (!graph) return null;
-  const map = new Map<GraphNode, GraphNode>();
-  const dfs = (node: GraphNode) => {
-    const newNode = new GraphNode(node.val);
-    map.set(node, newNode);
-    node.neighbors.forEach((item) => {
-      if (!map.has(item)) {
-        dfs(item);
-      }
-      newNode.neighbors.push(map.get(item)!);
-    });
-  };
-  dfs(graph);
-  return map.get(graph)!;
-}
-
-export function cloneGraph1(graph: GraphNode | null) {
-  if (!graph) return null;
-  const queue = [graph];
-  const map = new Map<GraphNode, GraphNode>();
-  map.set(graph, new GraphNode(graph.val));
-  while (queue.length > 0) {
-    const current = queue.shift()!;
-    current.neighbors.forEach((item) => {
-      if (!map.has(item)) {
-        map.set(item, new GraphNode(item.val));
-        queue.push(item);
-      }
-      map.get(current)!.neighbors.push(map.get(item)!);
-    });
+export function mergeKLists(lists: (ListNode | null)[]) {
+  const res = new ListNode(-1);
+  const heap = new Heap<ListNode>((a, b) => a.val < b.val);
+  for (let item of lists) {
+    if (item) {
+      heap.insert(item);
+    }
   }
-  return map.get(graph)!;
+  let p = res;
+  while (heap.size() > 0) {
+    const current = heap.pop();
+    p.next = current;
+    p = p.next;
+    if (current.next) {
+      heap.insert(current.next);
+    }
+  }
+  return res.next;
 }
