@@ -1,90 +1,100 @@
-// 27
-class TreeNode {
-  val: number;
-  left: TreeNode | null;
-  right: TreeNode | null;
-  constructor(val: number) {
-    this.val = val;
-    this.left = null;
-    this.right = null;
+// 28
+export function spiralOrder(matrix: number[][]) {
+  if (matrix.length === 0 || matrix[0].length === 0) {
+    return [];
   }
-}
-
-export function isSymmetric(root: TreeNode | null) {
-  if (!root) return true;
-  const isMirror = (r1: TreeNode | null, r2: TreeNode | null) => {
-    if (!r1 && !r2) return true;
+  const m = matrix.length;
+  const n = matrix[0].length;
+  const total = m * n;
+  const map: boolean[][] = Array.from({ length: m }, () =>
+    new Array(n).fill(false)
+  );
+  const directions = [
+    [0, 1],
+    [1, 0],
+    [0, -1],
+    [-1, 0],
+  ];
+  let directionIndex = 0;
+  let row = 0;
+  let col = 0;
+  const res: number[] = [];
+  for (let i = 0; i < total; i++) {
+    map[row][col] = true;
+    const current = matrix[row][col];
+    res.push(current);
+    const nextRow = row + directions[directionIndex][0];
+    const nextCol = col + directions[directionIndex][1];
     if (
-      r1 &&
-      r2 &&
-      r1.val === r2.val &&
-      isMirror(r1.left, r2.right) &&
-      isMirror(r1.right, r2.left)
+      !(
+        nextRow >= 0 &&
+        nextRow < m &&
+        nextCol >= 0 &&
+        nextCol < n &&
+        !map[nextRow][nextCol]
+      )
     ) {
-      return true;
+      directionIndex = (directionIndex + 1) % directions.length;
     }
-    return false;
-  };
-  return isMirror(root.left, root.right);
-}
-
-// fenzhi donggui
-export function invertTree(root: TreeNode | null) {
-  if (!root) return null;
-  const dfs = (node: TreeNode) => {
-    const temp = node.left;
-    node.left = node.right;
-    node.right = temp;
-    if (node.left) {
-      dfs(node.left);
-    }
-    if (node.right) {
-      dfs(node.right);
-    }
-  };
-  dfs(root);
-  return root;
-}
-
-export function isSameTree(p: TreeNode | null, q: TreeNode | null) {
-  if (!p && !q) return true;
-  if (
-    p &&
-    q &&
-    p.val === q.val &&
-    isSameTree(p.left, q.left) &&
-    isSameTree(p.right, q.right)
-  ) {
-    return true;
+    row += directions[directionIndex][0];
+    col += directions[directionIndex][1];
   }
-  return false;
+  return res;
 }
 
-export function climbStairs(n: number) {
-  const dp = [1, 1];
-  for (let i = 2; i <= n; i++) {
-    dp[i] = dp[i - 2] + dp[i - 1];
-  }
-  return dp[n];
-}
-
-export function rob(nums: number[]) {
-  const dp = [nums[0], Math.max(nums[0], nums[1])];
-  for (let i = 2; i < nums.length; i++) {
-    dp[i] = Math.max(dp[i - 2] + nums[i], dp[i - 1]);
-  }
-  return dp[nums.length - 1];
-}
-
-export function rob2(nums: number[]) {
-  if (nums.length === 0) return 0;
-  if (nums.length === 1) return nums[0];
-  const compute = (nums: number[]) => {
-    const dp = [0, nums[0]];
-    for (let i = 2; i <= nums.length; i++) {
-      dp[i] = Math.max(dp[i - 2] + nums[i - 1], dp[i - 1]);
+// tanxin huisu
+export function findContentChildren(g: number[], s: number[]) {
+  g.sort((a, b) => a - b);
+  s.sort((a, b) => a - b);
+  let res = 0;
+  s.forEach((item) => {
+    if (item >= g[res]) {
+      res++;
     }
-    return dp[nums.length];
+  });
+  return res;
+}
+
+export function maxProfit(nums: number[]) {
+  let profit = 0;
+  for (let i = 1; i < nums.length; i++) {
+    if (nums[i] > nums[i - 1]) {
+      profit += nums[i] - nums[i - 1];
+    }
+  }
+  return profit;
+}
+
+export function pernute(nums: number[]) {
+  const res: number[][] = [];
+  const dfs = (path: number[]) => {
+    if (path.length === nums.length) {
+      res.push(path);
+      return;
+    }
+    nums.forEach((item) => {
+      if (!path.includes(item)) {
+        dfs(path.concat(item));
+      }
+    });
   };
-  return Math.max(compute(nums.slice(0, -1)), compute(nums.slice(1)));
+  dfs([]);
+  return res;
+}
+
+export function subsets(nums: number[]) {
+  const res: number[][] = [];
+  const dfs = (path: number[], length: number, start: number) => {
+    if (path.length === length) {
+      res.push(path);
+      return;
+    }
+    for (let i = start; i < nums.length; i++) {
+      dfs(path.concat(nums[i]), length, start + 1);
+    }
+  };
+  for (let i = 0; i <= nums.length; i++) {
+    dfs([], i, 0);
+  }
+  return res;
 }
