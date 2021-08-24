@@ -1,100 +1,125 @@
-// 28
-export function spiralOrder(matrix: number[][]) {
-  if (matrix.length === 0 || matrix[0].length === 0) {
-    return [];
+// 30
+
+export class MinStack {
+  data: number[];
+  list: number[];
+  constructor() {
+    this.data = [];
+    this.list = [];
   }
-  const m = matrix.length;
-  const n = matrix[0].length;
-  const total = m * n;
-  const map: boolean[][] = Array.from({ length: m }, () =>
-    new Array(n).fill(false)
-  );
-  const directions = [
-    [0, 1],
-    [1, 0],
-    [0, -1],
-    [-1, 0],
-  ];
-  let directionIndex = 0;
-  let row = 0;
-  let col = 0;
-  const res: number[] = [];
-  for (let i = 0; i < total; i++) {
-    map[row][col] = true;
-    const current = matrix[row][col];
-    res.push(current);
-    const nextRow = row + directions[directionIndex][0];
-    const nextCol = col + directions[directionIndex][1];
-    if (
-      !(
-        nextRow >= 0 &&
-        nextRow < m &&
-        nextCol >= 0 &&
-        nextCol < n &&
-        !map[nextRow][nextCol]
-      )
-    ) {
-      directionIndex = (directionIndex + 1) % directions.length;
+  push(item: number) {
+    this.data.push(item);
+    if (this.list.length === 0 || item <= this.list[0]) {
+      this.list.unshift(item);
     }
-    row += directions[directionIndex][0];
-    col += directions[directionIndex][1];
+  }
+  pop() {
+    if (this.data.length === 0) throw new Error("error");
+    const res = this.data.pop()!;
+    if (res === this.list[0]) {
+      this.list.shift();
+    }
+    return res;
+  }
+  peek() {
+    if (this.data.length === 0) throw new Error("error");
+    return this.data[this.data.length - 1];
+  }
+  getSize() {
+    return this.data.length;
+  }
+  isEmpty() {
+    return this.getSize() === 0;
+  }
+  getMin() {
+    return this.list[0];
+  }
+}
+
+// search sort
+export function isObject(obj: any) {
+  return obj && typeof obj === "object";
+}
+
+export function isEqual(a: any, b: any) {
+  if (!isObject(a) || !isObject(b)) {
+    return a === b;
+  }
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+  if (keysA.length !== keysB.length) return false;
+  for (let key in a) {
+    if (a.hasOwnProperty(key)) {
+      const flag = isEqual(a[key], b[key]);
+      if (!flag) return false;
+    }
+  }
+  return true;
+}
+
+export function linearSearch<T>(data: T[], target: T) {
+  for (let i = 0; i < data.length; i++) {
+    if (isEqual(data[i], target)) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+export function selectionSort(arr: number[]) {
+  const res = [...arr];
+  const swap = (arr: number[], i: number, j: number) => {
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  };
+  for (let i = 0; i < res.length; i++) {
+    let minIndex = i;
+    for (let j = i + 1; j < res.length; j++) {
+      minIndex = res[j] < res[minIndex] ? j : minIndex;
+    }
+    if (minIndex !== i) {
+      swap(res, minIndex, i);
+    }
   }
   return res;
 }
 
-// tanxin huisu
-export function findContentChildren(g: number[], s: number[]) {
-  g.sort((a, b) => a - b);
-  s.sort((a, b) => a - b);
-  let res = 0;
-  s.forEach((item) => {
-    if (item >= g[res]) {
-      res++;
-    }
-  });
-  return res;
-}
-
-export function maxProfit(nums: number[]) {
-  let profit = 0;
-  for (let i = 1; i < nums.length; i++) {
-    if (nums[i] > nums[i - 1]) {
-      profit += nums[i] - nums[i - 1];
-    }
-  }
-  return profit;
-}
-
-export function pernute(nums: number[]) {
-  const res: number[][] = [];
-  const dfs = (path: number[]) => {
-    if (path.length === nums.length) {
-      res.push(path);
-      return;
-    }
-    nums.forEach((item) => {
-      if (!path.includes(item)) {
-        dfs(path.concat(item));
+export function insertionSort(arr: number[]) {
+  const res = [...arr];
+  for (let i = 0; i < res.length; i++) {
+    let swapIndex = i;
+    const current = res[i];
+    for (let j = i - 1; j >= 0; j--) {
+      if (res[j] > current) {
+        swapIndex = j;
+        res[j + 1] = res[j];
+      } else {
+        break;
       }
-    });
-  };
-  dfs([]);
+    }
+    if (swapIndex !== i) {
+      res[swapIndex] = current;
+    }
+  }
   return res;
 }
 
-export function subsets(nums: number[]) {
-  const res: number[][] = [];
-  const dfs = (path: number[], length: number, start: number) => {
-    if (path.length === length) {
-      res.push(path);
-      return;
-    }
-    for (let i = start; i < nums.length; i++) {
-      dfs(path.concat(nums[i]), length, start + 1);
-    }
+export function bubbleSort(arr: number[]) {
+  const res = [...arr];
+  const swap = (arr: number[], i: number, j: number) => {
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   };
-  for (let i = 0; i <= nums.length; i++) {
-    dfs([], i, 0);
+  for (let i = 0; i < res.length - 1; i++) {
+    let flag = false;
+    for (let j = 0; j < res.length - i - 1; j++) {
+      if (res[j + 1] < res[j]) {
+        swap(res, j + 1, j);
+        flag = true;
+      }
+
+      if (!flag) {
+        break;
+      }
+    }
   }
   return res;
 }
