@@ -11,11 +11,11 @@ class ListNode<T> {
 function fn<T>(head: ListNode<T> | null): ListNode<T> | null {
   if (!head || !head.next) return head;
   let res = fn(head.next);
-  if (head.val !== res!.val) {
+  if (res && head.val == res.val) {
+    return res;
+  } else {
     head.next = res;
     return head;
-  } else {
-    return res;
   }
 }
 function fn1<T>(head: ListNode<T> | null) {

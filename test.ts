@@ -1,143 +1,62 @@
-// 32-II
+// 33
 
-export class TreeNode {
+export function verifyPostorder(postorder: number[]): boolean {
+  if (postorder.length === 0 || postorder.length === 1) return true;
+  const upper = (arr: number[], target: number) => {
+    let l = 0,
+      r = arr.length;
+    while (l < r) {
+      const mid = Math.floor(l + (r - l) / 2);
+      if (arr[mid] > target) {
+        r = mid;
+      } else {
+        l = mid + 1;
+      }
+    }
+    return l;
+  };
+
+  const isTree = (
+    postorder: number[],
+    rootValue: number,
+    rightIndex: number
+  ) => {
+    const left = postorder.slice(0, rightIndex);
+    const right = postorder.slice(rightIndex, -1);
+    return (
+      left.every((item) => item < rootValue) &&
+      right.every((item) => item > rootValue)
+    );
+  };
+
+  const rootValue = postorder[postorder.length - 1];
+  const rightIndex = upper(postorder.slice(0, -1), rootValue);
+  const flag = isTree(postorder, rootValue, rightIndex);
+  if (flag) {
+    return (
+      verifyPostorder(postorder.slice(0, rightIndex)) &&
+      verifyPostorder(postorder.slice(rightIndex, -1))
+    );
+  } else {
+    return false;
+  }
+}
+// linklist
+export class ListNode {
   val: number;
-  left: TreeNode | null;
-  right: TreeNode | null;
+  next: ListNode | null;
   constructor(val: number) {
     this.val = val;
-    this.left = null;
-    this.right = null;
+    this.next = null;
   }
 }
 
-export function levelOrder(root: TreeNode | null) {
-  if (!root) return [];
-  const res: number[][] = [];
-  const queue: [TreeNode, number][] = [[root, 0]];
-  while (queue.length > 0) {
-    const [current, level] = queue.shift()!;
-    let arr = res[level];
-    if (!arr) {
-      arr = res[level] = [];
-    }
-    arr.push(current.val);
-    if (current.left) {
-      queue.push([current.left, level + 1]);
-    }
-    if (current.right) {
-      queue.push([current.right, level + 1]);
-    }
-  }
-  return res;
-}
-
-// queue
-export class Queue {
-  items: number[];
-  constructor() {
-    this.items = [];
-  }
-  enqueue(item: number) {
-    this.items.push(item);
-  }
-  dequeue() {
-    if (this.items.length === 0) throw new Error("error");
-    return this.items.shift()!;
-  }
-  getFront() {
-    if (this.items.length === 0) throw new Error("error");
-    return this.items[0];
-  }
-  getSize() {
-    return this.items.length;
-  }
-  isEmpty() {
-    return this.getSize() === 0;
-  }
-  toString() {
-    return this.items.toString();
-  }
-}
-
-export class LoopQueue<T> {
-  data: (T | null)[];
-  front: number;
-  tail: number;
-  constructor(capacity = 10) {
-    this.data = new Array(capacity + 1).fill(null);
-    this.front = 0;
-    this.tail = 0;
-  }
-  getSize() {
-    return this.tail >= this.front
-      ? this.tail - this.front
-      : this.tail + this.data.length - this.front;
-  }
-  isEmpty() {
-    return this.getSize() === 0;
-  }
-  getCapacity() {
-    return this.data.length - 1;
-  }
-  resize(newCapacity: number) {
-    const newData: (T | null)[] = new Array(newCapacity + 1).fill(null);
-    for (let i = 0; i < this.getSize(); i++) {
-      newData[i] = this.data[(i + this.front) % this.data.length];
-    }
-    this.tail = this.getSize();
-    this.front = 0;
-    this.data = newData;
-  }
-  enqueue(item: T) {
-    if (this.getSize() >= this.getCapacity()) {
-      this.resize(2 * this.getCapacity());
-    }
-    this.data[this.tail] = item;
-    this.tail = (this.tail + 1) % this.data.length;
-  }
-  dequeue() {
-    if (this.isEmpty()) throw new Error("error");
-    const res = this.data[this.front];
-    this.data[this.front] = null;
-    this.front = (this.front + 1) % this.data.length;
-    if (
-      this.getSize() <= Math.floor(this.getCapacity() / 4) &&
-      Math.floor(this.getCapacity() / 2) !== 0
-    ) {
-      this.resize(Math.floor(this.getCapacity() / 2));
-    }
-    return res;
-  }
-  getFront() {
-    if (this.isEmpty()) throw new Error("error");
-    return this.data[this.front]!;
-  }
-  toString() {
-    let res = `LoopQueue: size=${this.getSize()}, capacity=${this.getCapacity()}\r\n`;
-    res += "front [";
-    for (let i = 0; i < this.getSize(); i++) {
-      res +=
-        JSON.stringify(this.data[(i + this.front) % this.data.length]) + ",";
-    }
-    res = res.slice(0, -1) + "] tail";
-    return res;
-  }
-}
-
-export class Deque<T> {
-  data: (T | null)[];
+export class LinkedList {
+  dummyHead: ListNode;
   size: number;
-  front: number;
-  tail: number;
-  constructor(capacity = 10) {
-    this.data = new Array(capacity).fill(null);
+  constructor(dummyHead = -1) {
+    this.dummyHead = new ListNode(dummyHead);
     this.size = 0;
-    this.front = 0;
-    this.tail = 0;
-  }
-  getCapacity() {
-    return this.data.length;
   }
   getSize() {
     return this.size;
@@ -145,146 +64,248 @@ export class Deque<T> {
   isEmpty() {
     return this.size === 0;
   }
-  resize(newCapacity: number) {
-    const newData: (T | null)[] = new Array(newCapacity).fill(null);
-    for (let i = 0; i < this.size; i++) {
-      newData[i] = this.data[(i + this.front) % this.data.length];
+  add(index: number, item: number) {
+    if (index < 0 || index > this.size) throw new Error("error");
+    let prev = this.dummyHead;
+    for (let i = 0; i < index; i++) {
+      prev = prev.next!;
     }
-    this.front = 0;
-    this.tail = this.size;
-    this.data = newData;
-  }
-  addLast(item: T) {
-    if (this.size >= this.getCapacity()) {
-      this.resize(2 * this.getCapacity());
-    }
-    this.data[this.tail] = item;
-    this.tail = (this.tail + 1) % this.data.length;
+    const next = prev.next;
+    prev.next = new ListNode(item);
+    prev.next = next;
     this.size++;
   }
-  addFirst(item: T) {
-    if (this.size >= this.getCapacity()) {
-      this.resize(2 * this.getCapacity());
-    }
-    this.front = this.front === 0 ? this.data.length - 1 : this.front - 1;
-    this.data[this.front] = item;
-    this.size++;
+  addFirst(item: number) {
+    this.add(0, item);
   }
-  removeFront() {
-    if (this.size === 0) throw new Error("error");
-    const res = this.data[this.front];
-    this.data[this.front] = null;
-    this.front = (this.front + 1) % this.data.length;
-    this.size--;
-    if (
-      this.size <= Math.floor(this.getCapacity() / 4) &&
-      Math.floor(this.getCapacity() / 2) !== 0
-    ) {
-      this.resize(Math.floor(this.getCapacity() / 2));
-    }
-    return res;
+  addLast(item: number) {
+    this.add(this.size, item);
   }
-  removeLast() {
-    if (this.size === 0) throw new Error("error");
-    this.tail = this.tail === 0 ? this.data.length - 1 : this.tail - 1;
-    const res = this.data[this.tail];
-    this.data[this.tail] = null;
-    this.size--;
-    if (
-      this.size <= Math.floor(this.getCapacity() / 4) &&
-      Math.floor(this.getCapacity() / 2) !== 0
-    ) {
-      this.resize(Math.floor(this.getCapacity() / 2));
+  get(index: number) {
+    if (index < 0 || index >= this.size) throw new Error("error");
+    let current = this.dummyHead.next!;
+    for (let i = 0; i < index; i++) {
+      current = current.next!;
     }
-    return res;
+    return current.val;
   }
   getFirst() {
-    if (this.size === 0) throw new Error("error");
-    return this.data[this.front]!;
+    return this.get(0);
   }
   getLast() {
-    if (this.size === 0) throw new Error("error");
-    const index = this.tail === 0 ? this.data.length - 1 : this.tail - 1;
-    return this.data[index]!;
+    return this.get(this.size - 1);
+  }
+  set(index: number, item: number) {
+    if (index < 0 || index >= this.size) throw new Error("error");
+    let current = this.dummyHead.next!;
+    for (let i = 0; i < index; i++) {
+      current = current.next!;
+    }
+    current.val = item;
+  }
+  contains(item: number) {
+    let current = this.dummyHead.next;
+    while (current) {
+      if (current.val === item) {
+        return true;
+      }
+      current = current.next;
+    }
+    return false;
+  }
+  remove(index: number) {
+    if (index < 0 || index >= this.size) throw new Error("error");
+    let prev = this.dummyHead;
+    for (let i = 0; i < index; i++) {
+      prev = prev.next!;
+    }
+    const res = prev.next!;
+    prev.next = prev.next!.next;
+    this.size--;
+    return res.val;
+  }
+  removeFirst() {
+    return this.remove(0);
+  }
+  removeLast() {
+    return this.remove(this.size - 1);
+  }
+  removeElement(item: number) {
+    let prev = this.dummyHead;
+    while (prev.next) {
+      if (prev.next.val === item) {
+        break;
+      } else {
+        prev = prev.next;
+      }
+    }
+    if (prev.next) {
+      this.size--;
+      prev.next = prev.next.next;
+    }
   }
   toString() {
-    let res = `Deque: size=${this.size}, capacity=${this.getCapacity()}\r\n`;
-    res += "front [";
-    for (let i = 0; i < this.size; i++) {
-      res +=
-        JSON.stringify(this.data[(i + this.front) % this.data.length]) + ",";
+    let res = `LinkedList: size=${this.getSize()}\r\n`;
+    let current = this.dummyHead.next;
+    while (current) {
+      res += JSON.stringify(current.val) + "->";
+      current = current.next;
     }
-    res = res.slice(0, -1) + "] tail";
-    return res;
+    return res + "NULL";
   }
 }
 
-export class StackBasedOnQueue {
-  items: number[];
-  constructor() {
-    this.items = [];
+export function removeElements(head: ListNode | null, val: number) {
+  while (head && head.val === val) {
+    head = head.next;
   }
-  getSize() {
-    return this.items.length;
-  }
-  isEmpty() {
-    return this.getSize() === 0;
-  }
-  push(item: number) {
-    this.items.push(item);
-  }
-  pop() {
-    if (this.isEmpty()) throw new Error("error");
-    for (let i = 0; i < this.items.length - 1; i++) {
-      this.items.push(this.items.shift()!);
+  if (!head) return head;
+  let prev = head;
+  while (prev.next) {
+    if (prev.next.val === val) {
+      prev.next = prev.next.next;
+    } else {
+      prev = prev.next;
     }
-    return this.items.shift()!;
   }
-  peek() {
-    if (this.isEmpty()) throw new Error("error");
-    const res = this.pop();
-    this.push(res);
+  return head;
+}
+
+export function removeElements1(head: ListNode | null, val: number) {
+  const dummyHead = new ListNode(-1);
+  dummyHead.next = head;
+  let prev = dummyHead;
+  while (prev.next) {
+    if (prev.next.val === val) {
+      prev.next = prev.next.next;
+    } else {
+      prev = prev.next;
+    }
+  }
+  return dummyHead.next;
+}
+
+export function removeElements2(
+  head: ListNode | null,
+  val: number
+): ListNode | null {
+  if (!head) return head;
+  const res = removeElements2(head.next, val);
+  if (head.val === val) {
     return res;
+  } else {
+    head.next = res;
+    return head;
   }
 }
 
-export class QueueBasedOnStack {
-  stack1: number[];
-  stack2: number[];
-  constructor() {
-    this.stack1 = [];
-    this.stack2 = [];
+export function reverse(head: ListNode | null) {
+  let prev = null,
+    current = head;
+  while (current) {
+    const next = current.next;
+    current.next = prev;
+    prev = current;
+    current = next;
   }
-  enqueue(item: number) {
-    this.stack1.push(item);
+  return prev;
+}
+
+export function reverse1(head: ListNode | null): ListNode | null {
+  if (!head || !head.next) return head;
+  const res = reverse(head.next);
+  head.next.next = head;
+  head.next = null;
+  return res;
+}
+
+export function addTwo(l1: ListNode | null, l2: ListNode | null) {
+  const l3 = new ListNode(-1);
+  let p1 = l1;
+  let p2 = l2;
+  let p3 = l3;
+  let carry = 0;
+  while (p1 || p2) {
+    const num1 = p1 ? p1.val : 0;
+    const num2 = p2 ? p2.val : 0;
+    const sum = num1 + num2 + carry;
+    carry = Math.floor(sum / 10);
+    p3.next = new ListNode(sum % 10);
+    p3 = p3.next;
+    if (p1) p1 = p1.next;
+    if (p2) p2 = p2.next;
   }
-  dequeue() {
-    if (this.stack1.length === 0) throw new Error("error");
-    while (this.stack1.length > 0) {
-      this.stack2.push(this.stack1.pop()!);
-    }
-    const res = this.stack2.pop()!;
-    while (this.stack2.length > 0) {
-      this.stack1.push(this.stack2.pop()!);
-    }
+  if (carry !== 0) {
+    p3.next = new ListNode(carry);
+  }
+  return l3.next;
+}
+
+export function fn(head: ListNode | null): ListNode | null {
+  if (!head || !head.next) return head;
+  const res = fn(head.next);
+  if (res && head.val === res.val) {
     return res;
+  } else {
+    head.next = res;
+    return head;
   }
-  peek() {
-    if (this.stack1.length === 0) throw new Error("error");
-    const res = this.dequeue();
-    while (this.stack1.length > 0) {
-      this.stack2.push(this.stack1.pop()!);
+}
+
+export function fn1(head: ListNode | null) {
+  const dummyHead = new ListNode(-1);
+  dummyHead.next = head;
+  let prev = dummyHead;
+  while (prev.next && prev.next.next) {
+    if (prev.next.val === prev.next.next.val) {
+      prev.next = prev.next.next;
+    } else {
+      prev = prev.next;
     }
-    this.stack1.push(res);
-    while (this.stack2.length > 0) {
-      this.stack1.push(this.stack2.pop()!);
+  }
+  return dummyHead.next;
+}
+
+export function fn2(head: ListNode | null) {
+  let slow = head;
+  let fast = head;
+  while (slow && fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
+    if (slow === fast) {
+      return true;
     }
-    return res;
   }
-  getSize() {
-    return this.stack1.length;
+  return false;
+}
+
+export function fn3(head: ListNode | null) {
+  if (!head || !head.next) return true;
+  let slow: ListNode | null = head;
+  let fast: ListNode | null = head;
+  while (slow && fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
   }
-  isEmpty() {
-    return this.getSize() === 0;
+  if (fast) {
+    slow = slow!.next;
   }
+  let prev = null;
+  let current = slow;
+  while (current) {
+    const next = current.next;
+    current.next = prev;
+    prev = current;
+    current = next;
+  }
+  let l2 = prev;
+  let l1: ListNode | null = head;
+  while (l2 && l1) {
+    if (l1.val !== l2.val) {
+      return false;
+    }
+    l1 = l1.next;
+    l2 = l2.next;
+  }
+  return true;
 }
