@@ -1,164 +1,200 @@
-// 34
-
-export class TreeNode {
-  val: number;
-  left: TreeNode | null;
-  right: TreeNode | null;
-  constructor(val: number) {
-    this.val = val;
-    this.left = null;
-    this.right = null;
-  }
-}
-
-export function pathSum(root: TreeNode | null, target: number) {
-  if (!root) return [];
-  const res: number[][] = [];
-  const dfs = (node: TreeNode, path: number[], sum: number) => {
-    if (sum === target && !node.left && !node.right) {
-      res.push(path);
-      return;
-    }
-    if (node.left) {
-      dfs(node.left, path.concat(node.left.val), sum + node.left.val);
-    }
-    if (node.right) {
-      dfs(node.right, path.concat(node.right.val), sum + node.right.val);
-    }
-  };
-  dfs(root, [root.val], root.val);
-  return res;
-}
-
-// merge sort
-export function mergeSort(arr: number[]) {
-  const res = [...arr];
-  const sortArr = (arr: number[], l: number, r: number, temp: number[]) => {
-    if (l >= r) return;
-    const mid = Math.floor(l + (r - l) / 2);
-    sortArr(arr, l, mid, temp);
-    sortArr(arr, mid + 1, r, temp);
-    if (arr[mid] > arr[mid + 1]) {
-      merge(arr, l, mid, r, temp);
-    }
-  };
-  const merge = (
-    arr: number[],
-    l: number,
-    mid: number,
-    r: number,
-    temp: number[]
-  ) => {
-    for (let i = l; i <= r; i++) {
-      temp[i] = arr[i];
-    }
-    let i = l,
-      j = mid + 1;
-    for (let k = l; k <= r; k++) {
-      if (i > mid) {
-        arr[k] = temp[j];
-        j++;
-      } else if (j > r) {
-        arr[k] = temp[i];
-        i++;
-      } else if (temp[i] > temp[j]) {
-        arr[k] = temp[j];
-        j++;
-      } else {
-        arr[k] = temp[i];
-        i++;
-      }
-    }
-  };
-  sortArr(res, 0, res.length - 1, [...res]);
-  return res;
-}
-
-export function reversePairs(nums: number[]) {
-  let res = 0;
-  for (let i = 0; i < nums.length; i++) {
-    for (let j = i + 1; j < nums.length; j++) {
-      if (nums[i] > nums[j]) res++;
-    }
-  }
-  return res;
-}
-
-export function reversePairs1(nums: number[]) {
-  let res = 0;
-  const sortArr = (arr: number[], l: number, r: number, temp: number[]) => {
-    if (l >= r) return;
-    const mid = Math.floor(l + (r - l) / 2);
-    sortArr(arr, l, mid, temp);
-    sortArr(arr, mid + 1, r, temp);
-    if (arr[mid] > arr[mid + 1]) {
-      merge(arr, l, mid, r, temp);
-    }
-  };
-
-  const merge = (
-    arr: number[],
-    l: number,
-    mid: number,
-    r: number,
-    temp: number[]
-  ) => {
-    for (let i = l; i <= r; i++) {
-      temp[i] = arr[i];
-    }
-    let i = l,
-      j = mid + 1;
-    for (let k = l; k <= r; k++) {
-      if (i > mid) {
-        arr[k] = temp[j];
-        j++;
-      } else if (j > r) {
-        arr[k] = temp[i];
-        i++;
-      } else if (temp[i] > temp[j]) {
-        arr[k] = temp[j];
-        res += mid - i + 1;
-        j++;
-      } else {
-        arr[k] = temp[i];
-        i++;
-      }
-    }
-  };
-
-  sortArr([...nums], 0, nums.length, [...nums]);
-  return res;
-}
+// 35
 
 export class ListNode {
   val: number;
   next: ListNode | null;
+  random: ListNode | null;
   constructor(val: number) {
     this.val = val;
     this.next = null;
+    this.random = null;
   }
 }
 
-export function merge(l1: ListNode | null, l2: ListNode | null) {
-  const l3 = new ListNode(-1);
-  let p3 = l3;
-  let p1 = l1;
-  let p2 = l2;
-  while (p1 && p2) {
-    if (p1.val <= p2.val) {
-      p3.next = p1;
-      p1 = p1.next;
-    } else {
-      p3.next = p2;
-      p2 = p2.next;
+export function copyRandomList(head: ListNode | null) {
+  if (!head) return head;
+  const visited = new Map<ListNode | null, ListNode | null>();
+  visited.set(null, null);
+  const dfs = (node: ListNode) => {
+    const newNode = new ListNode(node.val);
+    visited.set(node, newNode);
+    if (node.next && !visited.has(node.next)) {
+      dfs(node.next);
     }
-    p3 = p3.next;
-  }
-  if (p1) {
-    p3.next = p1;
-  }
-  if (p2) {
-    p3.next = p2;
-  }
-  return l3.next;
+    newNode.next = visited.get(node.next) as ListNode | null;
+    if (node.random && !visited.has(node.random)) {
+      dfs(node.random);
+    }
+    newNode.random = visited.get(node.random) as ListNode | null;
+  };
+  dfs(head);
+  return visited.get(head);
+}
+
+// quick sort
+export function quickSort(arr: number[]) {
+  const res = [...arr];
+  const sortArr = (arr: number[], l: number, r: number) => {
+    if (l >= r) return;
+    const p = partition(arr, l, r);
+    sortArr(arr, l, p - 1);
+    sortArr(arr, p + 1, r);
+  };
+
+  const getRandom = (l: number, r: number) =>
+    Math.floor(l + Math.random() * (r - l + 1));
+
+  const swap = (arr: number[], i: number, j: number) => {
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  };
+
+  const partition = (arr: number[], l: number, r: number) => {
+    const p = getRandom(l, r);
+    swap(arr, l, p);
+    let i = l + 1,
+      j = r;
+    while (true) {
+      while (i <= j && arr[l] > arr[i]) {
+        i++;
+      }
+      while (i <= j && arr[l] < arr[j]) {
+        j--;
+      }
+      if (i >= j) break;
+      swap(arr, i, j);
+      i--;
+      j++;
+    }
+    swap(arr, l, j);
+    return j;
+  };
+
+  sortArr(res, 0, res.length - 1);
+  return res;
+}
+
+export function quickSort1(arr: number[]) {
+  const res = [...arr];
+  const sortArr = (arr: number[], l: number, r: number) => {
+    if (l >= r) return;
+    const { left, right } = partition(arr, l, r);
+    sortArr(arr, l, left);
+    sortArr(arr, right, r);
+  };
+
+  const getRandom = (l: number, r: number) =>
+    Math.floor(l + Math.random() * (r - l + 1));
+
+  const swap = (arr: number[], i: number, j: number) => {
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  };
+
+  const partition = (arr: number[], l: number, r: number) => {
+    const p = getRandom(l, r);
+    swap(arr, l, p);
+    let left = l,
+      i = l + 1,
+      right = r + 1;
+    while (i < r) {
+      if (arr[i] < arr[l]) {
+        left++;
+        swap(arr, i, left);
+        i++;
+      } else if (arr[i] > arr[l]) {
+        right--;
+        swap(arr, i, right);
+      } else {
+        i++;
+      }
+    }
+    swap(arr, l, left);
+    return {
+      left: left - 1,
+      right,
+    };
+  };
+}
+
+export function findKMax(nums: number[], k: number) {
+  k = nums.length - k;
+  const res = [...nums];
+  const sortArr = (arr: number[], l: number, r: number): number => {
+    if (l >= r) return nums[k];
+    const p = partition(arr, l, r);
+    if (p === k) {
+      return arr[p];
+    } else if (p > k) {
+      return sortArr(arr, l, p - 1);
+    } else {
+      return sortArr(arr, p + 1, r);
+    }
+  };
+  const getRandom = (l: number, r: number) =>
+    Math.floor(Math.random() * (r - l + 1) + l);
+  const swap = (arr: number[], i: number, j: number) => {
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  };
+  const partition = (arr: number[], l: number, r: number) => {
+    const p = getRandom(l, r);
+    swap(arr, l, p);
+    let i = l + 1,
+      j = r;
+    while (true) {
+      while (i <= j && arr[l] > arr[i]) {
+        i++;
+      }
+      while (i <= j && arr[l] < arr[j]) {
+        j--;
+      }
+      if (i >= j) break;
+      swap(arr, i, j);
+      i--;
+      j++;
+    }
+    swap(arr, l, j);
+    return j;
+  };
+  return sortArr(res, 0, res.length - 1);
+}
+
+export function findKMin(nums: number[], k: number) {
+  if (k >= nums.length) return nums;
+  const res = [...nums];
+  const sortArr = (arr: number[], l: number, r: number): number[] => {
+    if (l >= r) return arr.slice(0, k);
+    const p = partition(arr, l, r);
+    if (p === k) {
+      return arr.slice(0, k);
+    } else if (p > k) {
+      return sortArr(arr, l, p - 1);
+    } else {
+      return sortArr(arr, p + 1, r);
+    }
+  };
+  const getRandom = (l: number, r: number) => {
+    return Math.floor(l + Math.random() * (r - l + 1));
+  };
+  const swap = (arr: number[], i: number, j: number) => {
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  };
+  const partition = (arr: number[], l: number, r: number) => {
+    const p = getRandom(l, r);
+    swap(arr, p, l);
+    let i = l + 1,
+      j = r;
+    while (true) {
+      while (i <= j && arr[l] > arr[i]) {
+        i++;
+      }
+      while (i <= j && arr[l] > arr[j]) {
+        j--;
+      }
+      if (i >= j) break;
+      swap(arr, i, j);
+      i++;
+      j--;
+    }
+    swap(arr, l, j);
+    return j;
+  };
 }
