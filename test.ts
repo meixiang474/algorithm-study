@@ -1,200 +1,178 @@
-// 35
+// 36
 
-export class ListNode {
+export class TreeNode {
   val: number;
-  next: ListNode | null;
-  random: ListNode | null;
+  left: TreeNode | null;
+  right: TreeNode | null;
   constructor(val: number) {
     this.val = val;
-    this.next = null;
-    this.random = null;
+    this.left = null;
+    this.right = null;
   }
 }
 
-export function copyRandomList(head: ListNode | null) {
-  if (!head) return head;
-  const visited = new Map<ListNode | null, ListNode | null>();
-  visited.set(null, null);
-  const dfs = (node: ListNode) => {
-    const newNode = new ListNode(node.val);
-    visited.set(node, newNode);
-    if (node.next && !visited.has(node.next)) {
-      dfs(node.next);
+export function treeToDoublyList(root: TreeNode | null) {
+  if (!root) return null;
+  const res: TreeNode[] = [];
+  const dfs = (node: TreeNode) => {
+    if (node.left) {
+      dfs(node.left);
     }
-    newNode.next = visited.get(node.next) as ListNode | null;
-    if (node.random && !visited.has(node.random)) {
-      dfs(node.random);
+    res.push(node);
+    if (node.right) {
+      dfs(node.right);
     }
-    newNode.random = visited.get(node.random) as ListNode | null;
   };
-  dfs(head);
-  return visited.get(head);
-}
-
-// quick sort
-export function quickSort(arr: number[]) {
-  const res = [...arr];
-  const sortArr = (arr: number[], l: number, r: number) => {
-    if (l >= r) return;
-    const p = partition(arr, l, r);
-    sortArr(arr, l, p - 1);
-    sortArr(arr, p + 1, r);
-  };
-
-  const getRandom = (l: number, r: number) =>
-    Math.floor(l + Math.random() * (r - l + 1));
-
-  const swap = (arr: number[], i: number, j: number) => {
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  };
-
-  const partition = (arr: number[], l: number, r: number) => {
-    const p = getRandom(l, r);
-    swap(arr, l, p);
-    let i = l + 1,
-      j = r;
-    while (true) {
-      while (i <= j && arr[l] > arr[i]) {
-        i++;
-      }
-      while (i <= j && arr[l] < arr[j]) {
-        j--;
-      }
-      if (i >= j) break;
-      swap(arr, i, j);
-      i--;
-      j++;
-    }
-    swap(arr, l, j);
-    return j;
-  };
-
-  sortArr(res, 0, res.length - 1);
-  return res;
-}
-
-export function quickSort1(arr: number[]) {
-  const res = [...arr];
-  const sortArr = (arr: number[], l: number, r: number) => {
-    if (l >= r) return;
-    const { left, right } = partition(arr, l, r);
-    sortArr(arr, l, left);
-    sortArr(arr, right, r);
-  };
-
-  const getRandom = (l: number, r: number) =>
-    Math.floor(l + Math.random() * (r - l + 1));
-
-  const swap = (arr: number[], i: number, j: number) => {
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  };
-
-  const partition = (arr: number[], l: number, r: number) => {
-    const p = getRandom(l, r);
-    swap(arr, l, p);
-    let left = l,
-      i = l + 1,
-      right = r + 1;
-    while (i < r) {
-      if (arr[i] < arr[l]) {
-        left++;
-        swap(arr, i, left);
-        i++;
-      } else if (arr[i] > arr[l]) {
-        right--;
-        swap(arr, i, right);
-      } else {
-        i++;
-      }
-    }
-    swap(arr, l, left);
-    return {
-      left: left - 1,
-      right,
-    };
-  };
-}
-
-export function findKMax(nums: number[], k: number) {
-  k = nums.length - k;
-  const res = [...nums];
-  const sortArr = (arr: number[], l: number, r: number): number => {
-    if (l >= r) return nums[k];
-    const p = partition(arr, l, r);
-    if (p === k) {
-      return arr[p];
-    } else if (p > k) {
-      return sortArr(arr, l, p - 1);
+  dfs(root);
+  let head = null;
+  let tail = null;
+  for (let i = 0; i < res.length; i++) {
+    if (tail == null) {
+      head = tail = res[i];
+      head.right = tail;
+      tail.left = head;
     } else {
-      return sortArr(arr, p + 1, r);
+      const current = res[i];
+      const prev = tail;
+      prev.right = current;
+      current.left = prev;
+      current.right = head;
+      tail = current;
+      head!.left = tail;
     }
-  };
-  const getRandom = (l: number, r: number) =>
-    Math.floor(Math.random() * (r - l + 1) + l);
-  const swap = (arr: number[], i: number, j: number) => {
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  };
-  const partition = (arr: number[], l: number, r: number) => {
-    const p = getRandom(l, r);
-    swap(arr, l, p);
-    let i = l + 1,
-      j = r;
-    while (true) {
-      while (i <= j && arr[l] > arr[i]) {
-        i++;
-      }
-      while (i <= j && arr[l] < arr[j]) {
-        j--;
-      }
-      if (i >= j) break;
-      swap(arr, i, j);
-      i--;
-      j++;
-    }
-    swap(arr, l, j);
-    return j;
-  };
-  return sortArr(res, 0, res.length - 1);
+  }
+  return head;
 }
 
-export function findKMin(nums: number[], k: number) {
-  if (k >= nums.length) return nums;
-  const res = [...nums];
-  const sortArr = (arr: number[], l: number, r: number): number[] => {
-    if (l >= r) return arr.slice(0, k);
-    const p = partition(arr, l, r);
-    if (p === k) {
-      return arr.slice(0, k);
-    } else if (p > k) {
-      return sortArr(arr, l, p - 1);
+// binary search
+export function binarySearch(arr: number[], target: number) {
+  const search = (
+    arr: number[],
+    l: number,
+    r: number,
+    target: number
+  ): number => {
+    if (l > r) {
+      return -1;
+    }
+    const mid = Math.floor(l + (r - l) / 2);
+    if (arr[mid] === target) {
+      return mid;
+    } else if (arr[mid] > target) {
+      return search(arr, l, mid - 1, target);
     } else {
-      return sortArr(arr, p + 1, r);
+      return search(arr, mid + 1, r, target);
     }
   };
-  const getRandom = (l: number, r: number) => {
-    return Math.floor(l + Math.random() * (r - l + 1));
-  };
-  const swap = (arr: number[], i: number, j: number) => {
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  };
-  const partition = (arr: number[], l: number, r: number) => {
-    const p = getRandom(l, r);
-    swap(arr, p, l);
-    let i = l + 1,
-      j = r;
-    while (true) {
-      while (i <= j && arr[l] > arr[i]) {
-        i++;
-      }
-      while (i <= j && arr[l] > arr[j]) {
-        j--;
-      }
-      if (i >= j) break;
-      swap(arr, i, j);
-      i++;
-      j--;
+  return search(arr, 0, arr.length - 1, target);
+}
+
+export function binarySearch1(arr: number[], target: number) {
+  let l = 0,
+    r = arr.length;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    if (arr[mid] === target) {
+      return mid;
+    } else if (arr[mid] > target) {
+      r = mid;
+    } else {
+      l = mid + 1;
     }
-    swap(arr, l, j);
-    return j;
-  };
+  }
+  return -1;
+}
+
+// > target的第一个
+export function upper(arr: number[], target: number) {
+  let l = 0,
+    r = arr.length;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    if (arr[mid] <= target) {
+      l = mid + 1;
+    } else {
+      r = mid;
+    }
+  }
+  return l;
+}
+
+// = target的最后一个或者 > target的第一个
+export function ceil(arr: number[], target: number) {
+  const index = upper(arr, target);
+  if (index - 1 >= 0 && arr[index - 1] === target) {
+    return index - 1;
+  }
+  return index;
+}
+
+// = target第一个或者 > target第一个
+export function lowerCeil(arr: number[], target: number) {
+  let l = 0,
+    r = arr.length;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    if (arr[mid] >= target) {
+      r = mid;
+    } else {
+      l = mid + 1;
+    }
+  }
+  return l;
+}
+
+// < target得第一个
+export function lower(arr: number[], target: number) {
+  let l = -1,
+    r = arr.length - 1;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l + 1) / 2);
+    if (arr[mid] < target) {
+      l = mid;
+    } else {
+      r = mid - 1;
+    }
+  }
+  return l;
+}
+
+// = target的最后一个，< target的第一个
+export function upperFloor(arr: number[], target: number) {
+  let l = -1,
+    r = arr.length - 1;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l + 1) / 2);
+    if (arr[mid] <= target) {
+      l = mid;
+    } else {
+      r = mid + 1;
+    }
+  }
+  return l;
+}
+
+// < target得第一个，= target得第一个
+export function lowerFloor(arr: number[], target: number) {
+  const index = lower(arr, target);
+  if (index + 1 < arr.length && arr[index + 1] === target) {
+    return index + 1;
+  }
+  return index;
+}
+
+export function fn(x: number) {
+  let l = 0,
+    r = x;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l + 1) / 2);
+    if (mid ** 2 === x) {
+      return mid;
+    } else if (mid ** 2 <= x) {
+      l = mid;
+    } else {
+      r = mid - 1;
+    }
+  }
+  return l;
 }
