@@ -1,309 +1,126 @@
-// 39
-export function combinationSum(candidates: number[], target: number) {
-  if (candidates.length === 0) return [];
-  const res: number[][] = [];
-  const dfs = (sum: number, path: number[], index: number) => {
-    if (sum === target) {
-      res.push(path);
-      return;
-    }
-    if (index >= candidates.length) {
-      return;
-    }
-    if (sum > target) {
-      return;
-    }
-    dfs(sum, path, index + 1);
-    dfs(sum + candidates[index], [...path, candidates[index]], index);
-  };
-  dfs(0, [], 0);
-  return res;
-}
-
-// bst
-export interface Visitor {
-  visit: (val: number) => void;
-}
-
-export class TreeNode {
-  val: number;
-  left: TreeNode | null;
-  right: TreeNode | null;
-  constructor(val: number) {
-    this.val = val;
-    this.left = null;
-    this.right = null;
-  }
-}
-
-export class BST {
-  root: TreeNode | null;
-  size: number;
-  constructor() {
-    this.root = null;
-    this.size = 0;
-  }
-  getSize() {
-    return this.size;
-  }
-  isEmpty() {
-    return this.size === 0;
-  }
-  add(val: number) {
-    this.root = this.addNode(val, this.root);
-  }
-  addNode(val: number, node: TreeNode | null): TreeNode {
-    if (!node) {
-      this.size++;
-      return new TreeNode(val);
-    }
-    if (node.val > val) {
-      node.left = this.addNode(val, node.left);
-    } else if (node.val < val) {
-      node.right = this.addNode(val, node.right);
-    }
-    return node;
-  }
-  contains(val: number) {
-    return this.containsNode(val, this.root);
-  }
-  containsNode(val: number, node: TreeNode | null): boolean {
-    if (!node) {
-      return false;
-    }
-    if (node.val === val) {
-      return true;
-    }
-    if (node.val > val) {
-      return this.containsNode(val, node.left);
+// 40
+export function findKMin(nums: number[], k: number) {
+  if (k >= nums.length) return nums;
+  const sortArr = (arr: number[], l: number, r: number): number[] => {
+    if (l >= r) return arr.slice(0, k);
+    const p = partition(arr, l, r);
+    if (p === k) {
+      return arr.slice(0, k);
+    } else if (p > k) {
+      return sortArr(arr, l, p - 1);
     } else {
-      return this.containsNode(val, node.right);
-    }
-  }
-  preOrder(visitor: Visitor) {
-    this.preOrderNode(visitor, this.root);
-  }
-  preOrderNode(visitor: Visitor, node: TreeNode | null) {
-    if (node) {
-      visitor.visit(node.val);
-      this.preOrderNode(visitor, node.left);
-      this.preOrderNode(visitor, node.right);
-    }
-  }
-  inOrder(visitor: Visitor) {
-    this.inOrderNode(visitor, this.root);
-  }
-  inOrderNode(visitor: Visitor, node: TreeNode | null) {
-    if (node) {
-      this.inOrderNode(visitor, node.left);
-      visitor.visit(node.val);
-      this.inOrderNode(visitor, node.right);
-    }
-  }
-  postOrder(visitor: Visitor) {
-    this.postOrderNode(visitor, this.root);
-  }
-  postOrderNode(visitor: Visitor, node: TreeNode | null) {
-    if (node) {
-      this.postOrderNode(visitor, node.left);
-      this.postOrderNode(visitor, node.right);
-      visitor.visit(node.val);
-    }
-  }
-  preOrderNR(visitor: Visitor) {
-    if (!this.root) return;
-    const stack = [this.root];
-    while (stack.length > 0) {
-      const current = stack.pop()!;
-      visitor.visit(current.val);
-      if (current.right) {
-        stack.push(current.right);
-      }
-      if (current.left) {
-        stack.push(current.left);
-      }
-    }
-  }
-  levelOrder(visitor: Visitor) {
-    if (!this.root) return;
-    const queue = [this.root];
-    while (queue.length > 0) {
-      const current = queue.shift()!;
-      visitor.visit(current.val);
-      if (current.left) {
-        queue.push(current.left);
-      }
-      if (current.right) {
-        queue.push(current.right);
-      }
-    }
-  }
-  minimum() {
-    if (!this.root) throw new Error("error");
-    const res = this.minimumNode(this.root);
-    return res.val;
-  }
-  minimumNode(node: TreeNode): TreeNode {
-    if (!node.left) {
-      return node;
-    }
-    return this.minimumNode(node.left);
-  }
-  maximum() {
-    if (!this.root) throw new Error("error");
-    const res = this.maximumNode(this.root);
-    return res.val;
-  }
-  maximumNode(node: TreeNode): TreeNode {
-    if (!node.right) {
-      return node;
-    }
-    return this.maximumNode(node.right);
-  }
-  removeMin() {
-    if (!this.root) throw new Error("error");
-    const { res, next } = this.removeMinNode(this.root);
-    this.root = next;
-    return res.val;
-  }
-  removeMinNode(node: TreeNode): { res: TreeNode; next: TreeNode | null } {
-    if (!node.left) {
-      this.size--;
-      return {
-        next: node.right,
-        res: node,
-      };
-    }
-    const { res, next } = this.removeMinNode(node.left);
-    node.left = next;
-    return {
-      res,
-      next: node,
-    };
-  }
-  removeMax() {
-    if (!this.root) throw new Error("error");
-    const { res, next } = this.removeMaxNode(this.root);
-    this.root = next;
-    return res.val;
-  }
-  removeMaxNode(node: TreeNode): { res: TreeNode; next: TreeNode | null } {
-    if (!node.right) {
-      this.size--;
-      return {
-        res: node,
-        next: node.left,
-      };
-    }
-    const { res, next } = this.removeMaxNode(node.right);
-    node.right = next;
-    return {
-      res,
-      next: node,
-    };
-  }
-  remove(val: number) {
-    this.root = this.removeNode(val, this.root);
-  }
-  removeNode(val: number, node: TreeNode | null): TreeNode | null {
-    if (!node) {
-      return null;
-    }
-    if (node.val > val) {
-      node = this.removeNode(val, node.left);
-      return node;
-    } else if (node.val < val) {
-      node = this.removeNode(val, node.right);
-      return node;
-    } else {
-      if (!node.left) {
-        this.size--;
-        return node.right;
-      }
-      if (!node.right) {
-        this.size--;
-        return node.left;
-      }
-      const successor = this.minimumNode(node.right);
-      successor.left = node.left;
-      successor.right = this.removeMinNode(node.right).next;
-      return successor;
-    }
-  }
-}
-
-export function maxDepth(root: TreeNode | null) {
-  if (!root) return 0;
-  let res = 0;
-  const dfs = (node: TreeNode, level: number) => {
-    if (!node.left && !node.right) {
-      res = Math.max(res, level);
-    }
-    if (node.left) {
-      dfs(node.left, level + 1);
-    }
-    if (node.right) {
-      dfs(node.right, level + 1);
+      return sortArr(arr, p + 1, r);
     }
   };
-  dfs(root, 1);
-  return res;
-}
-
-export function minDepth(root: TreeNode | null) {
-  if (!root) return 0;
-  const queue: [TreeNode, number][] = [[root, 1]];
-  while (queue.length > 0) {
-    const [current, level] = queue.shift()!;
-    if (!current.left && !current.right) return level;
-    if (current.left) queue.push([current.left, level + 1]);
-    if (current.right) queue.push([current.right, level + 1]);
-  }
-}
-
-export function levelOrder(root: TreeNode | null) {
-  if (!root) return [];
-  const res: number[][] = [];
-  const queue: [TreeNode, number][] = [[root, 0]];
-  while (queue.length > 0) {
-    const [current, level] = queue.shift()!;
-    const arr = res[level] || (res[level] = []);
-    arr.push(current.val);
-    if (current.left) {
-      queue.push([current.left, level + 1]);
+  const getRandom = (l: number, r: number) => {
+    return Math.floor(l + Math.random() * (r - l + 1));
+  };
+  const swap = (arr: number[], i: number, j: number) => {
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  };
+  const partition = (arr: number[], l: number, r: number) => {
+    const p = getRandom(l, r);
+    swap(arr, l, p);
+    let i = l + 1,
+      j = r;
+    while (true) {
+      while (i <= j && arr[l] > arr[i]) {
+        i++;
+      }
+      while (i <= j && arr[l] < arr[j]) {
+        j--;
+      }
+      if (i >= j) break;
+      swap(arr, i, j);
+      i++;
+      j--;
     }
-    if (current.right) {
-      queue.push([current.right, level + 1]);
-    }
-  }
-  return res;
+    swap(arr, l, j);
+    return j;
+  };
+  return sortArr([...nums], 0, nums.length);
 }
 
-export function inOrder(root: TreeNode | null) {
-  if (!root) return [];
+// set map
+export function fn(nums1: number[], nums2: number[]) {
+  return [...new Set(nums1)].filter((item) => nums2.includes(item));
+}
+
+export function intersection(nums1: number[], nums2: number[]) {
+  const map = new Map<number, boolean>();
+  for (let i = 0; i < nums1.length; i++) {
+    map.set(nums1[i], true);
+  }
   const res: number[] = [];
-  const dfs = (node: TreeNode) => {
-    if (node.left) {
-      dfs(node.left);
+  for (let i = 0; i < nums2.length; i++) {
+    if (map.has(nums2[i])) {
+      res.push(nums2[i]);
+      map.delete(nums2[i]);
     }
-    res.push(node.val);
-    if (node.right) {
-      dfs(node.right);
-    }
-  };
+  }
   return res;
 }
 
-export function hasPathSum(root: TreeNode | null, sum: number) {
-  if (!root) return false;
-  const dfs = (node: TreeNode, s: number): boolean => {
-    if (s === sum && !node.left && !node.right) {
-      return true;
+export function twoSum(nums: number[], target: number) {
+  const map = new Map<number, number>();
+  for (let i = 0; i < nums.length; i++) {
+    const current = nums[i];
+    const rest = target - current;
+    if (map.has(rest)) {
+      return [i, map.get(rest)];
     }
-    return !!(
-      (node.left && dfs(node.left, s + node.left.val)) ||
-      (node.right && dfs(node.right, s + node.right.val))
-    );
-  };
-  return dfs(root, root.val);
+    map.set(current, i);
+  }
+}
+
+export function fn1(s: string) {
+  let l = 0,
+    r = 0;
+  let res = 0;
+  const map = new Map<string, number>();
+  while (r < s.length) {
+    const current = s[r];
+    if (map.has(current) && map.get(current)! >= l) {
+      l = map.get(current)! + 1;
+    }
+    res = Math.max(res, r - l + 1);
+    map.set(current, r);
+    r++;
+  }
+  return res;
+}
+
+export function fn2(s: string, t: string) {
+  const need = new Map<string, number>();
+  for (let i = 0; i < t.length; i++) {
+    need.set(t[i], need.has(t[i]) ? need.get(t[i])! + 1 : 1);
+  }
+  let needType = need.size;
+  let l = 0,
+    r = 0;
+  let res = "";
+  while (r < s.length) {
+    const current = s[r];
+    if (need.has(current)) {
+      need.set(current, need.get(current)! - 1);
+      if (need.get(current) === 0) {
+        needType--;
+      }
+    }
+    while (needType === 0) {
+      const newRes = s.slice(l, r + 1);
+      if (res === "" || res.length > newRes.length) {
+        res = newRes;
+      }
+      if (need.has(s[l])) {
+        need.set(s[l], need.get(s[l])! + 1);
+        if (need.get(s[l]) === 1) {
+          needType++;
+        }
+      }
+      l++;
+    }
+    r++;
+  }
+  return res;
 }
