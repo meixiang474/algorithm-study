@@ -1,152 +1,126 @@
-// offer 45
-export function minNumber(nums: number[]) {
-  return nums
-    .map((item) => item + "")
-    .sort((a, b) => parseInt(a + b) - parseInt(b + 1))
-    .join("");
-}
-
-// leetcode array 1
-
-export function twoSum(nums: number[], target: number) {
-  const map = new Map<number, number>();
-  for (let i = 0; i < nums.length; i++) {
-    const current = nums[i];
-    const rest = target - current;
-    if (map.has(rest)) {
-      return [map.get(rest), i];
-    }
-    map.set(current, i);
-  }
-}
-
-// heap
-
-export class MinHeap<T = number> {
-  heap: T[];
-  constructor(compare?: (a: T, b: T) => boolean) {
-    this.heap = [];
-    this.compare = compare || this.compare;
-  }
-  compare(a: T, b: T) {
-    return a < b;
-  }
-  swap(i: number, j: number) {
-    [this.heap[i], this.heap[j]] = [this.heap[j], this.heap[i]];
-  }
-  insert(val: T) {
-    this.heap.push(val);
-    this.shiftUp(this.heap.length - 1);
-  }
-  getParentIndex(index: number) {
-    return Math.floor((index - 1) / 2);
-  }
-  getLeftIndex(index: number) {
-    return 2 * index + 1;
-  }
-  getRightIndex(index: number) {
-    return 2 * index + 2;
-  }
-  shiftUp(index: number) {
-    if (index === 0) return;
-    const parentIndex = this.getParentIndex(index);
+// offer 46
+export function translateNum(num: number) {
+  const numStr = num.toString();
+  const dp = [1, 1];
+  for (let i = 2; i <= numStr.length; i++) {
     if (
-      this.heap[parentIndex] != null &&
-      this.compare(this.heap[index], this.heap[parentIndex])
+      parseInt(numStr.slice(i - 2, i)) > 25 ||
+      parseInt(numStr.slice(i - 2, i)) < 10
     ) {
-      this.swap(index, parentIndex);
-      this.shiftUp(parentIndex);
+      dp[i] = dp[i - 1];
+    } else {
+      dp[i] = dp[i - 1] + dp[i - 2];
     }
   }
-  pop() {
-    if (this.heap.length === 0) throw new Error("error");
-    if (this.heap.length === 1) return this.heap.pop() as T;
-    const res = this.heap[0];
-    this.heap[0] = this.heap.pop() as T;
-    this.shiftDown(0);
-    return res;
-  }
-  shiftDown(index: number) {
-    const leftIndex = this.getLeftIndex(index);
-    const rightIndex = this.getRightIndex(index);
-    if (
-      this.heap[leftIndex] != null &&
-      this.compare(this.heap[leftIndex], this.heap[index])
-    ) {
-      this.swap(leftIndex, index);
-      this.shiftDown(leftIndex);
-    }
-    if (
-      this.heap[rightIndex] != null &&
-      this.compare(this.heap[rightIndex], this.heap[index])
-    ) {
-      this.swap(rightIndex, index);
-      this.shiftDown(rightIndex);
-    }
-  }
-  peek() {
-    if (this.heap.length === 0) throw new Error("error");
-    return this.heap[0];
-  }
-  size() {
-    return this.heap.length;
-  }
+  return dp[numStr.length];
 }
 
-export function findKMax(nums: number[], k: number) {
-  const heap = new MinHeap();
-  for (let i = 0; i < nums.length; i++) {
-    const current = nums[i];
-    heap.insert(current);
-    if (heap.size() > k) {
-      heap.pop();
+// leetcode array 11
+
+export default function maxArea(height: number[]) {
+  let l = 0,
+    r = height.length - 1;
+  let res = 0;
+  while (l < r) {
+    const area = Math.min(height[l], height[r]) * (r - l);
+    res = Math.max(res, area);
+    if (height[l] > height[r]) {
+      r--;
+    } else {
+      l++;
     }
   }
-  return heap.peek();
+  return res;
 }
 
-export function findKMaxFrequent(nums: number[], k: number) {
-  const map = new Map<number, number>();
-  for (let item of nums) {
-    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
-  }
-  const heap = new MinHeap<{ value: number; key: number }>(
-    (a, b) => a.value < b.value
-  );
-  map.forEach((value, key) => {
-    heap.insert({ value, key });
-    if (heap.size() > k) {
-      heap.pop();
-    }
-  });
-  return heap.heap.map((item) => item.key);
-}
+// fenzhi donggui
 
-export class ListNode {
+class TreeNode {
   val: number;
-  next: ListNode | null;
+  left: TreeNode | null;
+  right: TreeNode | null;
   constructor(val: number) {
     this.val = val;
-    this.next = null;
+    this.left = null;
+    this.right = null;
   }
 }
 
-export function mergeKLists(list: (ListNode | null)[]) {
-  const heap = new MinHeap<ListNode>((a, b) => a.val < b.val);
-  list.forEach((item) => {
-    if (item) {
-      heap.insert(item);
+export function reverseTree(root: TreeNode | null) {
+  if (!root) return null;
+  const dfs = (node: TreeNode) => {
+    const temp = node.left;
+    node.left = node.right;
+    node.right = temp;
+    if (node.left) {
+      dfs(node.left);
     }
-  });
-  const res = new ListNode(-1);
-  let p = res;
-  while (heap.size() > 0) {
-    const current = heap.pop();
-    p.next = current;
-    p = p.next;
-    if (current.next) {
-      heap.insert(current.next);
+    if (node.right) {
+      dfs(node.right);
     }
+  };
+  dfs(root);
+  return root;
+}
+
+export function isSameTree(p: TreeNode | null, q: TreeNode | null) {
+  if (!p && !q) return true;
+  if (
+    p &&
+    q &&
+    p.val === q.val &&
+    isSameTree(p.left, q.left) &&
+    isSameTree(p.right, q.right)
+  ) {
+    return true;
   }
-  return res.next;
+  return false;
+}
+
+export function isMirrorTree(root: TreeNode | null) {
+  if (!root) return true;
+  const isMirror = (l: TreeNode | null, r: TreeNode | null) => {
+    if (!l && !r) return true;
+    if (
+      l &&
+      r &&
+      l.val === r.val &&
+      isMirror(l.left, r.right) &&
+      isMirror(l.right, r.left)
+    ) {
+      return true;
+    }
+    return false;
+  };
+  return isMirror(root.left, root.right);
+}
+
+export function climbStairs(n: number) {
+  const dp = [1, 1];
+  for (let i = 2; i <= n; i++) {
+    dp[i] = dp[i - 1] + dp[i - 2];
+  }
+  return dp[n];
+}
+
+export function rob(nums: number[]) {
+  const dp = [0, nums[0]];
+  for (let i = 2; i <= nums.length; i++) {
+    dp[i] = Math.max(dp[i - 1], dp[i - 2] + nums[i - 1]);
+  }
+  return dp[nums.length];
+}
+
+export function rob1(nums: number[]) {
+  if (nums.length === 1) {
+    return nums[0];
+  }
+  const compute = (nums: number[]) => {
+    const dp = [0, nums[0]];
+    for (let i = 2; i <= nums.length; i++) {
+      dp[i] = Math.max(dp[i - 1], dp[i - 2] + nums[i - 1]);
+    }
+    return dp[nums.length];
+  };
+  return Math.max(compute(nums.slice(1)), compute(nums.slice(0, -1)));
 }
