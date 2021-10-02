@@ -1,126 +1,113 @@
-// offer 46
-export function translateNum(num: number) {
-  const numStr = num.toString();
-  const dp = [1, 1];
-  for (let i = 2; i <= numStr.length; i++) {
-    if (
-      parseInt(numStr.slice(i - 2, i)) > 25 ||
-      parseInt(numStr.slice(i - 2, i)) < 10
-    ) {
-      dp[i] = dp[i - 1];
-    } else {
-      dp[i] = dp[i - 1] + dp[i - 2];
+// offer 47
+export function maxValue(grid: number[][]) {
+  if (grid.length === 0 || grid[0].length === 0) return 0;
+  const m = grid.length;
+  const n = grid[0].length;
+  const dp: number[][] = Array.from({ length: m }, () => new Array(n).fill(0));
+  for (let r = 0; r < m; r++) {
+    for (let c = 0; c < n; c++) {
+      if (r === 0 && c === 0) {
+        dp[r][c] = grid[r][c];
+      } else if (r === 0) {
+        dp[r][c] = dp[r][c - 1] + grid[r][c];
+      } else if (c === 0) {
+        dp[r][c] = dp[r - 1][c] + grid[r][c];
+      } else {
+        dp[r][c] = Math.max(dp[r - 1][c], dp[r][c - 1]) + grid[r][c];
+      }
     }
   }
-  return dp[numStr.length];
+  return dp[m - 1][n - 1];
 }
 
 // leetcode array 11
-
-export default function maxArea(height: number[]) {
-  let l = 0,
-    r = height.length - 1;
-  let res = 0;
-  while (l < r) {
-    const area = Math.min(height[l], height[r]) * (r - l);
-    res = Math.max(res, area);
-    if (height[l] > height[r]) {
-      r--;
-    } else {
-      l++;
+export function threeSum(nums: number[]) {
+  nums = nums.sort((a, b) => a - b);
+  const res: number[][] = [];
+  for (let i = 0; i < nums.length; i++) {
+    const current = nums[i];
+    if (current > 0) break;
+    if (i > 0 && current === nums[i - 1]) continue;
+    let l = i + 1,
+      r = nums.length - 1;
+    while (l < r) {
+      const currentL = nums[l];
+      const currentR = nums[r];
+      const sum = currentL + currentR + current;
+      if (sum === 0) {
+        res.push([l, i, r]);
+        while (l < r) {
+          l++;
+          if (nums[l] !== currentL) break;
+        }
+        while (l < r) {
+          r--;
+          if (nums[r] !== currentR) break;
+        }
+      } else if (sum < 0) {
+        l++;
+      } else {
+        r--;
+      }
     }
   }
   return res;
 }
 
 // fenzhi donggui
-
-class TreeNode {
-  val: number;
-  left: TreeNode | null;
-  right: TreeNode | null;
-  constructor(val: number) {
-    this.val = val;
-    this.left = null;
-    this.right = null;
-  }
+export function findContentChildren(s: number[], g: number[]) {
+  s = s.sort((a, b) => a - b);
+  g = g.sort((a, b) => a - b);
+  let res = 0;
+  s.forEach((item) => {
+    if (item >= g[res]) {
+      res++;
+    }
+  });
+  return res;
 }
 
-export function reverseTree(root: TreeNode | null) {
-  if (!root) return null;
-  const dfs = (node: TreeNode) => {
-    const temp = node.left;
-    node.left = node.right;
-    node.right = temp;
-    if (node.left) {
-      dfs(node.left);
+export function maxProfit(profits: number[]) {
+  let profit = 0;
+  for (let i = 0; i < profits.length - 1; i++) {
+    if (profits[i] < profits[i + 1]) {
+      profit += profits[i + 1] - profits[i];
     }
-    if (node.right) {
-      dfs(node.right);
+  }
+  return profit;
+}
+
+export function permute(nums: number[]) {
+  const res: number[][] = [];
+  const backtrack = (path: number[]) => {
+    if (path.length === nums.length) {
+      res.push(path);
+      return;
+    }
+    nums.forEach((item) => {
+      if (!path.includes(item)) {
+        backtrack(path.concat(item));
+      }
+    });
+  };
+  backtrack([]);
+  return res;
+}
+
+export function subset(nums: number[]) {
+  const res: number[][] = [];
+  const dfs = (path: number[], len: number, index: number) => {
+    if (len === path.length) {
+      res.push(path);
+      return;
+    }
+    if (path.length + nums.length - index < len) return;
+    for (let i = index; i < nums.length; i++) {
+      dfs(path.concat(nums[i]), len, i + 1);
     }
   };
-  dfs(root);
-  return root;
-}
-
-export function isSameTree(p: TreeNode | null, q: TreeNode | null) {
-  if (!p && !q) return true;
-  if (
-    p &&
-    q &&
-    p.val === q.val &&
-    isSameTree(p.left, q.left) &&
-    isSameTree(p.right, q.right)
-  ) {
-    return true;
+  for (let i = 0; i <= nums.length; i++) {
+    dfs([], i, 0);
   }
-  return false;
-}
-
-export function isMirrorTree(root: TreeNode | null) {
-  if (!root) return true;
-  const isMirror = (l: TreeNode | null, r: TreeNode | null) => {
-    if (!l && !r) return true;
-    if (
-      l &&
-      r &&
-      l.val === r.val &&
-      isMirror(l.left, r.right) &&
-      isMirror(l.right, r.left)
-    ) {
-      return true;
-    }
-    return false;
-  };
-  return isMirror(root.left, root.right);
-}
-
-export function climbStairs(n: number) {
-  const dp = [1, 1];
-  for (let i = 2; i <= n; i++) {
-    dp[i] = dp[i - 1] + dp[i - 2];
-  }
-  return dp[n];
-}
-
-export function rob(nums: number[]) {
-  const dp = [0, nums[0]];
-  for (let i = 2; i <= nums.length; i++) {
-    dp[i] = Math.max(dp[i - 1], dp[i - 2] + nums[i - 1]);
-  }
-  return dp[nums.length];
-}
-
-export function rob1(nums: number[]) {
-  if (nums.length === 1) {
-    return nums[0];
-  }
-  const compute = (nums: number[]) => {
-    const dp = [0, nums[0]];
-    for (let i = 2; i <= nums.length; i++) {
-      dp[i] = Math.max(dp[i - 1], dp[i - 2] + nums[i - 1]);
-    }
-    return dp[nums.length];
-  };
-  return Math.max(compute(nums.slice(1)), compute(nums.slice(0, -1)));
+  return res;
 }
