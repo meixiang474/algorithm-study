@@ -1,113 +1,153 @@
-// offer 47
-export function maxValue(grid: number[][]) {
-  if (grid.length === 0 || grid[0].length === 0) return 0;
-  const m = grid.length;
-  const n = grid[0].length;
-  const dp: number[][] = Array.from({ length: m }, () => new Array(n).fill(0));
-  for (let r = 0; r < m; r++) {
-    for (let c = 0; c < n; c++) {
-      if (r === 0 && c === 0) {
-        dp[r][c] = grid[r][c];
-      } else if (r === 0) {
-        dp[r][c] = dp[r][c - 1] + grid[r][c];
-      } else if (c === 0) {
-        dp[r][c] = dp[r - 1][c] + grid[r][c];
-      } else {
-        dp[r][c] = Math.max(dp[r - 1][c], dp[r][c - 1]) + grid[r][c];
-      }
+// offer 48
+export function longestSubstring(s: string) {
+  let l = 0,
+    r = 0;
+  const map = new Map<string, number>();
+  let res = 0;
+  while (r < s.length) {
+    const current = s[r];
+    if (map.has(current) && map.get(current)! >= l) {
+      l = map.get(current)! + 1;
     }
+    res = Math.max(res, r - l + 1);
+    map.set(current, r);
+    r++;
   }
-  return dp[m - 1][n - 1];
+  return res;
 }
 
 // leetcode array 11
-export function threeSum(nums: number[]) {
+export function threeSumCloset(nums: number[], target: number) {
   nums = nums.sort((a, b) => a - b);
-  const res: number[][] = [];
-  for (let i = 0; i < nums.length; i++) {
+  let res = 0;
+  let diff = Infinity;
+  for (let i = 0; i < nums.length - 2; i++) {
     const current = nums[i];
-    if (current > 0) break;
-    if (i > 0 && current === nums[i - 1]) continue;
+    let isEqual = false;
     let l = i + 1,
       r = nums.length - 1;
     while (l < r) {
       const currentL = nums[l];
       const currentR = nums[r];
-      const sum = currentL + currentR + current;
-      if (sum === 0) {
-        res.push([l, i, r]);
-        while (l < r) {
-          l++;
-          if (nums[l] !== currentL) break;
+      const sum = current + currentL + currentR;
+      const newDiff = Math.abs(target - sum);
+      if (newDiff < diff) {
+        diff = newDiff;
+        res = sum;
+        if (sum < target) {
+          while (l < r) {
+            l++;
+            if (nums[l] !== currentL) break;
+          }
+        } else if (sum > target) {
+          while (l < r) {
+            r--;
+            if (nums[r] !== currentR) break;
+          }
+        } else {
+          isEqual = true;
+          break;
         }
-        while (l < r) {
-          r--;
-          if (nums[r] !== currentR) break;
-        }
-      } else if (sum < 0) {
-        l++;
       } else {
-        r--;
+        if (sum < target) {
+          while (l < r) {
+            l++;
+            if (nums[l] !== currentL) break;
+          }
+        } else if (sum > target) {
+          while (l < r) {
+            r--;
+            if (nums[r] !== currentR) break;
+          }
+        }
       }
+    }
+    if (isEqual) {
+      return res;
     }
   }
   return res;
 }
 
-// fenzhi donggui
-export function findContentChildren(s: number[], g: number[]) {
-  s = s.sort((a, b) => a - b);
-  g = g.sort((a, b) => a - b);
-  let res = 0;
-  s.forEach((item) => {
-    if (item >= g[res]) {
-      res++;
-    }
-  });
-  return res;
+// linearsearch selectionsort insertionsort bubblesort
+function isObject(obj: any) {
+  return obj && typeof obj === "object";
 }
 
-export function maxProfit(profits: number[]) {
-  let profit = 0;
-  for (let i = 0; i < profits.length - 1; i++) {
-    if (profits[i] < profits[i + 1]) {
-      profit += profits[i + 1] - profits[i];
+function isEqual(obj1: any, obj2: any) {
+  if (!isObject(obj1) || !isObject(obj2)) return obj1 === obj2;
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+  if (keys1.length !== keys2.length) return false;
+  for (let key in obj1) {
+    if (obj1.hasOwnProperty(key)) {
+      const flag = isEqual(obj1[key], obj2[key]);
+      if (!flag) return false;
     }
   }
-  return profit;
+  return true;
 }
 
-export function permute(nums: number[]) {
-  const res: number[][] = [];
-  const backtrack = (path: number[]) => {
-    if (path.length === nums.length) {
-      res.push(path);
-      return;
+export function linearSearch(data: any[], target: any) {
+  for (let i = 0; i < data.length; i++) {
+    if (isEqual(data[i], target)) {
+      return i;
     }
-    nums.forEach((item) => {
-      if (!path.includes(item)) {
-        backtrack(path.concat(item));
-      }
-    });
+  }
+  return -1;
+}
+
+export function selectionSort(data: number[]) {
+  const res = [...data];
+  const swap = (arr: number[], i: number, j: number) => {
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   };
-  backtrack([]);
+  for (let i = 0; i < res.length; i++) {
+    let minIndex = i;
+    for (let j = i + 1; j < res.length; j++) {
+      minIndex = res[j] < res[minIndex] ? j : minIndex;
+    }
+    if (minIndex !== i) {
+      swap(data, minIndex, i);
+    }
+  }
   return res;
 }
 
-export function subset(nums: number[]) {
-  const res: number[][] = [];
-  const dfs = (path: number[], len: number, index: number) => {
-    if (len === path.length) {
-      res.push(path);
-      return;
+export function insertionSort(data: number[]) {
+  const res = [...data];
+  for (let i = 0; i < res.length; i++) {
+    let swapIndex = i;
+    const current = res[i];
+    for (let j = i - 1; j >= 0; j--) {
+      if (data[j] > current) {
+        data[j + 1] = data[j];
+        swapIndex = j;
+      } else {
+        break;
+      }
     }
-    if (path.length + nums.length - index < len) return;
-    for (let i = index; i < nums.length; i++) {
-      dfs(path.concat(nums[i]), len, i + 1);
+    if (swapIndex !== i) {
+      res[swapIndex] = current;
     }
+  }
+  return res;
+}
+
+export function bubbleSort(data: number[]) {
+  const res = [...data];
+  const swap = (arr: number[], i: number, j: number) => {
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   };
-  for (let i = 0; i <= nums.length; i++) {
-    dfs([], i, 0);
+  for (let i = 0; i < res.length - 1; i++) {
+    let flag = false;
+    for (let j = 0; j < res.length - 1 - i; j++) {
+      if (res[j] > res[j + 1]) {
+        swap(res, j, j + 1);
+        flag = true;
+      }
+    }
+    if (!flag) break;
   }
   return res;
 }
