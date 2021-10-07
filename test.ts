@@ -1,153 +1,189 @@
 // offer 48
-export function longestSubstring(s: string) {
-  let l = 0,
-    r = 0;
-  const map = new Map<string, number>();
-  let res = 0;
-  while (r < s.length) {
-    const current = s[r];
-    if (map.has(current) && map.get(current)! >= l) {
-      l = map.get(current)! + 1;
+export function nthUglyNumber(n: number) {
+  const dp = [1];
+  let a = 0,
+    b = 0,
+    c = 0;
+  for (let i = 1; i < n; i++) {
+    const A = dp[a] * 2;
+    const B = dp[b] * 3;
+    const C = dp[c] * 5;
+    const current = Math.min(A, B, C);
+    dp[i] = current;
+    if (current === A) {
+      a++;
     }
-    res = Math.max(res, r - l + 1);
-    map.set(current, r);
-    r++;
+    if (current === B) {
+      b++;
+    }
+    if (current === C) {
+      c++;
+    }
   }
-  return res;
+  return dp[n - 1];
 }
 
-// leetcode array 11
-export function threeSumCloset(nums: number[], target: number) {
+// leetcode array 18
+export function fourSum(nums: number[], target: number) {
+  const res: number[][] = [];
   nums = nums.sort((a, b) => a - b);
-  let res = 0;
-  let diff = Infinity;
-  for (let i = 0; i < nums.length - 2; i++) {
-    const current = nums[i];
-    let isEqual = false;
-    let l = i + 1,
-      r = nums.length - 1;
-    while (l < r) {
-      const currentL = nums[l];
-      const currentR = nums[r];
-      const sum = current + currentL + currentR;
-      const newDiff = Math.abs(target - sum);
-      if (newDiff < diff) {
-        diff = newDiff;
-        res = sum;
-        if (sum < target) {
+  for (let i = 0; i < nums.length - 3; i++) {
+    if (i > 0 && nums[i] === nums[i - 1]) continue;
+    if (nums[i] + nums[i + 1] + nums[i + 2] + nums[i + 3] > target) break;
+    if (
+      nums[i] +
+        nums[nums.length - 1] +
+        nums[nums.length - 2] +
+        nums[nums.length - 3] <
+      target
+    )
+      continue;
+    for (let j = i + 1; j < nums.length - 2; j++) {
+      if (j > i + 1 && nums[j] === nums[j - 1]) continue;
+      if (nums[i] + nums[j] + nums[j + 1] + nums[j + 2] > target) break;
+      if (
+        nums[i] + nums[j] + nums[nums.length - 1] + nums[nums.length - 2] <
+        target
+      )
+        continue;
+      let l = j + 1,
+        r = nums.length - 1;
+      while (l < r) {
+        const cl = nums[l];
+        const cr = nums[r];
+        const sum = nums[i] + nums[j] + cl + cr;
+        if (sum === target) {
+          res.push([nums[i], nums[j], cl, cr]);
           while (l < r) {
             l++;
-            if (nums[l] !== currentL) break;
+            if (nums[l] !== cl) break;
+          }
+          while (l < r) {
+            r--;
+            if (nums[r] !== cr) break;
           }
         } else if (sum > target) {
           while (l < r) {
             r--;
-            if (nums[r] !== currentR) break;
+            if (nums[r] !== cr) break;
           }
         } else {
-          isEqual = true;
-          break;
-        }
-      } else {
-        if (sum < target) {
           while (l < r) {
             l++;
-            if (nums[l] !== currentL) break;
-          }
-        } else if (sum > target) {
-          while (l < r) {
-            r--;
-            if (nums[r] !== currentR) break;
+            if (nums[l] !== cl) break;
           }
         }
       }
     }
-    if (isEqual) {
-      return res;
-    }
   }
   return res;
 }
 
-// linearsearch selectionsort insertionsort bubblesort
-function isObject(obj: any) {
-  return obj && typeof obj === "object";
-}
-
-function isEqual(obj1: any, obj2: any) {
-  if (!isObject(obj1) || !isObject(obj2)) return obj1 === obj2;
-  const keys1 = Object.keys(obj1);
-  const keys2 = Object.keys(obj2);
-  if (keys1.length !== keys2.length) return false;
-  for (let key in obj1) {
-    if (obj1.hasOwnProperty(key)) {
-      const flag = isEqual(obj1[key], obj2[key]);
-      if (!flag) return false;
-    }
+// array
+export class MyArray<T> {
+  data: T[];
+  size: number;
+  constructor(capacity = 10) {
+    this.data = new Array(capacity).fill(null);
+    this.size = 0;
   }
-  return true;
-}
-
-export function linearSearch(data: any[], target: any) {
-  for (let i = 0; i < data.length; i++) {
-    if (isEqual(data[i], target)) {
-      return i;
-    }
+  getCapacity() {
+    return this.data.length;
   }
-  return -1;
-}
-
-export function selectionSort(data: number[]) {
-  const res = [...data];
-  const swap = (arr: number[], i: number, j: number) => {
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  };
-  for (let i = 0; i < res.length; i++) {
-    let minIndex = i;
-    for (let j = i + 1; j < res.length; j++) {
-      minIndex = res[j] < res[minIndex] ? j : minIndex;
-    }
-    if (minIndex !== i) {
-      swap(data, minIndex, i);
-    }
+  getSize() {
+    return this.size;
   }
-  return res;
-}
-
-export function insertionSort(data: number[]) {
-  const res = [...data];
-  for (let i = 0; i < res.length; i++) {
-    let swapIndex = i;
-    const current = res[i];
-    for (let j = i - 1; j >= 0; j--) {
-      if (data[j] > current) {
-        data[j + 1] = data[j];
-        swapIndex = j;
-      } else {
-        break;
+  isEmpty() {
+    return this.size === 0;
+  }
+  resize(newCapacity: number) {
+    const newData: T[] = new Array(newCapacity).fill(null);
+    for (let i = 0; i < this.size; i++) {
+      newData[i] = this.data[i];
+    }
+    this.data = newData;
+  }
+  add(index: number, e: T) {
+    if (index < 0 || index > this.size) throw new Error("error");
+    if (this.size === this.getCapacity()) {
+      this.resize(2 * this.getCapacity());
+    }
+    for (let i = this.size; i > index; i--) {
+      this.data[i] = this.data[i - 1];
+    }
+    this.data[index] = e;
+    this.size++;
+  }
+  addFirst(e: T) {
+    this.add(0, e);
+  }
+  addLast(e: T) {
+    this.add(this.size, e);
+  }
+  get(index: number) {
+    if (index < 0 || index >= this.size) throw new Error("error");
+    return this.data[index];
+  }
+  getFirst() {
+    return this.get(0);
+  }
+  getLast() {
+    return this.get(this.size - 1);
+  }
+  contains(e: T) {
+    for (let i = 0; i < this.size; i++) {
+      if (this.data[i] === e) {
+        return true;
       }
     }
-    if (swapIndex !== i) {
-      res[swapIndex] = current;
-    }
+    return false;
   }
-  return res;
-}
-
-export function bubbleSort(data: number[]) {
-  const res = [...data];
-  const swap = (arr: number[], i: number, j: number) => {
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  };
-  for (let i = 0; i < res.length - 1; i++) {
-    let flag = false;
-    for (let j = 0; j < res.length - 1 - i; j++) {
-      if (res[j] > res[j + 1]) {
-        swap(res, j, j + 1);
-        flag = true;
-      }
+  find(e: T) {
+    for (let i = 0; i < this.size; i++) {
+      if (this.data[i] === e) return i;
     }
-    if (!flag) break;
+    return -1;
   }
-  return res;
+  remove(index: number) {
+    if (index < 0 || index >= this.size) throw new Error("error");
+    const res = this.data[index];
+    for (let i = index; i < this.size; i++) {
+      this.data[i] = this.data[i + 1];
+    }
+    this.size--;
+    if (
+      this.size <= Math.floor(this.getCapacity() / 4) &&
+      Math.floor(this.getCapacity() / 2) !== 0
+    ) {
+      this.resize(Math.floor(this.getCapacity() / 2));
+    }
+    return res;
+  }
+  removeFirst() {
+    return this.remove(0);
+  }
+  removeLast() {
+    return this.remove(this.size - 1);
+  }
+  removeElement(e: T) {
+    const index = this.find(e);
+    if (index !== -1) {
+      this.remove(index);
+      return true;
+    }
+    return false;
+  }
+  set(index: number, e: T) {
+    if (index < 0 || index >= this.size) throw new Error("error");
+    this.data[index] = e;
+  }
+  toString() {
+    let res = `Array: size=${this.size}, capacity=${this.getCapacity()}\r\n`;
+    res += "[";
+    for (let i = 0; i < this.size; i++) {
+      res += JSON.stringify(this.data[i]) + ",";
+    }
+    res = res.slice(0, -1) + "]";
+    return res;
+  }
 }
