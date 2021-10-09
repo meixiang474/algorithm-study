@@ -1,189 +1,174 @@
-// offer 48
-export function nthUglyNumber(n: number) {
-  const dp = [1];
-  let a = 0,
-    b = 0,
-    c = 0;
-  for (let i = 1; i < n; i++) {
-    const A = dp[a] * 2;
-    const B = dp[b] * 3;
-    const C = dp[c] * 5;
-    const current = Math.min(A, B, C);
-    dp[i] = current;
-    if (current === A) {
-      a++;
-    }
-    if (current === B) {
-      b++;
-    }
-    if (current === C) {
-      c++;
-    }
+// offer 50
+export function firstUniqueChar(s: string) {
+  const map = new Map<string, number>();
+  for (let item of s) {
+    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
   }
-  return dp[n - 1];
+  for (let item of s) {
+    if (map.get(item) === 1) return item;
+  }
+  return " ";
 }
 
-// leetcode array 18
-export function fourSum(nums: number[], target: number) {
-  const res: number[][] = [];
-  nums = nums.sort((a, b) => a - b);
-  for (let i = 0; i < nums.length - 3; i++) {
-    if (i > 0 && nums[i] === nums[i - 1]) continue;
-    if (nums[i] + nums[i + 1] + nums[i + 2] + nums[i + 3] > target) break;
-    if (
-      nums[i] +
-        nums[nums.length - 1] +
-        nums[nums.length - 2] +
-        nums[nums.length - 3] <
-      target
-    )
-      continue;
-    for (let j = i + 1; j < nums.length - 2; j++) {
-      if (j > i + 1 && nums[j] === nums[j - 1]) continue;
-      if (nums[i] + nums[j] + nums[j + 1] + nums[j + 2] > target) break;
-      if (
-        nums[i] + nums[j] + nums[nums.length - 1] + nums[nums.length - 2] <
-        target
-      )
-        continue;
-      let l = j + 1,
-        r = nums.length - 1;
-      while (l < r) {
-        const cl = nums[l];
-        const cr = nums[r];
-        const sum = nums[i] + nums[j] + cl + cr;
-        if (sum === target) {
-          res.push([nums[i], nums[j], cl, cr]);
-          while (l < r) {
-            l++;
-            if (nums[l] !== cl) break;
-          }
-          while (l < r) {
-            r--;
-            if (nums[r] !== cr) break;
-          }
-        } else if (sum > target) {
-          while (l < r) {
-            r--;
-            if (nums[r] !== cr) break;
-          }
-        } else {
-          while (l < r) {
-            l++;
-            if (nums[l] !== cl) break;
-          }
-        }
+// leetcode array 26
+export function removeDuplicates(nums: number[]) {
+  let res = nums.length;
+  let index = 0;
+  while (index < res) {
+    if (index > 0 && nums[index] === nums[index - 1]) {
+      res--;
+      for (let i = index; i < nums.length - 1; i++) {
+        nums[i] = nums[i + 1];
       }
+    } else {
+      index++;
     }
   }
   return res;
 }
 
-// array
-export class MyArray<T> {
-  data: T[];
-  size: number;
-  constructor(capacity = 10) {
-    this.data = new Array(capacity).fill(null);
-    this.size = 0;
-  }
-  getCapacity() {
-    return this.data.length;
+// stack
+export class Stack<T> {
+  items: T[];
+  constructor() {
+    this.items = [];
   }
   getSize() {
-    return this.size;
+    return this.items.length;
   }
   isEmpty() {
-    return this.size === 0;
+    return this.getSize() === 0;
   }
-  resize(newCapacity: number) {
-    const newData: T[] = new Array(newCapacity).fill(null);
-    for (let i = 0; i < this.size; i++) {
-      newData[i] = this.data[i];
-    }
-    this.data = newData;
+  push(item: T) {
+    this.items.push(item);
   }
-  add(index: number, e: T) {
-    if (index < 0 || index > this.size) throw new Error("error");
-    if (this.size === this.getCapacity()) {
-      this.resize(2 * this.getCapacity());
-    }
-    for (let i = this.size; i > index; i--) {
-      this.data[i] = this.data[i - 1];
-    }
-    this.data[index] = e;
-    this.size++;
+  pop() {
+    if (this.isEmpty()) throw new Error("error");
+    return this.items.pop() as T;
   }
-  addFirst(e: T) {
-    this.add(0, e);
-  }
-  addLast(e: T) {
-    this.add(this.size, e);
-  }
-  get(index: number) {
-    if (index < 0 || index >= this.size) throw new Error("error");
-    return this.data[index];
-  }
-  getFirst() {
-    return this.get(0);
-  }
-  getLast() {
-    return this.get(this.size - 1);
-  }
-  contains(e: T) {
-    for (let i = 0; i < this.size; i++) {
-      if (this.data[i] === e) {
-        return true;
-      }
-    }
-    return false;
-  }
-  find(e: T) {
-    for (let i = 0; i < this.size; i++) {
-      if (this.data[i] === e) return i;
-    }
-    return -1;
-  }
-  remove(index: number) {
-    if (index < 0 || index >= this.size) throw new Error("error");
-    const res = this.data[index];
-    for (let i = index; i < this.size; i++) {
-      this.data[i] = this.data[i + 1];
-    }
-    this.size--;
-    if (
-      this.size <= Math.floor(this.getCapacity() / 4) &&
-      Math.floor(this.getCapacity() / 2) !== 0
-    ) {
-      this.resize(Math.floor(this.getCapacity() / 2));
-    }
-    return res;
-  }
-  removeFirst() {
-    return this.remove(0);
-  }
-  removeLast() {
-    return this.remove(this.size - 1);
-  }
-  removeElement(e: T) {
-    const index = this.find(e);
-    if (index !== -1) {
-      this.remove(index);
-      return true;
-    }
-    return false;
-  }
-  set(index: number, e: T) {
-    if (index < 0 || index >= this.size) throw new Error("error");
-    this.data[index] = e;
+  peak() {
+    if (this.isEmpty()) throw new Error("error");
+    return this.items[this.items.length - 1];
   }
   toString() {
-    let res = `Array: size=${this.size}, capacity=${this.getCapacity()}\r\n`;
-    res += "[";
-    for (let i = 0; i < this.size; i++) {
-      res += JSON.stringify(this.data[i]) + ",";
+    return this.items.toString();
+  }
+}
+
+export function isValid(s: string) {
+  if (s.length % 2 !== 0) return false;
+  const stack: string[] = [];
+  const map = new Map<string, string>();
+  map.set("[", "]");
+  map.set("{", "}");
+  map.set("(", ")");
+  for (let i = 0; i < s.length; i++) {
+    const current = s[i];
+    if (map.has(current)) {
+      stack.push(current);
+    } else {
+      const prev = stack.pop();
+      if (!prev || current !== map.get(prev)) return false;
     }
-    res = res.slice(0, -1) + "]";
+  }
+  return stack.length === 0;
+}
+
+export class MinStack {
+  items: number[];
+  queue: number[];
+  constructor() {
+    this.items = [];
+    this.queue = [];
+  }
+  getSize() {
+    return this.items.length;
+  }
+  isEmpty() {
+    return this.getSize() === 0;
+  }
+  push(item: number) {
+    this.items.push(item);
+    if (this.queue.length === 0 || item <= this.queue[0]) {
+      this.queue.unshift(item);
+    }
+  }
+  pop() {
+    if (this.isEmpty()) throw new Error("error");
+    const res = this.items.pop()!;
+    if (res === this.queue[0]) {
+      this.queue.shift();
+    }
     return res;
   }
+  peak() {
+    if (this.isEmpty()) throw new Error("error");
+    return this.items[this.items.length - 1];
+  }
+  getMin() {
+    if (this.isEmpty()) throw new Error("error");
+    return this.queue[0];
+  }
+  toString() {
+    return this.items.toString();
+  }
+}
+
+export class CustomStack {
+  items: number[];
+  maxSize: number;
+  constructor(maxSize: number) {
+    this.items = [];
+    this.maxSize = maxSize;
+  }
+  push(item: number) {
+    if (this.items.length >= this.maxSize) return;
+    this.items.push(item);
+  }
+  pop() {
+    if (this.items.length === 0) return -1;
+    return this.items.pop()!;
+  }
+  inc(k: number, val: number) {
+    if (k >= this.items.length) {
+      this.items = this.items.map((item) => (item += val));
+    } else {
+      for (let i = 0; i < k; i++) {
+        this.items[i] += val;
+      }
+    }
+  }
+}
+
+class TreeNode {
+  val: number;
+  left: TreeNode | null;
+  right: TreeNode | null;
+  constructor(val: number) {
+    this.val = val;
+    this.left = null;
+    this.right = null;
+  }
+}
+
+export function preOrderTraversal(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  const stack: TreeNode[] = [root];
+  while (stack.length > 0) {
+    const current = stack.pop()!;
+    res.push(current.val);
+    if (current.right) stack.push(current.right);
+    if (current.left) stack.push(current.left);
+  }
+  return res;
+}
+
+export function decToBi(num: number) {
+  const queue: number[] = [];
+  while (num) {
+    queue.unshift(num % 2);
+    num = Math.floor(num / 2);
+  }
+  return parseFloat(queue.join(""));
 }

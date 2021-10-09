@@ -22,7 +22,6 @@ export default function rotateRight(
   }
   current.next = head;
   k = count - (k % count);
-  let index = 0;
   let prev = head;
   for (let i = 0; i < k - 1; i++) {
     prev = prev.next!;

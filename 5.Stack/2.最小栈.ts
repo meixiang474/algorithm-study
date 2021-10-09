@@ -9,7 +9,7 @@ class MinStack {
 
   push(x: number): void {
     this.items.push(x);
-    if (x <= this.queue[0] || this.queue.length === 0) {
+    if (this.queue.length === 0 || x <= this.queue[0]) {
       this.queue.unshift(x);
     }
   }
