@@ -8,7 +8,7 @@ export default function combinationSum(candidates: number[], target: number) {
     if (index >= candidates.length) return;
     if (sum > target) return;
     backtrack(path, sum, index + 1);
-    backtrack([...path, candidates[index]], sum + candidates[index], index + 1);
+    backtrack([...path, candidates[index]], sum + candidates[index], index);
   };
   backtrack([], 0, 0);
   return res;
