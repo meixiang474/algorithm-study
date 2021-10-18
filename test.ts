@@ -45,248 +45,126 @@ export function combinationSum(nums: number[], target: number) {
   return res;
 }
 
-// linked list
+// merge sort
 
-export class LinkedList {
-  dummyHead: ListNode;
-  size: number;
-  constructor() {
-    this.dummyHead = new ListNode(-1);
-    this.size = 0;
-  }
-  getSize() {
-    return this.size;
-  }
-  isEmpty() {
-    return this.size === 0;
-  }
-  add(index: number, val: number) {
-    if (index < 0 || index > this.size) throw new Error("error");
-    let prev = this.dummyHead;
-    for (let i = 0; i < index; i++) {
-      prev = prev.next!;
+export function mergeSort(arr: number[]) {
+  const sortArr = (arr: number[], l: number, r: number, temp: number[]) => {
+    if (l >= r) return;
+    const mid = Math.floor(l + (r - l) / 2);
+    sortArr(arr, l, mid, temp);
+    sortArr(arr, mid + 1, r, temp);
+    if (arr[mid] > arr[mid + 1]) {
+      merge(arr, l, mid, r, temp);
     }
-    const next = prev.next;
-    prev.next = new ListNode(val);
-    prev.next.next = next;
-    this.size++;
-  }
-  addFirst(val: number) {
-    this.add(0, val);
-  }
-  addLast(val: number) {
-    this.add(this.size, val);
-  }
-  get(index: number) {
-    if (index < 0 || index >= this.size) throw new Error("error");
-    let current: ListNode = this.dummyHead.next!;
-    for (let i = 0; i < index; i++) {
-      current = current.next!;
+  };
+  const merge = (
+    arr: number[],
+    l: number,
+    mid: number,
+    r: number,
+    temp: number[]
+  ) => {
+    for (let i = l; i <= r; i++) {
+      temp[i] = arr[i];
     }
-    return current.val;
-  }
-  getFirst() {
-    return this.get(0);
-  }
-  getLast() {
-    return this.get(this.size - 1);
-  }
-  set(index: number, val: number) {
-    if (index < 0 || index >= this.size) throw new Error("error");
-    let current: ListNode = this.dummyHead.next!;
-    for (let i = 0; i < index; i++) {
-      current = current.next!;
-    }
-    current.val = val;
-  }
-  contains(val: number) {
-    let current = this.dummyHead.next;
-    while (current) {
-      if (current.val === val) return true;
-      current = current.next;
-    }
-    return false;
-  }
-  remove(index: number) {
-    if (index < 0 || index >= this.size) throw new Error("error");
-    let prev: ListNode = this.dummyHead;
-    for (let i = 0; i < index; i++) {
-      prev = prev.next!;
-    }
-    const res = prev.next!;
-    prev.next = prev.next!.next;
-    this.size--;
-    return res.val;
-  }
-  removeFirst() {
-    return this.remove(0);
-  }
-  removeLast() {
-    return this.remove(this.size - 1);
-  }
-  removeElement(val: number) {
-    let prev = this.dummyHead;
-    while (prev.next) {
-      if (prev.next.val === val) {
-        break;
+    let i = l,
+      j = mid + 1;
+    for (let k = l; k <= r; k++) {
+      if (i > mid) {
+        arr[k] = temp[j];
+        j++;
+      } else if (j > r) {
+        arr[k] = temp[i];
+        i++;
+      } else if (temp[i] > temp[j]) {
+        arr[k] = temp[j];
+        j++;
       } else {
-        prev = prev.next;
+        arr[k] = temp[i];
+        i++;
       }
     }
-    if (prev.next) {
-      prev.next = prev.next.next;
-      this.size--;
-    }
-  }
-  toString() {
-    let res = `LinkedList: size=${this.size}\r\n`;
-    let current = this.dummyHead.next;
-    while (current) {
-      res += JSON.stringify(current.val) + "->";
-      current = current.next;
-    }
-    res = res + "Null";
-    return res;
-  }
-}
-
-export function removeElements(head: ListNode | null, target: number) {
-  while (head && head.val === target) {
-    head = head.next;
-  }
-  if (!head) return head;
-  let prev = head;
-  while (prev.next) {
-    if (prev.next.val === target) {
-      prev.next = prev.next.next;
-    } else {
-      prev = prev.next;
-    }
-  }
-  return head;
-}
-
-export function removeElements2(
-  head: ListNode | null,
-  target: number
-): ListNode | null {
-  if (!head) return head;
-  const res = removeElements2(head.next, target);
-  if (head.val === target) {
-    return res;
-  } else {
-    head.next = res;
-    return head;
-  }
-}
-
-export function reverse(head: ListNode | null) {
-  let prev = null;
-  let current = head;
-  while (current) {
-    const next = current.next;
-    current.next = prev;
-    prev = current;
-    current = next;
-  }
-  return prev;
-}
-
-export function reverse2(head: ListNode | null): ListNode | null {
-  if (!head || !head.next) return head;
-  const res = reverse2(head.next);
-  head.next.next = head;
-  head.next = null;
+  };
+  const res = [...arr];
+  sortArr(res, 0, res.length - 1, [...arr]);
   return res;
 }
 
-export function addTwo(l1: ListNode | null, l2: ListNode | null) {
-  const l3 = new ListNode(-1);
-  let p1 = l1;
-  let p2 = l2;
-  let p3 = l3;
-  let carry = 0;
-  while (p1 || p2) {
-    let n1 = p1 ? p1.val : 0;
-    let n2 = p2 ? p2.val : 0;
-    const sum = n1 + n2 + carry;
-    carry = Math.floor(sum / 10);
-    p3.next = new ListNode(sum % 10);
-    p3 = p3.next;
-    if (p1) p1 = p1.next;
-    if (p2) p2 = p2.next;
-  }
-  if (carry) {
-    p3.next = new ListNode(carry);
-  }
-  return l3.next;
-}
-
-export function fn(head: ListNode | null): ListNode | null {
-  if (!head || !head.next) return head;
-  const res = fn(head.next);
-  if (res && head.val === res.val) {
-    return res;
-  } else {
-    head.next = res;
-    return head;
-  }
-}
-
-export function fn1(head: ListNode | null) {
-  const dummyHead = new ListNode(-1);
-  let prev = dummyHead;
-  while (prev.next && prev.next.next) {
-    if (prev.next.val === prev.next.next.val) {
-      prev.next = prev.next.next;
-    } else {
-      prev = prev.next;
+export function reversePairs(nums: number[]) {
+  let res = 0;
+  for (let i = 0; i < nums.length; i++) {
+    const current = nums[i];
+    for (let j = i + 1; j < nums.length; j++) {
+      if (nums[j] > current) res++;
     }
   }
-  return dummyHead.next;
+  return res;
 }
 
-export function fn2(head: ListNode | null) {
-  if (!head || !head.next) return false;
-  let slow: ListNode | null = head;
-  let fast: ListNode | null = head;
-  while (slow && fast && fast.next) {
-    slow = slow.next;
-    fast = fast.next.next;
-    if (slow === fast) return true;
-  }
-  return false;
-}
-
-export function fn3(head: ListNode | null) {
-  if (!head || !head.next) return true;
-  let slow: ListNode | null = head;
-  let fast: ListNode | null = head;
-  while (slow && fast && fast.next) {
-    slow = slow.next;
-    fast = fast.next.next;
-  }
-  if (fast) {
-    slow = slow!.next;
-  }
-  let prev = null;
-  let current = slow;
-  while (current) {
-    const next = current.next;
-    current.next = prev;
-    prev = current;
-    current = next;
-  }
-  let l2 = prev;
-  let l1 = head;
-  let p1: ListNode | null = l1;
-  let p2 = l2;
-  while (p1 && p2) {
-    if (p1.val !== p2.val) {
-      return false;
+export function reversePairs2(nums: number[]) {
+  let res = 0;
+  const sortArr = (arr: number[], l: number, r: number, temp: number[]) => {
+    if (l >= r) return;
+    const mid = Math.floor(l + (r - l) / 2);
+    sortArr(arr, l, mid, temp);
+    sortArr(arr, mid + 1, r, temp);
+    if (arr[mid] > arr[mid + 1]) {
+      merge(arr, l, mid, r, temp);
     }
-    p1 = p1.next;
-    p2 = p2.next;
+  };
+  const merge = (
+    arr: number[],
+    l: number,
+    mid: number,
+    r: number,
+    temp: number[]
+  ) => {
+    for (let i = l; i <= r; i++) {
+      temp[i] = arr[i];
+    }
+    let i = l,
+      j = mid + 1;
+    for (let k = l; k <= r; k++) {
+      if (i > mid) {
+        arr[k] = temp[j];
+        j++;
+      } else if (j > r) {
+        arr[k] = temp[i];
+        i++;
+      } else if (temp[i] <= temp[j]) {
+        arr[k] = temp[i];
+        i++;
+      } else {
+        arr[k] = temp[j];
+        res += mid - i + 1;
+        j++;
+      }
+    }
+  };
+  sortArr([...nums], 0, nums.length - 1, [...nums]);
+  return res;
+}
+
+export function mergeList(l1: ListNode | null, l2: ListNode | null) {
+  const res = new ListNode(-1)
+  let p = res
+  let p1 = l1
+  let p2 = l2
+  while(p1 && p2) {
+    if(p1.val <= p2.val) {
+      p.next = p1
+      p1 = p1.next
+    }else {
+      p.next = p2
+      p2 = p2.next
+    }
+    p = p.next
   }
-  return true;
+  if(p1) {
+    p.next = p1
+  }
+  if(p2) {
+    p.next = p2
+  }
+  return res.next
 }
