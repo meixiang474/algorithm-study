@@ -45,126 +45,181 @@ export function combinationSum(nums: number[], target: number) {
   return res;
 }
 
-// merge sort
+// quick sort
+export function quickSort(arr: number[]) {
+  const sortArr = (arr: number[], l: number, r: number) => {
+    if(l >= r) return
+    const p = partition(arr, l, r)
+    sortArr(arr, l, p - 1 )
+    sortArr(arr, p + 1, r)
+  }
 
-export function mergeSort(arr: number[]) {
-  const sortArr = (arr: number[], l: number, r: number, temp: number[]) => {
-    if (l >= r) return;
-    const mid = Math.floor(l + (r - l) / 2);
-    sortArr(arr, l, mid, temp);
-    sortArr(arr, mid + 1, r, temp);
-    if (arr[mid] > arr[mid + 1]) {
-      merge(arr, l, mid, r, temp);
-    }
-  };
-  const merge = (
-    arr: number[],
-    l: number,
-    mid: number,
-    r: number,
-    temp: number[]
-  ) => {
-    for (let i = l; i <= r; i++) {
-      temp[i] = arr[i];
-    }
-    let i = l,
-      j = mid + 1;
-    for (let k = l; k <= r; k++) {
-      if (i > mid) {
-        arr[k] = temp[j];
-        j++;
-      } else if (j > r) {
-        arr[k] = temp[i];
-        i++;
-      } else if (temp[i] > temp[j]) {
-        arr[k] = temp[j];
-        j++;
-      } else {
-        arr[k] = temp[i];
-        i++;
+  const getRandom = (l: number, r: number) => Math.floor(Math.random() * (r - l + 1) + l)
+  const swap = (arr: number[], i: number, j: number) => {
+    [arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+  const partition = (arr: number[], l: number, r: number) => {
+    const p = getRandom(l, r)
+    swap(arr, l, p)
+    let i = l + 1, j = r
+    while(true) {
+      while(i <= j && arr[i] < arr[l]) {
+        i++
       }
+      while(j >= i && arr[j] > arr[l]) {
+        j--
+      }
+      if(i >= j) break
+      swap(arr, i, j)
+      i++
+      j--
     }
-  };
-  const res = [...arr];
-  sortArr(res, 0, res.length - 1, [...arr]);
-  return res;
+    swap(arr, l, j)
+    return j
+  }
+  const res = [...arr]
+  sortArr(res, 0, res.length - 1)
+  return res
 }
 
-export function reversePairs(nums: number[]) {
-  let res = 0;
-  for (let i = 0; i < nums.length; i++) {
-    const current = nums[i];
-    for (let j = i + 1; j < nums.length; j++) {
-      if (nums[j] > current) res++;
+export function quickSort1(arr: number[]) {
+  const sortArr = (arr: number[], l: number, r: number) => {
+    if(l >= r) return
+    const {left, right} = partition(arr, l, r)
+    sortArr(arr, l, left)
+    sortArr(arr, right, r)
+  }
+  const getRandom = (l: number, r: number) => {
+    return Math.floor(Math.random() * (r - l + 1) + l)
+  }
+  const swap = (arr: number[], i: number , j: number) => {
+    [arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+  const partition = (arr: number[], l: number, r: number) => {
+    const p = getRandom(l, r)
+    swap(arr, p , l)
+    let left = l, i = l + 1, right = r + 1
+    while(i < r) {
+      if(arr[i] < arr[l]) {
+        left++
+        swap(arr, left, i)
+        i++
+      }else if(arr[i] > arr[l]) {
+        right--
+        swap(arr, right, i)
+      }else {
+        i++
+      }
+    }
+    swap(arr, l, left)
+    return {
+      left: left - 1,
+      right
     }
   }
-  return res;
+  const res = [...arr]
+  sortArr(res, 0, res.length - 1)
+  return res
 }
 
-export function reversePairs2(nums: number[]) {
-  let res = 0;
-  const sortArr = (arr: number[], l: number, r: number, temp: number[]) => {
-    if (l >= r) return;
-    const mid = Math.floor(l + (r - l) / 2);
-    sortArr(arr, l, mid, temp);
-    sortArr(arr, mid + 1, r, temp);
-    if (arr[mid] > arr[mid + 1]) {
-      merge(arr, l, mid, r, temp);
-    }
-  };
-  const merge = (
-    arr: number[],
-    l: number,
-    mid: number,
-    r: number,
-    temp: number[]
-  ) => {
-    for (let i = l; i <= r; i++) {
-      temp[i] = arr[i];
-    }
-    let i = l,
-      j = mid + 1;
-    for (let k = l; k <= r; k++) {
-      if (i > mid) {
-        arr[k] = temp[j];
-        j++;
-      } else if (j > r) {
-        arr[k] = temp[i];
-        i++;
-      } else if (temp[i] <= temp[j]) {
-        arr[k] = temp[i];
-        i++;
-      } else {
-        arr[k] = temp[j];
-        res += mid - i + 1;
-        j++;
-      }
-    }
-  };
-  sortArr([...nums], 0, nums.length - 1, [...nums]);
-  return res;
-}
-
-export function mergeList(l1: ListNode | null, l2: ListNode | null) {
-  const res = new ListNode(-1)
-  let p = res
-  let p1 = l1
-  let p2 = l2
-  while(p1 && p2) {
-    if(p1.val <= p2.val) {
-      p.next = p1
-      p1 = p1.next
+export function sortColors(arr: (0 | 1 | 2)[]) {
+  const swap = (arr: number[], i: number, j: number) => {
+    [arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+  let l = -1, i = 0, r = arr.length
+  while(i < r) {
+    if(arr[i] === 0) {
+      l++
+      swap(arr, l, i)
+      i++
+    }else if(arr[i] === 2) {
+      r--
+      swap(arr, r, i)
     }else {
-      p.next = p2
-      p2 = p2.next
+      i++
     }
-    p = p.next
   }
-  if(p1) {
-    p.next = p1
+  return arr
+}
+
+export function findKMax(nums: number[], k: number) {
+  k = nums.length - k
+  const sortArr = (nums: number[], l: number, r: number): number => {
+    if(l >= r) return nums[l]
+    const p = partition(nums, l, r)
+    if(p === k) {
+      return nums[p]
+    }else if(p > k) {
+      return sortArr(nums, l,p - 1)
+    }else {
+      return sortArr(nums, p + 1, k)
+    }
   }
-  if(p2) {
-    p.next = p2
+  const getRandom = (l: number, r: number) => {
+    return Math.floor(l + Math.random() * (r - l + 1))
   }
-  return res.next
+  const swap = (arr: number[], i: number, j: number) => {
+    [arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+  const partition = (nums: number[], l: number, r: number) => {
+    const p = getRandom(l, r)
+    swap(nums, l, p)
+    let i = l + 1, j = r
+    while(true) {
+      while(i <= j && nums[i] < nums[l]) {
+        i++
+      }
+      while(j >= i && nums[j] > nums[l]) {
+        j--
+      }
+      if(i >= j) break
+      swap(nums, i, j)
+      i++
+      j--
+    }
+    swap(nums, j, l)
+    return j
+  }
+  return sortArr([...nums], 0, nums.length - 1)
+}
+
+export function findKMin(arr: number[], k: number) {
+  if(k>= arr.length) return arr
+  const sortArr = (arr: number[], l: number, r: number): number[] => {
+    if(l >= r) return arr.slice(0, k)
+    const p = partition(arr, l, r)
+    if(p === k) {
+      return arr.slice(0, p)
+    }else if(p > k) {
+      return sortArr(arr, l, p - 1)
+    }else {
+      return sortArr(arr, p + 1, r)
+    }
+  }
+  const getRandom = (l: number, r: number) => {
+    return Math.floor(Math.random() * (r - l + 1) + l)
+  }
+  const swap = (arr: number[], i: number, j: number) => {
+    [arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+  const partition = (arr: number[], l: number, r: number) => {
+    const p = getRandom(l, r)
+    swap(arr, l, p)
+    let i = l + 1, j = r
+    while(true) {
+      while(i <= j && arr[i] < arr[l]) {
+        i++
+      }
+      while(j >= i && arr[j] > arr[l]) {
+        j--
+      }
+      if(i >= j) break
+      swap(arr, i, j)
+      i++
+      j--
+    }
+    swap(arr, l, j)
+    return j
+  }
+  return sortArr([...arr], 0, arr.length - 1)
 }
