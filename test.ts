@@ -1,47 +1,55 @@
-// offer 52
-class ListNode {
-  val: number;
-  next: ListNode | null;
-  constructor(val: number) {
-    this.val = val;
-    this.next = null;
-  }
-}
-
-export function getIntersectionNode(
-  headA: ListNode | null,
-  headB: ListNode | null
-) {
-  const map = new Map<ListNode, boolean>();
-  let prevA: ListNode | null = headA;
-  while (prevA) {
-    map.set(prevA, true);
-    prevA = prevA.next;
-  }
-  let prevB: ListNode | null = headB;
-  while (prevB) {
-    if (map.has(prevB)) {
-      return prevB;
+// offer 53-I
+export function search(nums: number[], target: number) {
+  const floor = (nums: number[], target: number) => {
+    let l = -1,
+      r = nums.length - 1;
+    while (l < r) {
+      const mid = Math.floor(l + (r - l + 1) / 2);
+      if (nums[mid] < target) {
+        l = mid;
+      } else {
+        r = mid - 1;
+      }
     }
-    prevB = prevB.next;
-  }
-  return null;
+    return l;
+  };
+  const ceil = (nums: number[], target: number) => {
+    let l = 0,
+      r = nums.length;
+    while (l < r) {
+      const mid = Math.floor(l + (r - l) / 2);
+      if (nums[mid] > target) {
+        r = mid;
+      } else {
+        l = mid + 1;
+      }
+    }
+    return l;
+  };
+  const floorIndex = floor(nums, target);
+  const ceilIndex = ceil(nums, target);
+  return ceilIndex - floorIndex - 1;
 }
 
-// leetcode array 39
-export function combinationSum(nums: number[], target: number) {
+// leetcode array 40
+export function combinationSum2(candidates: number[], target: number) {
+  candidates = candidates.sort((a, b) => a - b);
   const res: number[][] = [];
-  const backtrack = (path: number[], sum: number, index: number) => {
+  const dfs = (path: number[], sum: number, start: number) => {
     if (sum === target) {
       res.push(path);
       return;
     }
+    if (start >= candidates.length) {
+      return;
+    }
     if (sum > target) return;
-    if (index >= nums.length) return;
-    backtrack(path, sum, index + 1);
-    backtrack([...path, nums[index]], sum + nums[index], index);
+    for (let i = start; i < candidates.length; i++) {
+      if (i > start && candidates[i] === candidates[i - 1]) continue;
+      dfs(path.concat(candidates[i]), sum + candidates[i], i + 1);
+    }
   };
-  backtrack([], 0, 0);
+  dfs([], 0, 0);
   return res;
 }
 
