@@ -53,130 +53,70 @@ export function combinationSum2(candidates: number[], target: number) {
   return res;
 }
 
-// binary search
-export function binarySearch(data: number[], target: number) {
-  const searchData = (
-    data: number[],
-    l: number,
-    r: number,
-    target: number
-  ): number => {
-    if (l > r) return -1;
-    const mid = Math.floor(l + (r - l) / 2);
-    if (data[mid] === target) {
-      return mid;
-    } else if (data[mid] < target) {
-      return searchData(data, mid + 1, r, target);
-    } else {
-      return searchData(data, l, mid - 1, target);
-    }
-  };
-  return searchData(data, 0, data.length - 1, target);
+// BST
+
+export interface Visitor {
+  visit: (val: number) => void;
 }
 
-export function binarySearch1(data: number[], target: number) {
-  let l = 0,
-    r = data.length;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l) / 2);
-    if (data[mid] === target) {
-      return mid;
-    } else if (data[mid] < target) {
-      l = mid + 1;
-    } else {
-      r = mid;
-    }
+export class TreeNode {
+  val: number;
+  left: TreeNode | null;
+  right: TreeNode | null;
+  constructor(val: number) {
+    this.val = val;
+    this.left = null;
+    this.right = null;
   }
-  return -1;
 }
 
-// > target的第一个
-export function upper(data: number[], target: number) {
-  let l = 0,
-    r = data.length;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l) / 2);
-    if (data[mid] <= target) {
-      l = mid + 1;
-    } else {
-      r = mid;
+export class BST {
+  root: TreeNode | null
+  size: number;
+  constructor() {
+    this.root = null
+    this.size = 0
+  }
+  getSize() {
+    return this.size
+  }
+  isEmpty() {
+    return this.size === 0
+  }
+  add(val: number) {
+    this.root = this.addNode(this.root, val)
+  }
+  addNode(node: TreeNode | null, val: number): TreeNode {
+    if(!node) {
+      this.size++
+      return new TreeNode(val)
     }
+    if(node.val < val) {
+      node.right = this.addNode(node.right, val)
+    }else if(node.val > val) {
+      node.left = this.addNode(node.left, val)
+    }
+    return node
   }
-  return l;
-}
-
-// = target的最后一个或者 > target的第一个
-export function ceil(data: number[], target: number) {
-  const index = upper(data, target);
-  if (index - 1 >= 0 && data[index - 1] === target) {
-    return index - 1;
+  contains(val: number) {
+    return this.containsNode(this.root, val)
   }
-  return index;
-}
-
-// = target第一个或者 > target第一个
-export function lowerCeil(data: number[], target: number) {
-  let l = 0,
-    r = data.length;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l) / 2);
-    if (data[mid] >= target) {
-      r = mid;
-    } else {
-      l = mid + 1;
+  containsNode(node: TreeNode | null, val: number): boolean {
+    if(!node) return false
+    if(node.val === val) return true
+    if(node.val < val) {
+      return this.containsNode(node.right, val)
+    }else {
+      return this.containsNode(node.left, val)
     }
   }
-  return l;
-}
-
-// < target得第一个
-export function lower(data: number[], target: number) {
-  let l = -1,
-    r = data.length;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l + 1) / 2);
-    if (data[mid] < target) {
-      l = mid;
-    } else {
-      r = mid - 1;
-    }
+  preOrder(visitor: Visitor) {
+    this.preOrderNode(this.root, visitor)
   }
-  return l;
-}
-
-// = target的最后一个，< target的第一个
-export function upperFloor(data: number[], target: number) {
-  let l = -1,
-    r = data.length;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l + 1) / 2);
-    if (data[mid] <= target) {
-      l = mid;
-    } else {
-      r = mid - 1;
-    }
+  preOrderNode(node: TreeNode | null, visitor: Visitor) {
+    if(!node) return
+    visitor.visit(node.val)
+    this.preOrderNode(node.left, visitor)
+    this.preOrderNode(node.right, visitor)
   }
-}
-
-// < target得第一个，= target得第一个
-export function lowerFloor(data: number[], target: number) {
-  const index = lower(data, target);
-  if (index + 1 < data.length && data[index + 1] === target) {
-    return index + 1;
-  }
-  return index;
-}
-
-export function sqrt(x: number) {
-  let l = 0,
-    r = x;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l + 1) / 2);
-    if (mid ** 2 <= x) {
-      l = mid;
-    } else {
-      r = mid - 1;
-    }
-  }
-  return l;
 }
