@@ -25,7 +25,7 @@ function hasPathSum(root: TreeNode | null, sum: number): boolean {
     if (node.left) {
       dfs(node.left, node.left.val + s);
     }
-    if (node.right) {
+    if (node.right && !res) {
       dfs(node.right, node.right.val + s);
     }
   };
