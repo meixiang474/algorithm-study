@@ -1,56 +1,38 @@
 // offer 53-I
-export function search(nums: number[], target: number) {
-  const floor = (nums: number[], target: number) => {
-    let l = -1,
-      r = nums.length - 1;
-    while (l < r) {
-      const mid = Math.floor(l + (r - l + 1) / 2);
-      if (nums[mid] < target) {
-        l = mid;
-      } else {
-        r = mid - 1;
-      }
+export default function missingNumber(nums: number[]) {
+  let l = 0,
+    r = nums.length;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    if (nums[mid] === mid) {
+      l = mid + 1;
+    } else {
+      r = mid;
     }
-    return l;
-  };
-  const ceil = (nums: number[], target: number) => {
-    let l = 0,
-      r = nums.length;
-    while (l < r) {
-      const mid = Math.floor(l + (r - l) / 2);
-      if (nums[mid] > target) {
-        r = mid;
-      } else {
-        l = mid + 1;
-      }
-    }
-    return l;
-  };
-  const floorIndex = floor(nums, target);
-  const ceilIndex = ceil(nums, target);
-  return ceilIndex - floorIndex - 1;
+  }
+  return l;
 }
 
-// leetcode array 40
-export function combinationSum2(candidates: number[], target: number) {
-  candidates = candidates.sort((a, b) => a - b);
-  const res: number[][] = [];
-  const dfs = (path: number[], sum: number, start: number) => {
-    if (sum === target) {
-      res.push(path);
-      return;
+// leetcode array 41
+function firstMissingPositive(nums: number[]): number {
+  for (let i = 0; i < nums.length; i++) {
+    if (nums[i] <= 0) {
+      nums[i] = nums.length + 1;
     }
-    if (start >= candidates.length) {
-      return;
+  }
+  for (let i = 0; i < nums.length; i++) {
+    const current = Math.abs(nums[i]);
+    if (current <= nums.length) {
+      nums[current - 1] = -Math.abs(nums[current - 1]);
     }
-    if (sum > target) return;
-    for (let i = start; i < candidates.length; i++) {
-      if (i > start && candidates[i] === candidates[i - 1]) continue;
-      dfs(path.concat(candidates[i]), sum + candidates[i], i + 1);
+  }
+  console.log(nums);
+  for (let i = 0; i < nums.length; i++) {
+    if (nums[i] > 0) {
+      return i + 1;
     }
-  };
-  dfs([], 0, 0);
-  return res;
+  }
+  return nums.length + 1;
 }
 
 // set map
