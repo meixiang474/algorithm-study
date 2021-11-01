@@ -37,82 +37,123 @@ function firstMissingPositive(nums: number[]): number {
 
 // set map
 
-export function fn(nums1: number[], nums2: number[]) {
-  return [...new Set(nums1)].filter((item) => nums2.includes(item));
-}
-
-export function intersection(nums1: number[], nums2: number[]) {
-  const map = new Map<number, boolean>();
-  for (let item of nums1) {
-    map.set(item, true);
-  }
-  const res: number[] = [];
-  for (let item of nums2) {
-    if (map.has(item)) {
-      res.push(item);
-      map.delete(item);
+export function dfs(
+  graph: Record<number, number[]>,
+  node: number,
+  visited: Set<number>
+) {
+  console.log(node);
+  visited.add(node);
+  graph[node].forEach((item) => {
+    if (!visited.has(item)) {
+      dfs(graph, item, visited);
     }
-  }
-  return res;
+  });
 }
 
-export function twoSum(nums: number[], target: number) {
-  const map = new Map<number, number>();
-  for (let i = 0; i < nums.length; i++) {
-    const rest = target - nums[i];
-    if (map.has(rest)) {
-      return [i, map.get(rest)];
-    }
-    map.set(nums[i], i);
+export function bfs(
+  graph: Record<number, number[]>,
+  node: number,
+  visited: Set<number>
+) {
+  const queue: number[] = [node];
+  visited.add(node);
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    console.log(current);
+    graph[current].forEach((item) => {
+      if (!visited.has(item)) {
+        queue.push(item);
+        visited.add(item);
+      }
+    });
   }
 }
 
-export function fn1(nums: number[]) {
-  let l = 0,
-    r = 0;
-  const map = new Map<number, number>();
-  let res = 0;
-  while (r < nums.length) {
-    const current = nums[r];
-    if (map.has(current) && map.get(current)! >= l) {
-      l = map.get(current)! + 1;
-    }
-    res = Math.max(res, r - l + 1);
-    map.set(current, r);
+export function fn(matrix: number[][]) {
+  if (matrix.length === 0 || matrix[0].length === 0) return [];
+  const m = matrix.length;
+  const n = matrix[0].length;
+  const flow1: boolean[][] = Array.from({ length: m }, () =>
+    new Array(n).fill(false)
+  );
+  const flow2: boolean[][] = Array.from({ length: m }, () =>
+    new Array(n).fill(false)
+  );
+  const dfs = (r: number, c: number, flow: boolean[][]) => {
+    flow[r][c] = true;
+    [
+      [r + 1, c],
+      [r - 1, c],
+      [r, c + 1],
+      [r, c - 1],
+    ].forEach(([nextR, nextC]) => {
+      if (
+        nextR >= 0 &&
+        nextR < m &&
+        nextC >= 0 &&
+        nextC < n &&
+        !flow[nextR][nextC]
+      ) {
+        dfs(nextR, nextC, flow);
+      }
+    });
+  };
+  for (let r = 0; r < m; r++) {
+    dfs(r, 0, flow1);
+    dfs(r, n - 1, flow2);
   }
-  return res;
-}
-
-export function fn2(s: string, t: string) {
-  const need = new Map<string, number>();
-  for (let item of t) {
-    need.set(item, need.has(item) ? need.get(item)! + 1 : 1);
+  for (let c = 0; c < n; c++) {
+    dfs(0, c, flow1);
+    dfs(m - 1, c, flow2);
   }
-  let l = 0,
-    r = 0;
-  let res = "";
-  let needType = need.size;
-  while (r < s.length) {
-    const current = s[r];
-    if (need.has(current)) {
-      need.set(current, need.get(current)! - 1);
-      if (need.get(current) === 0) {
-        needType--;
+  const res: number[][] = [];
+  for (let r = 0; r < m; r++) {
+    for (let c = 0; c < n; c++) {
+      if (flow1[r][c] && flow2[r][c]) {
+        res.push([r, c]);
       }
     }
-    while (needType === 0) {
-      const newRes = s.slice(l, r + 1);
-      if (!res || res.length > newRes.length) res = newRes;
-      const currentL = s[l];
-      if (need.has(currentL)) {
-        need.set(currentL, need.get(currentL)! + 1);
-        if (need.get(currentL) === 1) {
-          needType++;
-        }
-      }
-      l++;
-    }
-    r++;
   }
   return res;
+}
+
+export class GraphNode {
+  neighbours: GraphNode[] = [];
+  constructor(public val: number) {}
+}
+
+export function cloneGraph(graph: GraphNode | null) {
+  if(!graph) return null
+  const visited = new Map<GraphNode, GraphNode>()
+  const dfs = (node: GraphNode) => {
+    const newNode = new GraphNode(node.val)
+    visited.set(node, newNode)
+    node.neighbours.forEach(item => {
+      if(!visited.has(item)) {
+        dfs(item)
+      }
+      newNode.neighbours.push(item)
+    })
+  }
+  dfs(graph)
+  return visited.get(graph)!
+}
+
+export function cloneGraph1(graph: GraphNode | null) {
+  if(!graph) return null
+  const visited = new Map<GraphNode, GraphNode>()
+  visited.set(graph, new GraphNode(graph.val))
+  const queue: GraphNode[] = [graph]
+  while(queue.length > 0) {
+    const current = queue.shift()!
+    current.neighbours.forEach(item => {
+      if(!visited.has(item)) {
+        queue.push(item)
+        visited.set(item, new GraphNode(item.val))
+      }
+      visited.get(current)!.neighbours.push(item)
+    })
+  }
+  return visited.get(graph)!
 }
