@@ -1,4 +1,4 @@
-// offer 54
+// offer 55-I
 
 class TreeNode {
   val: number;
@@ -11,102 +11,76 @@ class TreeNode {
   }
 }
 
-export function kthLargest(root: TreeNode | null, k: number) {
-  if (!root) return -Infinity;
-  let res = -Infinity;
-  let level = 0;
-  const dfs = (node: TreeNode) => {
-    if (node.right) {
-      dfs(node.right);
-    }
-    level++;
-    if (level === k) {
-      res = node.val;
-      return;
-    }
+export function maxDepth(root: TreeNode | null) {
+  if (!root) return 0;
+  let res = 0;
+  const dfs = (node: TreeNode, level: number) => {
+    res = Math.max(res, level);
     if (node.left) {
-      dfs(node.left);
+      dfs(node.left, level + 1);
+    }
+    if (node.right) {
+      dfs(node.right, level + 1);
     }
   };
-  dfs(root);
+  dfs(root, 1);
   return res;
 }
 
-// fenzhi donggui
+// tanxin huisu
 
-export function invertTree(root: TreeNode | null) {
-  if (!root) return root;
-  const dfs = (node: TreeNode) => {
-    const temp = node.left;
-    node.left = node.right;
-    node.right = temp;
-    if (node.left) {
-      dfs(node.left);
+export function findContentChildren(g: number[], s: number[]) {
+  s.sort((a, b) => a - b);
+  g.sort((a, b) => a - b);
+  let res = 0;
+  s.forEach((item) => {
+    if (item >= g[res]) {
+      res++;
     }
-    if (node.right) {
-      dfs(node.right);
+  });
+  return res;
+}
+
+export function maxProfit(profits: number[]) {
+  let profit = 0;
+  for (let i = 0; i < profits.length - 1; i++) {
+    if (profits[i] < profits[i + 1]) {
+      profit += profits[i + 1] - profits[i];
+    }
+  }
+  return profit;
+}
+
+export function permute(nums: number[]) {
+  const res: number[][] = [];
+  const dfs = (path: number[]) => {
+    if (path.length === nums.length) {
+      res.push(path);
+      return;
+    }
+    for (let i = 0; i < nums.length; i++) {
+      if (!nums.includes(nums[i])) {
+        dfs(path.concat(nums[i]));
+      }
     }
   };
-  dfs(root);
-  return root;
+  dfs([]);
+  return res;
 }
 
-export function isSameTree(p: TreeNode | null, q: TreeNode | null): boolean {
-  if (!p && !q) return true;
-  if (
-    p &&
-    q &&
-    p.val === q.val &&
-    isSameTree(p.left, q.left) &&
-    isSameTree(p.right, q.right)
-  ) {
-    return true;
-  }
-  return false;
-}
-
-export function fn(root: TreeNode | null) {
-  if (!root) return true;
-  const isMirror = (l: TreeNode | null, r: TreeNode | null): boolean => {
-    if (!l && !r) return true;
-    if (
-      l &&
-      r &&
-      l.val === r.val &&
-      isMirror(l.left, r.right) &&
-      isMirror(l.right, r.left)
-    ) {
-      return true;
+export function subsets(nums: number[]) {
+  const res: number[][] = [];
+  const dfs = (path: number[], start: number, length: number) => {
+    if (path.length === length) {
+      res.push(path);
+      return;
     }
-    return false;
-  };
-  return isMirror(root.left, root.right);
-}
-
-export function climbStairs(n: number) {
-  const dp = [1, 1];
-  for (let i = 2; i <= n; i++) {
-    dp[i] = dp[i - 1] + dp[i - 2];
-  }
-  return dp[n];
-}
-
-export function rob(nums: number[]) {
-  const dp = [0, nums[0]];
-  for (let i = 2; i <= nums.length; i++) {
-    dp[i] = Math.max(dp[i - 2] + nums[i - 1], dp[i - 1]);
-  }
-  return dp[nums.length];
-}
-
-export function rob1(nums: number[]) {
-  if (nums.length === 1) return nums[0];
-  const compute = (nums: number[]) => {
-    const dp = [0, nums[0]];
-    for (let i = 2; i <= nums.length; i++) {
-      dp[i] = Math.max(dp[i - 2] + nums[i - 1], dp[i - 1]);
+    for (let i = start; i < nums.length; i++) {
+      dfs(path.concat(nums[i]), i + 1, length);
     }
-    return dp[nums.length];
   };
-  return Math.max(compute(nums.slice(1)), compute(nums.slice(0, -1)));
+  for (let i = 0; i <= nums.length; i++) {
+    dfs([], 0, i);
+  }
+  return res;
 }
