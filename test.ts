@@ -1,4 +1,4 @@
-// offer 55-I
+// offer 55-II
 
 class TreeNode {
   val: number;
@@ -11,76 +11,100 @@ class TreeNode {
   }
 }
 
-export function maxDepth(root: TreeNode | null) {
-  if (!root) return 0;
-  let res = 0;
-  const dfs = (node: TreeNode, level: number) => {
-    res = Math.max(res, level);
-    if (node.left) {
-      dfs(node.left, level + 1);
-    }
-    if (node.right) {
-      dfs(node.right, level + 1);
-    }
+export function isBalanced(root: TreeNode | null): boolean {
+  if (!root) return true;
+  const depth = (node: TreeNode | null): number => {
+    if (!node) return 0;
+    return Math.max(depth(node.left), depth(node.right)) + 1;
   };
-  dfs(root, 1);
-  return res;
+  return (
+    Math.abs(depth(root.left) - depth(root.right)) <= 1 &&
+    isBalanced(root.left) &&
+    isBalanced(root.right)
+  );
 }
 
-// tanxin huisu
+// search sort
 
-export function findContentChildren(g: number[], s: number[]) {
-  s.sort((a, b) => a - b);
-  g.sort((a, b) => a - b);
-  let res = 0;
-  s.forEach((item) => {
-    if (item >= g[res]) {
-      res++;
-    }
-  });
-  return res;
+export function isObject(obj: any) {
+  return obj && typeof obj === "object";
 }
 
-export function maxProfit(profits: number[]) {
-  let profit = 0;
-  for (let i = 0; i < profits.length - 1; i++) {
-    if (profits[i] < profits[i + 1]) {
-      profit += profits[i + 1] - profits[i];
+export function isEqual(a: any, b: any) {
+  if (!isObject(a) || !isObject(b)) return a === b;
+  const lenA = Object.keys(a).length;
+  const lenB = Object.keys(b).length;
+  if (lenA !== lenB) return false;
+  for (let key in a) {
+    if (a.hasOwnproperty(key)) {
+      const flag = isEqual(a[key], b[key]);
+      if (!flag) return false;
     }
   }
-  return profit;
+  return true;
 }
 
-export function permute(nums: number[]) {
-  const res: number[][] = [];
-  const dfs = (path: number[]) => {
-    if (path.length === nums.length) {
-      res.push(path);
-      return;
+export function linearSearch(data: any[], target: any) {
+  for (let i = 0; i < data.length; i++) {
+    const current = data[i];
+    if (isEqual(current, target)) {
+      return i;
     }
-    for (let i = 0; i < nums.length; i++) {
-      if (!nums.includes(nums[i])) {
-        dfs(path.concat(nums[i]));
-      }
-    }
+  }
+  return -1;
+}
+
+export function selectionSort(arr: number[]) {
+  const res = [...arr];
+  const swap = (arr: number[], i: number, j: number) => {
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   };
-  dfs([]);
+  for (let i = 0; i < res.length; i++) {
+    let minIndex = i;
+    for (let j = i + 1; j < res.length; j++) {
+      minIndex = res[j] < res[minIndex] ? j : minIndex;
+    }
+    if (minIndex !== i) {
+      swap(res, minIndex, i);
+    }
+  }
   return res;
 }
 
-export function subsets(nums: number[]) {
-  const res: number[][] = [];
-  const dfs = (path: number[], start: number, length: number) => {
-    if (path.length === length) {
-      res.push(path);
-      return;
+export function insertionSort(arr: number[]) {
+  const res = [...arr];
+  for (let i = 0; i < res.length; i++) {
+    const current = res[i];
+    let swapIndex = i;
+    for (let j = i - 1; j >= 0; j--) {
+      if (res[j] > current) {
+        res[j + 1] = res[j];
+        swapIndex = j;
+      } else {
+        break;
+      }
     }
-    for (let i = start; i < nums.length; i++) {
-      dfs(path.concat(nums[i]), i + 1, length);
+    if (swapIndex !== i) {
+      res[swapIndex] = current;
     }
+  }
+  return res;
+}
+
+export function bubbleSort(arr: number[]) {
+  const res = [...arr];
+  const swap = (arr: number[], i: number, j: number) => {
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   };
-  for (let i = 0; i <= nums.length; i++) {
-    dfs([], 0, i);
+  for (let i = 0; i < res.length - 1; i++) {
+    let flag = false;
+    for (let j = 0; j < res.length - i - 1; j++) {
+      if (res[j + 1] < res[j]) {
+        flag = true;
+        swap(arr, i, j);
+      }
+    }
+    if (!flag) break;
   }
   return res;
 }
