@@ -1,110 +1,127 @@
-// offer 55-II
+// offer 56-I
 
-class TreeNode {
-  val: number;
-  left: TreeNode | null;
-  right: TreeNode | null;
-  constructor(val: number) {
-    this.val = val;
-    this.left = null;
-    this.right = null;
+export function singleNumbers(nums: number[]) {
+  const map = new Map<number, number>();
+  for (let item of nums) {
+    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
   }
-}
-
-export function isBalanced(root: TreeNode | null): boolean {
-  if (!root) return true;
-  const depth = (node: TreeNode | null): number => {
-    if (!node) return 0;
-    return Math.max(depth(node.left), depth(node.right)) + 1;
-  };
-  return (
-    Math.abs(depth(root.left) - depth(root.right)) <= 1 &&
-    isBalanced(root.left) &&
-    isBalanced(root.right)
-  );
-}
-
-// search sort
-
-export function isObject(obj: any) {
-  return obj && typeof obj === "object";
-}
-
-export function isEqual(a: any, b: any) {
-  if (!isObject(a) || !isObject(b)) return a === b;
-  const lenA = Object.keys(a).length;
-  const lenB = Object.keys(b).length;
-  if (lenA !== lenB) return false;
-  for (let key in a) {
-    if (a.hasOwnproperty(key)) {
-      const flag = isEqual(a[key], b[key]);
-      if (!flag) return false;
+  const res: number[] = [];
+  map.forEach((val, key) => {
+    if (val === 1) {
+      res.push(key);
     }
-  }
-  return true;
-}
-
-export function linearSearch(data: any[], target: any) {
-  for (let i = 0; i < data.length; i++) {
-    const current = data[i];
-    if (isEqual(current, target)) {
-      return i;
-    }
-  }
-  return -1;
-}
-
-export function selectionSort(arr: number[]) {
-  const res = [...arr];
-  const swap = (arr: number[], i: number, j: number) => {
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  };
-  for (let i = 0; i < res.length; i++) {
-    let minIndex = i;
-    for (let j = i + 1; j < res.length; j++) {
-      minIndex = res[j] < res[minIndex] ? j : minIndex;
-    }
-    if (minIndex !== i) {
-      swap(res, minIndex, i);
-    }
-  }
+  });
   return res;
 }
 
-export function insertionSort(arr: number[]) {
-  const res = [...arr];
-  for (let i = 0; i < res.length; i++) {
-    const current = res[i];
-    let swapIndex = i;
-    for (let j = i - 1; j >= 0; j--) {
-      if (res[j] > current) {
-        res[j + 1] = res[j];
-        swapIndex = j;
-      } else {
-        break;
+// array
+
+export class MyArray<T> {
+  data: (T | null)[];
+  size: number;
+  constructor(capacity = 10) {
+    this.data = new Array(capacity).fill(null);
+    this.size = 0;
+  }
+  getCapacity() {
+    return this.data.length;
+  }
+  getSize() {
+    return this.size;
+  }
+  isEmpty() {
+    return this.size === 0;
+  }
+  resize(newCapacity: number) {
+    const newData: (T | null)[] = new Array(newCapacity).fill(null);
+    for (let i = 0; i < this.size; i++) {
+      newData[i] = this.data[i];
+    }
+    this.data = newData;
+  }
+  add(index: number, e: T) {
+    if (index < 0 || index > this.size) throw new Error("error");
+    if (this.size === this.getCapacity()) {
+      this.resize(this.getCapacity() * 2);
+    }
+    for (let i = this.size; i > index; i--) {
+      this.data[i] = this.data[i - 1];
+    }
+    this.data[index] = e;
+    this.size++;
+  }
+  addFirst(e: T) {
+    this.add(0, e);
+  }
+  addLast(e: T) {
+    this.add(this.size, e);
+  }
+  get(index: number) {
+    if (index < 0 || index >= this.size) throw new Error("error");
+    return this.data[index];
+  }
+  getFirst() {
+    return this.get(0);
+  }
+  getLast() {
+    return this.get(this.size - 1);
+  }
+  contains(e: T) {
+    for (let i = 0; i < this.size; i++) {
+      if (this.data[i] === e) {
+        return true;
       }
     }
-    if (swapIndex !== i) {
-      res[swapIndex] = current;
-    }
+    return false;
   }
-  return res;
-}
-
-export function bubbleSort(arr: number[]) {
-  const res = [...arr];
-  const swap = (arr: number[], i: number, j: number) => {
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  };
-  for (let i = 0; i < res.length - 1; i++) {
-    let flag = false;
-    for (let j = 0; j < res.length - i - 1; j++) {
-      if (res[j + 1] < res[j]) {
-        flag = true;
-        swap(arr, i, j);
+  find(e: T) {
+    for (let i = 0; i < this.size; i++) {
+      if (this.data[i] === e) {
+        return i;
       }
     }
-    if (!flag) break;
+    return -1;
   }
-  return res;
+  remove(index: number) {
+    if (index < 0 || index >= this.size) throw new Error("error");
+    const res = this.data[index];
+    for (let i = index; i < this.size; i++) {
+      this.data[i] = this.data[i + 1];
+    }
+    this.size--;
+    if (
+      this.size <= Math.floor(this.getCapacity() / 4) &&
+      Math.floor(this.getCapacity() / 2) !== 0
+    ) {
+      this.resize(Math.floor(this.getCapacity() / 2));
+    }
+    return res;
+  }
+  removeFirst() {
+    return this.remove(0);
+  }
+  removeLast() {
+    return this.remove(this.size - 1);
+  }
+  removeElement(e: T) {
+    const index = this.find(e);
+    if (index !== -1) {
+      this.remove(index);
+      return true;
+    }
+    return false;
+  }
+  set(index: number, e: T) {
+    if (index < 0 || index >= this.size) throw new Error("error");
+    this.data[index] = e;
+  }
+  toString() {
+    let res = `MyArray: size=${this.size}, capacity=${this.getCapacity()}\r\n`;
+    res += "[";
+    for (let i = 0; i < this.size; i++) {
+      res += JSON.stringify(this.data[i]) + ",";
+    }
+    res = res.slice(0, -1) + "]";
+    return res;
+  }
 }
