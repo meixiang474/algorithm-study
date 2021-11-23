@@ -7,7 +7,7 @@ interface TreeNode {
 }
 
 function preOrderTraversal(root: TreeNode | null) {
-  if (!root) return;
+  if (!root) return [];
   const stack = [root];
   const res = [];
   while (stack.length) {

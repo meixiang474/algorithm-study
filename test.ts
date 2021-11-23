@@ -1,127 +1,155 @@
-// offer 56-I
+// offer 56-II
 
-export function singleNumbers(nums: number[]) {
+export function singleNumber(nums: number[]) {
   const map = new Map<number, number>();
   for (let item of nums) {
     map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
   }
-  const res: number[] = [];
+  let res = nums[0];
   map.forEach((val, key) => {
     if (val === 1) {
-      res.push(key);
+      res = key;
     }
   });
   return res;
 }
 
-// array
-
-export class MyArray<T> {
-  data: (T | null)[];
-  size: number;
-  constructor(capacity = 10) {
-    this.data = new Array(capacity).fill(null);
-    this.size = 0;
-  }
-  getCapacity() {
-    return this.data.length;
+// stack
+export class Stack {
+  items: number[];
+  constructor() {
+    this.items = [];
   }
   getSize() {
-    return this.size;
+    return this.items.length;
   }
   isEmpty() {
-    return this.size === 0;
+    return this.getSize() === 0;
   }
-  resize(newCapacity: number) {
-    const newData: (T | null)[] = new Array(newCapacity).fill(null);
-    for (let i = 0; i < this.size; i++) {
-      newData[i] = this.data[i];
-    }
-    this.data = newData;
+  push(item: number) {
+    this.items.push(item);
   }
-  add(index: number, e: T) {
-    if (index < 0 || index > this.size) throw new Error("error");
-    if (this.size === this.getCapacity()) {
-      this.resize(this.getCapacity() * 2);
-    }
-    for (let i = this.size; i > index; i--) {
-      this.data[i] = this.data[i - 1];
-    }
-    this.data[index] = e;
-    this.size++;
+  pop() {
+    if (this.isEmpty()) throw new Error("error");
+    return this.items.pop()!;
   }
-  addFirst(e: T) {
-    this.add(0, e);
-  }
-  addLast(e: T) {
-    this.add(this.size, e);
-  }
-  get(index: number) {
-    if (index < 0 || index >= this.size) throw new Error("error");
-    return this.data[index];
-  }
-  getFirst() {
-    return this.get(0);
-  }
-  getLast() {
-    return this.get(this.size - 1);
-  }
-  contains(e: T) {
-    for (let i = 0; i < this.size; i++) {
-      if (this.data[i] === e) {
-        return true;
-      }
-    }
-    return false;
-  }
-  find(e: T) {
-    for (let i = 0; i < this.size; i++) {
-      if (this.data[i] === e) {
-        return i;
-      }
-    }
-    return -1;
-  }
-  remove(index: number) {
-    if (index < 0 || index >= this.size) throw new Error("error");
-    const res = this.data[index];
-    for (let i = index; i < this.size; i++) {
-      this.data[i] = this.data[i + 1];
-    }
-    this.size--;
-    if (
-      this.size <= Math.floor(this.getCapacity() / 4) &&
-      Math.floor(this.getCapacity() / 2) !== 0
-    ) {
-      this.resize(Math.floor(this.getCapacity() / 2));
-    }
-    return res;
-  }
-  removeFirst() {
-    return this.remove(0);
-  }
-  removeLast() {
-    return this.remove(this.size - 1);
-  }
-  removeElement(e: T) {
-    const index = this.find(e);
-    if (index !== -1) {
-      this.remove(index);
-      return true;
-    }
-    return false;
-  }
-  set(index: number, e: T) {
-    if (index < 0 || index >= this.size) throw new Error("error");
-    this.data[index] = e;
+  peak() {
+    if (this.isEmpty()) throw new Error("error");
+    return this.items[this.items.length - 1];
   }
   toString() {
-    let res = `MyArray: size=${this.size}, capacity=${this.getCapacity()}\r\n`;
-    res += "[";
-    for (let i = 0; i < this.size; i++) {
-      res += JSON.stringify(this.data[i]) + ",";
+    return this.items.toString();
+  }
+}
+
+export function isValid(s: string) {
+  if (s.length % 2 !== 0) return false;
+  const stack: string[] = [];
+  const map = new Map<string, string>();
+  map.set("(", ")");
+  map.set("[", "]");
+  map.set("{", "}");
+  for (let item of s) {
+    if (map.has(item)) {
+      stack.push(item);
+    } else {
+      const peak = stack.pop();
+      if (!peak || map.get(peak) !== item) return false;
     }
-    res = res.slice(0, -1) + "]";
+  }
+  return stack.length === 0;
+}
+
+export class MinStack {
+  items: number[];
+  queue: number[];
+  constructor() {
+    this.items = [];
+    this.queue = [];
+  }
+  push(item: number) {
+    this.items.push(item);
+    if (this.queue.length === 0 || this.queue[0] >= item) {
+      this.queue.unshift(item);
+    }
+  }
+  pop() {
+    if (this.items.length === 0) throw new Error("error");
+    const res = this.items.pop()!;
+    if (res === this.queue[0]) {
+      this.queue.shift();
+    }
     return res;
   }
+  top() {
+    if (this.items.length === 0) throw new Error("error");
+    return this.items[this.items.length - 1];
+  }
+  min() {
+    if (this.items.length === 0) throw new Error("error");
+    return this.queue[0];
+  }
+}
+
+export class CustomStack {
+  maxSize: number;
+  items: number[];
+  constructor(maxSize: number) {
+    this.maxSize = maxSize;
+    this.items = [];
+  }
+  push(item: number) {
+    if (this.items.length >= this.maxSize) return;
+    this.items.push(item);
+  }
+  pop() {
+    if (this.items.length === 0) return -1;
+    return this.items.pop()!;
+  }
+  inc(k: number, val: number) {
+    if (k >= this.items.length) {
+      this.items = this.items.map((item) => item + val);
+    } else {
+      for (let i = 0; i < k; i++) {
+        this.items[i] += val;
+      }
+    }
+  }
+}
+
+export class TreeNode {
+  val: number;
+  left: TreeNode | null;
+  right: TreeNode | null;
+  constructor(val: number) {
+    this.val = val;
+    this.left = null;
+    this.right = null;
+  }
+}
+
+export function preOrderTraversal(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  const stack: TreeNode[] = [root];
+  while (stack.length > 0) {
+    const current = stack.pop()!;
+    res.push(current.val);
+    if (current.right) {
+      stack.push(current.right);
+    }
+    if (current.left) {
+      stack.push(current.left);
+    }
+  }
+  return res;
+}
+
+export function decToBi(num: number) {
+  const queue: number[] = [];
+  while (num !== 0) {
+    queue.unshift(num % 2);
+    num = Math.floor(num / 2);
+  }
+  return parseFloat(queue.join(""));
 }
