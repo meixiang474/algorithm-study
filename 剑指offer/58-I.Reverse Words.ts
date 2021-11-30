@@ -9,7 +9,7 @@ export default function reverseWords(s: string) {
   while (i >= 0) {
     if (s[i] !== " ") {
       let j = i;
-      while (s[i] !== " " && j >= 0) {
+      while (s[j] !== " " && j >= 0) {
         j--;
       }
       res.push(s.slice(j + 1, i + 1));
