@@ -1,130 +1,147 @@
-// offer 58-I
+// offer 60
 
-export function reverseWords(s: string) {
-  const res: string[] = [];
-  s = s.trim();
-  let i = s.length - 1;
-  while (i >= 0) {
-    if (s[i] !== " ") {
-      let j = i;
-      while (s[j] !== " " && j >= 0) {
-        j--;
+export function dicesProbability(n: number) {
+  if (n === 0) return [];
+  let dp = new Array(6).fill(1 / 6);
+  for (let i = 2; i <= n; i++) {
+    const temp: number[] = [];
+    for (let j = 1; j <= 6; j++) {
+      for (let k = 0; k < dp.length; k++) {
+        const sum = k + j - 1;
+        temp[sum] = (temp[sum] || 0) + dp[k] * (1 / 6);
       }
-      res.push(s.slice(j + 1, i + 1));
-      i = j - 1;
+      dp = temp;
+    }
+  }
+  return dp;
+}
+
+// binary search
+
+export function binarySearch(arr: number[], target: number) {
+  const searchData = (
+    arr: number[],
+    l: number,
+    r: number,
+    target: number
+  ): number => {
+    if (l > r) return -1;
+    const mid = Math.floor(l + (r - l) / 2);
+    if (arr[mid] === target) {
+      return mid;
+    } else if (arr[mid] > target) {
+      return searchData(arr, l, mid - 1, target);
     } else {
-      i--;
+      return searchData(arr, mid + 1, r, target);
     }
-  }
-  return res.join(" ");
+  };
+  return searchData(arr, 0, arr.length - 1, target);
 }
 
-// linked list
-
-export class ListNode {
-  val: number;
-  next: ListNode | null;
-  constructor(val: number) {
-    this.val = val;
-    this.next = null;
+export function binarySearch1(arr: number[], target: number) {
+  let l = 0,
+    r = arr.length;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    if (arr[mid] === target) {
+      return mid;
+    } else if (arr[mid] > target) {
+      r = mid;
+    } else {
+      l = mid + 1;
+    }
   }
+  return -1;
 }
 
-export class LinkedList {
-  dummyHead: ListNode;
-  size: number;
-  constructor(dummyHead: number) {
-    this.dummyHead = new ListNode(dummyHead);
-    this.size = 0;
-  }
-  getSize() {
-    return this.size;
-  }
-  isEmpty() {
-    return this.size === 0;
-  }
-  add(index: number, val: number) {
-    if (index < 0 || index > this.size) throw new Error("error");
-    let prev = this.dummyHead;
-    for (let i = 0; i < index; i++) {
-      prev = prev.next!;
-    }
-    const next = prev.next;
-    prev.next = new ListNode(val);
-    prev.next.next = next;
-    this.size++;
-  }
-  addFirst(val: number) {
-    this.add(0, val);
-  }
-  addLast(val: number) {
-    this.add(this.size, val);
-  }
-  get(index: number) {
-    if (index < 0 || index >= this.size) throw new Error("error");
-    let current = this.dummyHead.next;
-    for (let i = 0; i < index; i++) {
-      current = current!.next;
-    }
-    return current!.val;
-  }
-  getFirst() {
-    return this.get(0);
-  }
-  getLast() {
-    return this.get(this.size - 1);
-  }
-  set(index: number, val: number) {
-    if (index < 0 || index >= this.size) throw new Error("error");
-    let current = this.dummyHead.next;
-    for (let i = 0; i < index; i++) {
-      current = current!.next;
-    }
-    current!.val = val;
-  }
-  contains(val: number) {
-    let current = this.dummyHead.next;
-    while (current) {
-      if (current.val === val) return true;
-      current = current.next;
-    }
-    return false;
-  }
-  remove(index: number) {
-    if (index < 0 || index >= this.size) throw new Error("error");
-    let prev = this.dummyHead;
-    for (let i = 0; i < index; i++) {
-      prev = prev.next!;
-    }
-    const res = prev.next!;
-    prev.next = prev.next!.next;
-    this.size--;
-    return res.val;
-  }
-  removeFirst() {
-    return this.remove(0);
-  }
-  removeLast() {
-    return this.remove(this.size - 1);
-  }
-  removeElement(val: number) {
-    let prev = this.dummyHead;
-    while (prev.next) {
-      if (prev.next.val === val) break;
-      prev = prev.next;
-    }
-    if (prev.next) {
-      this.size--;
-      prev.next = prev.next.next;
+// > target的第一个
+export function upper(arr: number[], target: number) {
+  let l = 0,
+    r = arr.length;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    if (arr[mid] > target) {
+      r = mid;
+    } else {
+      l = mid + 1;
     }
   }
-  toString() {
-    let res = "";
-    let current = this.dummyHead.next;
-    while (current) {
-      res += JSON.stringify(current.val) + "->";
-      current = current.next;
-    }
-    return res + "NULL";
+  return l;
+}
+
+// = target的最后一个或者 > target的第一个
+export function ceil(arr: number[], target: number) {
+  const index = upper(arr, target);
+  if (index - 1 >= 0 && arr[index - 1] === target) {
+    return index - 1;
   }
+  return index;
+}
+
+// = target第一个或者 > target第一个
+export function lowerCeil(arr: number[], target: number) {
+  let l = 0,
+    r = arr.length;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    if (arr[mid] >= target) {
+      r = mid;
+    } else {
+      l = mid + 1;
+    }
+  }
+  return l;
+}
+
+// < target得第一个
+export function lower(arr: number[], target: number) {
+  let l = -1,
+    r = arr.length - 1;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l + 1) / 2);
+    if (arr[mid] < target) {
+      l = mid;
+    } else {
+      r = mid - 1;
+    }
+  }
+  return l;
+}
+
+// = target的最后一个，< target的第一个
+export function upperFloor(arr: number[], target: number) {
+  let l = -1,
+    r = arr.length - 1;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l + 1) / 2);
+    if (arr[mid] <= target) {
+      l = mid;
+    } else {
+      r = mid - 1;
+    }
+  }
+  return l;
+}
+
+// < target得第一个，= target得第一个
+export function lowerFloor(arr: number[], target: number) {
+  const index = lower(arr, target);
+  if (index + 1 < arr.length && arr[index + 1] === target) {
+    return index + 1;
+  }
+  return index;
+}
+
+export function fn(x: number) {
+  let l = 0,
+    r = x;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l + 1) / 2);
+    if (mid ** 2 <= x) {
+      l = mid;
+    } else {
+      r = mid - 1;
+    }
+  }
+  return l;
 }
