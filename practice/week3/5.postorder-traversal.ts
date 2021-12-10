@@ -16,7 +16,7 @@ export default function preOrderTraversal(root: TreeNode | null) {
   const stack: TreeNode[] = [];
   let prevRight: TreeNode | null = null;
   let p = root;
-  while (p && stack.length > 0) {
+  while (p || stack.length > 0) {
     while (p) {
       stack.push(p);
       p = p.left;
