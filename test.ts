@@ -103,4 +103,136 @@ export class BST {
       visitor.visit(node.val);
     }
   }
+  preOrderNR(visitor: Visitor) {
+    if (!this.root) return;
+    const stack: TreeNode[] = [this.root];
+    while (stack.length > 0) {
+      const current = stack.pop()!;
+      visitor.visit(current.val);
+      if (current.right) {
+        stack.push(current.right);
+      }
+      if (current.left) {
+        stack.push(current.left);
+      }
+    }
+  }
+  levelOrder(visitor: Visitor) {
+    if (!this.root) return;
+    const queue: TreeNode[] = [this.root];
+    while (queue.length > 0) {
+      const current = queue.shift()!;
+      visitor.visit(current.val);
+      if (current.left) {
+        queue.push(current.left);
+      }
+      if (current.right) {
+        queue.push(current.right);
+      }
+    }
+  }
+  minimum() {
+    if (!this.root) {
+      throw new Error("error");
+    }
+    return this.minimumNode(this.root).val;
+  }
+  minimumNode(node: TreeNode): TreeNode {
+    if (!node.left) return node;
+    return this.minimumNode(node.left);
+  }
+  maximum() {
+    if (!this.root) throw new Error("error");
+    return this.maximumNode(this.root).val;
+  }
+  maximumNode(node: TreeNode): TreeNode {
+    if (!node.right) {
+      return node;
+    }
+    return this.maximumNode(node.right);
+  }
+  removeMin() {
+    if (!this.root) throw new Error("error");
+    const { res, next } = this.removeMinNode(this.root);
+    this.root = next;
+    return res.val;
+  }
+  removeMinNode(node: TreeNode): { res: TreeNode; next: TreeNode | null } {
+    if (!node.left) {
+      this.size--;
+      return {
+        res: node,
+        next: node.right,
+      };
+    }
+    const { res, next } = this.removeMinNode(node.left);
+    node.left = next;
+    return {
+      res,
+      next: node,
+    };
+  }
+  removeMax() {
+    if (!this.root) throw new Error("error");
+    const { res, next } = this.removeMaxNode(this.root);
+    this.root = next;
+    return res.val;
+  }
+  removeMaxNode(node: TreeNode): { res: TreeNode; next: TreeNode | null } {
+    if (!node.right) {
+      this.size--;
+      return {
+        res: node,
+        next: node.left,
+      };
+    }
+    const { res, next } = this.removeMaxNode(node.right);
+    node.right = next;
+    return {
+      res,
+      next: node,
+    };
+  }
+  remove(val: number) {
+    this.root = this.removeNode(this.root, val);
+  }
+  removeNode(node: TreeNode | null, val: number): TreeNode | null {
+    if (!node) return null;
+    if (node.val < val) {
+      node.right = this.removeNode(node.right, val);
+      return node;
+    } else if (node.val > val) {
+      node.left = this.removeNode(node.left, val);
+      return node;
+    } else {
+      if (!node.left) {
+        this.size--;
+        return node.right;
+      }
+      if (!node.right) {
+        this.size--;
+        return node.left;
+      }
+      const successor = this.minimumNode(node.right);
+      successor.left = node.left;
+      successor.right = this.removeMinNode(node.right).next;
+      return successor;
+    }
+  }
+}
+
+export function maxDepth(root: TreeNode | null) {
+  if (!root) return 0;
+  let res = 0;
+  const dfs = (node: TreeNode, level: number) => {
+    res = Math.max(level, res);
+    if (node.left) {
+      dfs(node.left, level + 1);
+    }
+    if (node.right) {
+      dfs(node.right, level + 1);
+    }
+  };
+  dfs(root, 1);
+  return res;
 }
