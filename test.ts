@@ -1,17 +1,12 @@
-// offer 61
+// offer 62
 
-export function isStraight(nums: number[]) {
-  const set = new Set<number>();
-  let min = 14;
-  let max = 0;
-  for (let item of nums) {
-    if (item === 0) continue;
-    if (set.has(item)) return false;
-    max = Math.max(item, max);
-    min = Math.min(item, min);
-    set.add(item);
-  }
-  return max - min < 5;
+export function lastRemaining(n: number, m: number) {
+  const f = (n: number, m: number): number => {
+    if (n === 1) return 0;
+    const x = f(n - 1, m);
+    return (m + x) % n;
+  };
+  return f(n, m);
 }
 
 // BST
@@ -234,5 +229,130 @@ export function maxDepth(root: TreeNode | null) {
     }
   };
   dfs(root, 1);
+  return res;
+}
+
+export function minDepth(root: TreeNode | null) {
+  if (!root) return 0;
+  const queue: [TreeNode, number][] = [[root, 1]];
+  while (queue.length > 0) {
+    const [current, level] = queue.shift()!;
+    if (!current.left && !current.right) {
+      return level;
+    }
+    if (current.left) {
+      queue.push([current.left, level + 1]);
+    }
+    if (current.right) {
+      queue.push([current.right, level + 1]);
+    }
+  }
+}
+
+export function levelOrder(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[][] = [];
+  const queue: [TreeNode, number][] = [];
+  while (queue.length > 0) {
+    const [current, level] = queue.shift()!;
+    const arr = res[level] || (res[level] = []);
+    arr.push(current.val);
+    if (current.left) {
+      queue.push([current.left, level + 1]);
+    }
+    if (current.right) {
+      queue.push([current.right, level + 1]);
+    }
+  }
+  return res;
+}
+
+export function inOrderTraversal(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  const dfs = (node: TreeNode) => {
+    if (node.left) {
+      dfs(node.left);
+    }
+    res.push(node.val);
+    if (node.right) {
+      dfs(node.right);
+    }
+  };
+  return res;
+}
+
+export function inOrderTraversal1(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  const stack: TreeNode[] = [];
+  let p: TreeNode | null = root;
+  while (stack.length > 0 || p) {
+    while (p) {
+      stack.push(p);
+      p = p.left;
+    }
+    const current = stack.pop()!;
+    res.push(current.val);
+    p = current.right;
+  }
+  return res;
+}
+
+export function hasPathSum(root: TreeNode | null, sum: number) {
+  if (!root) return false;
+  let res = false;
+  const dfs = (node: TreeNode, s: number) => {
+    if (!node.left && !node.right && s === sum) {
+      res = true;
+      return;
+    }
+    if (node.left) {
+      dfs(node.left, s + node.left.val);
+    }
+    if (node.right) {
+      dfs(node.right, s + node.right.val);
+    }
+  };
+  dfs(root, root.val);
+  return res;
+}
+
+export function postOrderTraversal(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  const dfs = (node: TreeNode) => {
+    if (node.left) {
+      dfs(node.left);
+    }
+    if (node.right) {
+      dfs(node.right);
+    }
+    res.push(node.val);
+  };
+  dfs(root);
+  return res;
+}
+
+export function postOrderTraversal1(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  const stack: TreeNode[] = [];
+  let p: TreeNode | null = root;
+  let prevRight: TreeNode | null = null;
+  while (p || stack.length > 0) {
+    while (p) {
+      stack.push(p);
+      p = p.left;
+    }
+    const current = stack.pop()!;
+    if (!current.right || current.right === prevRight) {
+      res.push(current.val);
+      prevRight = current;
+    } else {
+      stack.push(current);
+      p = current.right;
+    }
+  }
   return res;
 }
