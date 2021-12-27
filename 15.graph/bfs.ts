@@ -17,20 +17,22 @@ while (queue.length) {
 }
 
 export function bfs(
-  graph: { [key: number]: number[] },
+  graph: Record<number, number[]>,
   visited: Set<number>,
   node: number
 ) {
   const queue: number[] = [node];
   visited.add(node);
-  while (queue.length) {
+  const res: number[] = [];
+  while (queue.length > 0) {
     const current = queue.shift()!;
-    console.log(current);
+    res.push(current);
     graph[current].forEach((item) => {
       if (!visited.has(item)) {
-        queue.push(item);
         visited.add(item);
+        queue.push(item);
       }
     });
   }
+  return res;
 }
