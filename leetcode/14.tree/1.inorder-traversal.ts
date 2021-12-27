@@ -27,3 +27,15 @@ export default function inorderTraversal(root: TreeNode | null) {
   }
   return res;
 }
+
+export function inorderTraversal1(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  const dfs = (node: TreeNode) => {
+    if (node.left) dfs(node.left);
+    res.push(node.val);
+    if (node.right) dfs(node.right);
+  };
+  dfs(root);
+  return res;
+}
