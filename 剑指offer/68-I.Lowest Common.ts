@@ -29,6 +29,7 @@ export function lowestCommon(
         current = current.right;
       }
     }
+    res.push(current!)
     return res;
   };
   const pList = getPath(p);
@@ -43,3 +44,10 @@ export function lowestCommon(
   }
   return res;
 }
+
+1
+23
+456
+
+1 
+12

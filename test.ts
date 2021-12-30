@@ -1,136 +1,116 @@
 // offer 64
 
-export function sumNums(n: number): number {
-  n && (n += sumNums(n - 1));
-  return n;
-}
-
-// graph
-
-export function bfs(
-  graph: Record<number, number[]>,
-  visited: Set<number>,
-  node: number
-) {
-  const queue: number[] = [node];
-  visited.add(node);
-  const res: number[] = [];
-  while (queue.length > 0) {
-    const current = queue.shift()!;
-    res.push(current);
-    graph[current].forEach((item) => {
-      if (!visited.has(item)) {
-        visited.add(item);
-        queue.push(item);
-      }
-    });
-  }
-  return res;
-}
-
-export function dfs(
-  graph: Record<number, number[]>,
-  visited: Set<number>,
-  node: number
-) {
-  console.log(node);
-  visited.add(node);
-  graph[node].forEach((item) => {
-    if (!visited.has(item)) {
-      dfs(graph, visited, item);
-    }
-  });
-}
-
-export function fn(matrix: number[][]) {
-  if (matrix.length === 0 || matrix[0].length === 0) return [];
-  const m = matrix.length;
-  const n = matrix[0].length;
-  const flow1: boolean[][] = Array.from({ length: m }, () =>
-    new Array(n).fill(false)
-  );
-  const flow2: boolean[][] = Array.from({ length: m }, () =>
-    new Array(n).fill(n)
-  );
-  const dfs = (r: number, c: number, flow: boolean[][]) => {
-    flow[r][c] = true;
-    [
-      [r + 1, c],
-      [r - 1, c],
-      [r, c + 1],
-      [r, c - 1],
-    ].forEach(([nextR, nextC]) => {
-      if (
-        nextR >= 0 &&
-        nextR < m &&
-        nextC >= 0 &&
-        nextC < n &&
-        !flow[nextR][nextC] &&
-        matrix[nextR][nextC] >= matrix[r][c]
-      ) {
-        dfs(nextR, nextC, flow);
-      }
-    });
-  };
-  for (let r = 0; r < m; r++) {
-    dfs(r, 0, flow1);
-    dfs(r, n - 1, flow2);
-  }
-  for (let c = 0; c < n; c++) {
-    dfs(0, c, flow1);
-    dfs(m - 1, c, flow2);
-  }
-  const res: [number, number][] = [];
-  for (let r = 0; r < m; r++) {
-    for (let c = 0; c < n; c++) {
-      if (flow1[r][c] && flow2[r][c]) {
-        res.push([r, c]);
-      }
-    }
-  }
-  return res;
-}
-
-class GraphNode {
+export class TreeNode {
   val: number;
-  neighbours: GraphNode[];
+  left: TreeNode | null;
+  right: TreeNode | null;
   constructor(val: number) {
     this.val = val;
-    this.neighbours = [];
+    this.left = null;
+    this.right = null;
   }
 }
 
-export function cloneGraph(node: GraphNode | null) {
-  if (!node) return node;
-  const visited = new Map<GraphNode, GraphNode>();
-  const dfs = (node: GraphNode) => {
-    const newNode = new GraphNode(node.val);
-    visited.set(node, newNode);
-    node.neighbours.forEach((item) => {
-      if (!visited.has(item)) {
-        dfs(item);
+export function lowestCommon(
+  root: TreeNode | null,
+  p: TreeNode | null,
+  q: TreeNode | null
+) {
+  const getPath = (node: TreeNode | null) => {
+    const res: TreeNode[] = [];
+    let current = root;
+    while (current !== node && node && current) {
+      res.push(current);
+      if (current.val > node.val) {
+        current = current.left;
+      } else {
+        current = current.right;
       }
-      newNode.neighbours.push(visited.get(item)!);
-    });
+    }
+    res.push(current!);
+    return res;
   };
-  dfs(node);
-  return visited.get(node)!;
-}
-
-export function cloneGraph1(node: GraphNode | null) {
-  if (!node) return node;
-  const visited = new Map<GraphNode, GraphNode>();
-  const queue: GraphNode[] = [node];
-  visited.set(node, new GraphNode(node.val));
-  while (queue.length > 0) {
-    const current = queue.shift()!;
-    current.neighbours.forEach((item) => {
-      if (!visited.has(item)) {
-        visited.set(item, new GraphNode(item.val));
-        queue.push(item);
-      }
-      visited.get(current)?.neighbours.push(visited.get(item)!);
-    });
+  const plist = getPath(p);
+  const qlist = getPath(q);
+  let res = null;
+  for (let i = 0; i < plist.length && i < qlist.length; i++) {
+    if (plist[i] === qlist[i]) {
+      res = plist[i];
+    } else {
+      break;
+    }
   }
-  return visited.get(node)!;
+  return res;
+}
+// heap
+
+export class MinHeap<T = number> {
+  heap: T[];
+  constructor(compare?: (a: T, b: T) => boolean) {
+    this.heap = [];
+    this.compare = compare || this.compare;
+  }
+  compare(a: T, b: T) {
+    return a < b;
+  }
+  swap(i: number, j: number) {
+    [this.heap[i], this.heap[j]] = [this.heap[j], this.heap[i]];
+  }
+  insert(val: T) {
+    this.heap.push(val);
+    this.shiftUp(this.heap.length - 1);
+  }
+  getParentIndex(index: number) {
+    return Math.floor((index - 1) / 2);
+  }
+  getLeftIndex(index: number) {
+    return 2 * index + 1;
+  }
+  getRightIndex(index: number) {
+    return 2 * index + 2;
+  }
+  shiftUp(index: number) {
+    if (index === 0) return;
+    const parentIndex = this.getParentIndex(index);
+    if (
+      this.heap[parentIndex] != null &&
+      this.compare(this.heap[index], this.heap[parentIndex])
+    ) {
+      this.swap(index, parentIndex);
+      this.shiftUp(parentIndex);
+    }
+  }
+  pop() {
+    if (this.heap.length === 0) throw new Error("error");
+    if (this.heap.length === 1) return this.heap.pop()!;
+    const res = this.heap[0];
+    this.heap[0] = this.heap.pop()!;
+    this.shiftDown(0);
+    return res;
+  }
+  shiftDown(index: number) {
+    const leftIndex = this.getLeftIndex(index);
+    const rightIndex = this.getRightIndex(index);
+    if (
+      this.heap[leftIndex] != null &&
+      this.compare(this.heap[leftIndex], this.heap[index])
+    ) {
+      this.swap(leftIndex, index);
+      this.shiftDown(leftIndex);
+    }
+    if (
+      this.heap[rightIndex] != null &&
+      this.compare(this.heap[rightIndex], this.heap[index])
+    ) {
+      this.swap(rightIndex, index);
+      this.shiftDown(rightIndex);
+    }
+  }
+  peek() {
+    if (this.heap.length === 0) throw new Error("error");
+    return this.heap[0];
+  }
+  size() {
+    return this.heap.length;
+  }
 }
