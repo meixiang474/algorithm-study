@@ -1,4 +1,4 @@
-// offer 64
+// offer 68-I
 
 export class TreeNode {
   val: number;
@@ -113,4 +113,57 @@ export class MinHeap<T = number> {
   size() {
     return this.heap.length;
   }
+}
+
+export function findKthLargest(nums: number[], k: number) {
+  const heap = new MinHeap();
+  for (let item of nums) {
+    heap.insert(item);
+    if (heap.size() > k) {
+      heap.pop();
+    }
+  }
+  return heap.peek();
+}
+
+export function topKFrequent(nums: number[], k: number) {
+  const map = new Map<number, number>();
+  for (let item of nums) {
+    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
+  }
+  const heap = new MinHeap<{ key: number; value: number }>(
+    (a, b) => a.value < b.value
+  );
+  map.forEach((value, key) => {
+    heap.insert({ value, key });
+    if (heap.size() > k) {
+      heap.pop();
+    }
+  });
+  return heap.heap.map((item) => item.key);
+}
+
+export class ListNode {
+  val: number;
+  next: ListNode | null;
+  constructor(val: number) {
+    this.val = val;
+    this.next = null;
+  }
+}
+
+export function mergeKLists(lists: (ListNode | null)[]) {
+  const heap = new MinHeap<ListNode>((a, b) => a.val < b.val);
+  for (let item of lists) {
+    if (item) heap.insert(item);
+  }
+  const res = new ListNode(-1);
+  let p = res;
+  while (heap.size() > 0) {
+    const current = heap.pop();
+    p.next = current;
+    p = p.next;
+    if (current.next) heap.insert(current.next);
+  }
+  return res.next;
 }
