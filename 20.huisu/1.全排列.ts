@@ -1,5 +1,5 @@
 // 46
-export function pernute(nums: number[]) {
+export function permute(nums: number[]) {
   const res = [] as number[][];
   const backtrack = (path: number[]) => {
     if (path.length === nums.length) {
