@@ -25,3 +25,13 @@ export default function reversePrint(head: ListNode | null) {
   }
   return res;
 }
+
+export function reversePrint1(head: ListNode | null) {
+  const res: number[] = [];
+  let current = head;
+  while (current) {
+    res.unshift(current.val);
+    current = current.next;
+  }
+  return res;
+}
