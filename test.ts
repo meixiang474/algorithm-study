@@ -224,3 +224,198 @@ export function addTwoNumbers(l1: ListNode | null, l2: ListNode | null) {
   }
   return l3.next;
 }
+
+export function fn(head: ListNode | null): ListNode | null {
+  if (!head || !head.next) return head;
+  const res = fn(head.next);
+  if (res && head.val === res.val) {
+    return res;
+  } else {
+    head.next = res;
+    return head;
+  }
+}
+
+export function fn1(head: ListNode | null) {
+  if (!head || !head.next) return head;
+  const dummyHead = new ListNode(-1);
+  dummyHead.next = head;
+  let prev = dummyHead;
+  while (prev.next && prev.next.next) {
+    if (prev.next.val === prev.next.next.val) {
+      prev.next = prev.next.next;
+    } else {
+      prev = prev.next;
+    }
+  }
+  return dummyHead.next;
+}
+
+export function fn2(head: ListNode | null) {
+  if (!head || !head.next) return false;
+  let slow: ListNode | null = head;
+  let fast: ListNode | null = head;
+  while (slow && fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
+    if (slow === fast) {
+      return true;
+    }
+  }
+  return false;
+}
+
+export function fn3(head: ListNode | null) {
+  if (!head || !head.next) return true;
+  let slow: ListNode | null = head;
+  let fast: ListNode | null = head;
+  while (slow && fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
+  }
+  if (fast) {
+    slow = slow!.next;
+  }
+  let prev = null;
+  let current = slow;
+  while (current) {
+    const next = current.next;
+    current.next = prev;
+    prev = current;
+    current = next;
+  }
+  let p1: ListNode | null = head;
+  let p2 = prev;
+  while (p1 && p2) {
+    if (p1.val === p2.val) {
+      p1 = p1.next;
+      p2 = p2.next;
+    } else {
+      return false;
+    }
+  }
+  return true;
+}
+
+// leetcode array 1 - 10
+export function twoSum(nums: number[], target: number) {
+  const map = new Map<number, number>();
+  for (let i = 0; i < nums.length; i++) {
+    const current = nums[i];
+    const rest = target - current;
+    if (map.has(rest)) {
+      return [i, map.get(rest)!];
+    } else {
+      map.set(current, i);
+    }
+  }
+}
+
+export function maxArea(height: number[]) {
+  let l = 0,
+    r = height.length - 1;
+  let res = 0;
+  while (l < r) {
+    res = Math.max(res, Math.min(height[l], height[r]) * (r - l));
+    if (height[l] > height[r]) {
+      r--;
+    } else {
+      l++;
+    }
+  }
+  return res;
+}
+
+export function threeSum(nums: number[]) {
+  nums.sort((a, b) => a - b);
+  const res: [number, number, number][] = [];
+  for (let i = 0; i < nums.length - 2; i++) {
+    const current = nums[i];
+    if (i > 0 && current === nums[i - 1]) continue;
+    if (current > 0) break;
+    let l = i + 1,
+      r = nums.length - 1;
+    while (l < r) {
+      const left = nums[l];
+      const right = nums[r];
+      const sum = left + right + current;
+      if (sum === 0) {
+        res.push([left, right, current]);
+        while (l < r) {
+          l++;
+          if (nums[l] !== left) break;
+        }
+        while (l < r) {
+          r--;
+          if (nums[r] !== right) break;
+        }
+      } else if (sum < 0) {
+        while (l < r) {
+          l++;
+          if (nums[l] !== left) break;
+        }
+      } else {
+        while (l < r) {
+          r--;
+          if (nums[r] !== right) break;
+        }
+      }
+    }
+  }
+  return res;
+}
+
+export function threeSumClosest(nums: number[], target: number) {
+  let res = 0;
+  let diff = Infinity;
+  nums.sort((a, b) => a - b);
+  for (let i = 0; i < nums.length; i++) {
+    const current = nums[i];
+    if (i > 0 && nums[i - 1] === current) continue;
+    let isEqual = false;
+    let l = i + 1,
+      r = nums.length - 1;
+    while (l < r) {
+      const left = nums[l];
+      const right = nums[r];
+      const sum = left + right + current;
+      const newDiff = Math.abs(sum - target);
+      if (diff > newDiff) {
+        diff = newDiff;
+        res = sum;
+        if (sum > target) {
+          while (l < r) {
+            r--;
+            if (nums[r] !== right) break;
+          }
+        } else if (sum < target) {
+          while (l < r) {
+            l++;
+            if (nums[l] !== left) break;
+          }
+        } else {
+          isEqual = true;
+          break;
+        }
+      } else {
+        if (sum > target) {
+          while (l < r) {
+            r--;
+            if (nums[r] !== right) break;
+          }
+        } else {
+          while (l < r) {
+            l++;
+            if (nums[l] !== left) break;
+          }
+        }
+      }
+    }
+    if (isEqual) break;
+  }
+  return res;
+}
+
+export function fourSum(nums: number[], target: number) {
+  
+}
