@@ -7,7 +7,7 @@ class ListNode<T> {
     this.next = next;
   }
 }
-class LinkedList<T> {
+export class LinkedList<T> {
   private dummyHead: ListNode<T>;
   private size: number;
   constructor(dummyHead: T) {

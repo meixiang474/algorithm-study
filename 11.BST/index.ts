@@ -1,22 +1,22 @@
 export {};
 
-interface Visitor {
-  visit: (e: number) => any;
+interface Visitor<T = number> {
+  visit: (e: T) => any;
 }
 
-class TreeNode {
-  e: number;
-  left: TreeNode | null;
-  right: TreeNode | null;
-  constructor(e: number) {
+class TreeNode<T = number> {
+  e: T;
+  left: TreeNode<T> | null;
+  right: TreeNode<T> | null;
+  constructor(e: T) {
     this.e = e;
     this.left = null;
     this.right = null;
   }
 }
 
-class BST {
-  root: TreeNode | null;
+export class BST<T = number> {
+  root: TreeNode<T> | null;
   size: number;
   constructor() {
     this.root = null;
@@ -28,25 +28,26 @@ class BST {
   isEmpty() {
     return this.size === 0;
   }
-  add(e: number) {
+  add(e: T) {
     this.root = this.addNode(this.root, e);
   }
-  addNode(node: TreeNode | null, e: number): TreeNode {
+  addNode(node: TreeNode<T> | null, e: T): TreeNode<T> {
     if (!node) {
       this.size++;
       return new TreeNode(e);
     }
+    if (e === node.e) return node;
     if (e < node.e) {
       node.left = this.addNode(node.left, e);
-    } else if (e > node.e) {
+    } else {
       node.right = this.addNode(node.right, e);
     }
     return node;
   }
-  contains(e: number) {
+  contains(e: T) {
     return this.containsNode(this.root, e);
   }
-  containsNode(node: TreeNode | null, e: number): boolean {
+  containsNode(node: TreeNode<T> | null, e: T): boolean {
     if (!node) {
       return false;
     }
@@ -59,10 +60,10 @@ class BST {
       return this.containsNode(node.left, e);
     }
   }
-  preOrder(visitor: Visitor) {
+  preOrder(visitor: Visitor<T>) {
     this.preOrderNode(this.root, visitor);
   }
-  preOrderNode(node: TreeNode | null, visitor: Visitor) {
+  preOrderNode(node: TreeNode<T> | null, visitor: Visitor<T>) {
     if (!node) {
       return;
     }
@@ -70,10 +71,10 @@ class BST {
     this.preOrderNode(node.left, visitor);
     this.preOrderNode(node.right, visitor);
   }
-  inOrder(visitor: Visitor) {
+  inOrder(visitor: Visitor<T>) {
     this.inOrderNode(this.root, visitor);
   }
-  inOrderNode(node: TreeNode | null, visitor: Visitor) {
+  inOrderNode(node: TreeNode<T> | null, visitor: Visitor<T>) {
     if (!node) {
       return;
     }
@@ -81,10 +82,10 @@ class BST {
     visitor.visit(node.e);
     this.inOrderNode(node.right, visitor);
   }
-  postOrder(visitor: Visitor) {
+  postOrder(visitor: Visitor<T>) {
     this.postOrderNode(this.root, visitor);
   }
-  postOrderNode(node: TreeNode | null, visitor: Visitor) {
+  postOrderNode(node: TreeNode<T> | null, visitor: Visitor<T>) {
     if (!node) {
       return;
     }
@@ -92,7 +93,7 @@ class BST {
     this.postOrderNode(node.right, visitor);
     visitor.visit(node.e);
   }
-  preOrderNR(visitor: Visitor) {
+  preOrderNR(visitor: Visitor<T>) {
     if (!this.root) {
       return;
     }
@@ -108,7 +109,7 @@ class BST {
       }
     }
   }
-  levelOrder(visitor: Visitor) {
+  levelOrder(visitor: Visitor<T>) {
     if (!this.root) {
       return;
     }
@@ -128,10 +129,10 @@ class BST {
     if (this.size === 0) {
       throw new Error("error");
     }
-    let res = this.minimumNode(this.root as TreeNode);
+    let res = this.minimumNode(this.root as TreeNode<T>);
     return res.e;
   }
-  minimumNode(node: TreeNode): TreeNode {
+  minimumNode(node: TreeNode<T>): TreeNode<T> {
     if (!node.left) {
       return node;
     }
@@ -141,10 +142,10 @@ class BST {
     if (this.size === 0) {
       throw new Error("error");
     }
-    let res = this.maximumNode(this.root as TreeNode);
+    let res = this.maximumNode(this.root as TreeNode<T>);
     return res.e;
   }
-  maximumNode(node: TreeNode): TreeNode {
+  maximumNode(node: TreeNode<T>): TreeNode<T> {
     if (!node.right) {
       return node;
     }
@@ -158,7 +159,7 @@ class BST {
     this.root = next;
     return res;
   }
-  removeMinNode(node: TreeNode): { next: TreeNode | null; res: number } {
+  removeMinNode(node: TreeNode<T>): { next: TreeNode<T> | null; res: T } {
     if (!node.left) {
       this.size--;
       let res = node.e;
@@ -182,7 +183,7 @@ class BST {
     this.root = next;
     return res;
   }
-  removeMaxNode(node: TreeNode): { res: number; next: TreeNode | null } {
+  removeMaxNode(node: TreeNode<T>): { res: T; next: TreeNode<T> | null } {
     if (!node.right) {
       let res = node.e;
       this.size--;
@@ -198,10 +199,10 @@ class BST {
       next: node,
     };
   }
-  remove(e: number) {
+  remove(e: T) {
     this.root = this.removeNode(this.root, e);
   }
-  removeNode(node: TreeNode | null, e: number): TreeNode | null {
+  removeNode(node: TreeNode<T> | null, e: T): TreeNode<T> | null {
     if (!node) {
       return null;
     }
