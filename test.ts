@@ -417,5 +417,145 @@ export function threeSumClosest(nums: number[], target: number) {
 }
 
 export function fourSum(nums: number[], target: number) {
-  
+  nums.sort((a, b) => a - b);
+  const res: [number, number, number, number][] = [];
+  for (let i = 0; i < nums.length - 3; i++) {
+    const current = nums[i];
+    if (i > 0 && current === nums[i - 1]) continue;
+    if (current + nums[i + 1] + nums[i + 2] + nums[i + 3] > target) break;
+    if (
+      current +
+        nums[nums.length - 1] +
+        nums[nums.length - 2] +
+        nums[nums.length - 3] <
+      target
+    )
+      continue;
+    for (let j = i + 1; j < nums.length - 2; j++) {
+      const currentj = nums[j];
+      if (j > i + 1 && currentj === nums[j - 1]) continue;
+      if (current + currentj + nums[j + 1] + nums[j + 2] > target) break;
+      if (
+        current + currentj + nums[nums.length - 1] + nums[nums.length - 2] <
+        target
+      )
+        continue;
+      let l = j + 1,
+        r = nums.length - 1;
+      while (l < r) {
+        const currentl = nums[l];
+        const currentr = nums[r];
+        const sum = current + currentj + currentl + currentr;
+        if (sum === target) {
+          res.push([current, currentj, currentl, currentr]);
+          while (l < r) {
+            l++;
+            if (nums[l] !== currentl) break;
+          }
+          while (l < r) {
+            r--;
+            if (nums[r] !== currentr) break;
+          }
+        } else if (sum > target) {
+          while (l < r) {
+            r--;
+            if (nums[r] !== currentr) break;
+          }
+        } else {
+          while (l < r) {
+            l++;
+            if (nums[l] !== currentl) break;
+          }
+        }
+      }
+    }
+  }
+  return res;
+}
+
+export function removeDuplicates(nums: number[]) {
+  let res = nums.length - 1;
+  let i = 0;
+  while (i < res) {
+    if (i > 0 && nums[i] === nums[i - 1]) {
+      res--;
+      for (let j = i; j < res; j++) {
+        nums[j] = nums[j + 1];
+      }
+    } else {
+      i++;
+    }
+  }
+  return res;
+}
+
+export function removeElement(nums: number[], val: number) {
+  let res = nums.length;
+  let i = 0;
+  while (i < res) {
+    if (nums[i] === val) {
+      res--;
+      for (let j = i; j < res; j++) {
+        nums[j] = nums[j + 1];
+      }
+    } else {
+      i++;
+    }
+  }
+  return res;
+}
+
+export function combinationSum(nums: number[], target: number) {
+  const res: number[][] = [];
+  const dfs = (path: number[], sum: number, index: number) => {
+    if (sum === target) {
+      res.push(path);
+      return;
+    }
+    if (index >= nums.length) return;
+    if (sum > target) return;
+    dfs(path, sum, index + 1);
+    dfs([...path, nums[index]], sum + nums[index], index);
+  };
+  dfs([], 0, 0);
+  return res;
+}
+
+export function combineSum2(candidates: number[], target: number) {
+  candidates.sort((a, b) => a - b);
+  const res: number[][] = [];
+  const dfs = (path: number[], sum: number, index: number) => {
+    if (sum === target) {
+      res.push(path);
+      return;
+    }
+    if (index >= candidates.length) return;
+    if (sum > target) return;
+    for (let i = index; i < candidates.length; i++) {
+      if (i > index && candidates[index - 1] === candidates[index]) continue;
+      dfs([...path, candidates[index]], sum + candidates[index], index + 1);
+    }
+  };
+  dfs([], 0, 0);
+  return res;
+}
+
+export function firstMissingPositive(nums: number[]) {
+  for (let i = 0; i < nums.length; i++) {
+    if (nums[i] <= 0) {
+      nums[i] = nums.length + 1;
+    }
+  }
+  for (let i = 0; i < nums.length; i++) {
+    const current = Math.abs(nums[i]);
+    if (current <= nums.length) {
+      nums[current - 1] = -Math.abs(nums[current - 1]);
+    }
+  }
+  for (let i = 0; i < nums.length; i++) {
+    if (nums[i] > 0) {
+      return i + 1;
+    }
+  }
+  return nums.length + 1;
 }

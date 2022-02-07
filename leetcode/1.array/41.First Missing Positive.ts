@@ -12,7 +12,6 @@ function firstMissingPositive(nums: number[]): number {
       nums[current - 1] = -Math.abs(nums[current - 1]);
     }
   }
-  console.log(nums);
   for (let i = 0; i < nums.length; i++) {
     if (nums[i] > 0) {
       return i + 1;
