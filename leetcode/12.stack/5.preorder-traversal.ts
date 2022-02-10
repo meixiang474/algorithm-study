@@ -13,7 +13,7 @@ class TreeNode {
 
 export default function preOrderTraversal(root: TreeNode | null) {
   if (!root) return [];
-  const stack: TreeNode[] = [];
+  const stack: TreeNode[] = [root];
   const res: number[] = [];
   while (stack.length > 0) {
     const current = stack.pop()!;

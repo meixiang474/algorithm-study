@@ -1,139 +1,27 @@
-// offer 10-II
-export function numWays(n: number) {
-  const dp = [1, 1];
-  for (let i = 2; i <= n; i++) {
-    dp[i] = dp[i - 1] + dp[i - 2];
-  }
-  return dp[n];
-}
-
-// binary search
-export function binarySearch(data: number[], target: number) {
-  const searchData = (data: number[], l: number, r: number): number => {
-    if (l > r) return -1;
-    const mid = Math.floor(l + (r - l) / 2);
-    if (data[mid] === target) {
-      return mid;
-    } else if (data[mid] < target) {
-      return searchData(data, mid + 1, r);
-    } else {
-      return searchData(data, l, mid - 1);
-    }
-  };
-  return searchData(data, 0, data.length - 1);
-}
-
-export function binarySearch1(data: number[], target: number) {
+// offer 11
+export function minArray(nums: number[]) {
   let l = 0,
-    r = data.length;
+    r = nums.length - 1;
   while (l < r) {
     const mid = Math.floor(l + (r - l) / 2);
-    if (data[mid] === target) {
-      return mid;
-    } else if (data[mid] > target) {
+    if (nums[mid] < nums[r]) {
       r = mid;
-    } else {
-      l = mid + 1;
-    }
-  }
-  return -1;
-}
-
-// > target的第一个
-export function upper(data: number[], target: number) {
-  let l = 0,
-    r = data.length;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l) / 2);
-    if (data[mid] <= target) {
+    } else if (nums[mid] > nums[r]) {
       l = mid + 1;
     } else {
-      r = mid;
+      r--;
     }
   }
-  return l;
+  return nums[l];
 }
 
-// = target的最后一个或者 > target的第一个
-export function ceil(data: number[], target: number) {
-  const index = upper(data, target);
-  if (index - 1 >= 0 && data[index - 1] === target) {
-    return index - 1;
-  }
-  return index;
+// bst
+
+interface Visitor {
+  visit: (val: number) => void;
 }
 
-// = target第一个或者 > target第一个
-export function lowerCeil(data: number[], target: number) {
-  let l = 0,
-    r = data.length;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l) / 2);
-    if (data[mid] >= target) {
-      r = mid;
-    } else {
-      l = mid + 1;
-    }
-  }
-  return l;
-}
-
-// < target得第一个
-export function lower(data: number[], target: number) {
-  let l = -1,
-    r = data.length - 1;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l + 1) / 2);
-    if (data[mid] < target) {
-      l = mid;
-    } else {
-      r = mid - 1;
-    }
-  }
-  return l;
-}
-
-// = target的最后一个，< target的第一个
-export function upperFloor(data: number[], target: number) {
-  let l = -1,
-    r = data.length - 1;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l + 1) / 2);
-    if (data[mid] <= target) {
-      l = mid;
-    } else {
-      r = mid - 1;
-    }
-  }
-  return l;
-}
-
-// < target得第一个，= target得第一个
-export function lowerFloor(data: number[], target: number) {
-  const index = lower(data, target);
-  if (index + 1 < data.length && data[index + 1] === target) {
-    return index + 1;
-  }
-  return index;
-}
-
-export function mySqrt1(n: number) {
-  let l = 0,
-    r = n;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l + 1) / 2);
-    if (mid ** 2 <= n) {
-      l = mid;
-    } else {
-      r = mid - 1;
-    }
-  }
-  return l;
-}
-
-// bfs 1 - 5
-
-class TreeNode {
+export class TreeNode {
   val: number;
   left: TreeNode | null;
   right: TreeNode | null;
@@ -143,6 +31,255 @@ class TreeNode {
     this.right = null;
   }
 }
+
+export class BST {
+  root: TreeNode | null;
+  size: number;
+  constructor() {
+    this.root = null;
+    this.size = 0;
+  }
+  getSize() {
+    return this.size;
+  }
+  isEmpty() {
+    return this.size === 0;
+  }
+  add(val: number) {
+    this.root = this.addNode(val, this.root);
+  }
+  addNode(val: number, node: TreeNode | null) {
+    if (!node) {
+      this.size++;
+      return new TreeNode(val);
+    }
+    if (node.val === val) return node;
+    if (node.val > val) {
+      node.left = this.addNode(val, node.left);
+    } else {
+      node.right = this.addNode(val, node.right);
+    }
+    return node;
+  }
+  contains(val: number) {
+    return this.containsNode(val, this.root);
+  }
+  containsNode(val: number, node: TreeNode | null): boolean {
+    if (!node) return false;
+    if (node.val === val) return true;
+    if (node.val < val) {
+      return this.containsNode(val, node.right);
+    } else {
+      return this.containsNode(val, node.left);
+    }
+  }
+  preOrder(visitor: Visitor) {
+    this.preOrderNode(this.root, visitor);
+  }
+  preOrderNode(node: TreeNode | null, visitor: Visitor) {
+    if (node) {
+      visitor.visit(node.val);
+      this.preOrderNode(node.left, visitor);
+      this.preOrderNode(node.right, visitor);
+    }
+  }
+  inOrder(visitor: Visitor) {
+    this.inOrderNode(this.root, visitor);
+  }
+  inOrderNode(node: TreeNode | null, visitor: Visitor) {
+    if (node) {
+      this.inOrderNode(node.left, visitor);
+      visitor.visit(node.val);
+      this.inOrderNode(node.right, visitor);
+    }
+  }
+  postOrder(visitor: Visitor) {
+    this.postOrderNode(this.root, visitor);
+  }
+  postOrderNode(node: TreeNode | null, visitor: Visitor) {
+    if (node) {
+      this.postOrderNode(node.left, visitor);
+      this.postOrderNode(node.right, visitor);
+      visitor.visit(node.val);
+    }
+  }
+  preOrderNR(visitor: Visitor) {
+    if (!this.root) return;
+    const stack: TreeNode[] = [this.root];
+    while (stack.length) {
+      const current = stack.pop()!;
+      visitor.visit(current.val);
+      if (current.right) stack.push(current.right);
+      if (current.left) stack.push(current.left);
+    }
+  }
+  levelOrder(visitor: Visitor) {
+    if (!this.root) return;
+    const queue: TreeNode[] = [this.root];
+    while (queue.length) {
+      const current = queue.shift()!;
+      visitor.visit(current.val);
+      if (current.left) queue.push(current.left);
+      if (current.right) queue.push(current.right);
+    }
+  }
+  minimum() {
+    if (!this.root) throw new Error("error");
+    const res = this.minimumNode(this.root);
+    return res.val;
+  }
+  minimumNode(node: TreeNode): TreeNode {
+    if (!node.left) return node;
+    return this.minimumNode(node.left);
+  }
+  maximum() {
+    if (!this.root) throw new Error("error");
+    const res = this.maximumNode(this.root);
+    return res.val;
+  }
+  maximumNode(node: TreeNode): TreeNode {
+    if (!node.right) return node;
+    return this.maximumNode(node.right);
+  }
+  removeMin() {
+    if (!this.root) throw new Error("error");
+    const { res, next } = this.removeMinNode(this.root);
+    this.root = next;
+    return res;
+  }
+  removeMinNode(node: TreeNode): { res: number; next: TreeNode | null } {
+    if (!node.left) {
+      this.size--;
+      return {
+        res: node.val,
+        next: node.right,
+      };
+    }
+    const { res, next } = this.removeMinNode(node.left);
+    node.left = next;
+    return {
+      res,
+      next: node,
+    };
+  }
+  removeMax() {
+    if (!this.root) throw new Error("error");
+    const { res, next } = this.removeMaxNode(this.root);
+    this.root = next;
+    return res;
+  }
+  removeMaxNode(node: TreeNode): { res: number; next: TreeNode | null } {
+    if (!node.right) {
+      this.size--;
+      return {
+        res: node.val,
+        next: node.left,
+      };
+    }
+    const { res, next } = this.removeMaxNode(node.right);
+    node.right = next;
+    return {
+      res,
+      next: node,
+    };
+  }
+  remove(val: number) {
+    this.root = this.removeNode(val, this.root);
+  }
+  removeNode(val: number, node: TreeNode | null): TreeNode | null {
+    if (!node) return null;
+    if (node.val > val) {
+      node.left = this.removeNode(val, node.left);
+      return node;
+    } else if (node.val < val) {
+      node.right = this.removeNode(val, node.right);
+      return node;
+    } else {
+      if (!node.left) {
+        this.size--;
+        return node.right;
+      }
+      if (!node.right) {
+        this.size--;
+        return node.left;
+      }
+      const successor = this.minimumNode(node.right);
+      successor.left = node.left;
+      successor.right = this.removeMinNode(node.right).next;
+      return successor;
+    }
+  }
+}
+
+export function maxDepth(root: TreeNode | null) {
+  if (!root) return 0;
+  let res = 0;
+  const dfs = (node: TreeNode, level: number) => {
+    if (!node.left && !node.right) {
+      res = Math.max(res, level);
+    }
+    if (node.left) dfs(node.left, level + 1);
+    if (node.right) dfs(node.right, level + 1);
+  };
+  dfs(root, 1);
+  return res;
+}
+
+export function minDepth1(root: TreeNode | null) {
+  if (!root) return 0;
+  const queue: [TreeNode, number][] = [[root, 1]];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    if (!current.left && !current.right) return level;
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
+  }
+}
+
+export function levelOrder1(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[][] = [];
+  const queue: [TreeNode, number][] = [[root, 0]];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    const arr = res[level] || (res[level] = []);
+    arr.push(current.val);
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
+  }
+  return res;
+}
+
+export function inOrder(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  const dfs = (node: TreeNode) => {
+    if (node.left) dfs(node.left);
+    res.push(node.val);
+    if (node.right) dfs(node.right);
+  };
+  dfs(root);
+  return res;
+}
+
+export function inOrder1(root: TreeNode | null) {
+  if (!root) return [];
+  const stack: TreeNode[] = [];
+  const res: number[] = [];
+  let p: TreeNode | null = root;
+  while (stack.length || p) {
+    while (p) {
+      stack.push(p);
+      p = p.left;
+    }
+    const current = stack.pop()!;
+    res.push(current.val);
+    p = current.right;
+  }
+  return res;
+}
+
+// bfs 1 - 5
 
 export function isSymmetric(root: TreeNode | null) {
   if (!root) return true;
@@ -159,4 +296,73 @@ export function isSymmetric(root: TreeNode | null) {
     return false;
   };
   return compare(root.left, root.right);
+}
+
+export function levelOrder(root: TreeNode | null) {
+  if (!root) return [];
+  const queue: [TreeNode, number][] = [[root, 0]];
+  const res: number[][] = [];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    const arr = res[level] || (res[level] = []);
+    arr.push(current.val);
+    if (current.left) {
+      queue.push([current.left, level + 1]);
+    }
+    if (current.right) {
+      queue.push([current.right, level + 1]);
+    }
+  }
+  return res;
+}
+
+export function zigzagLevelOrder(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[][] = [];
+  const queue: [TreeNode, number][] = [[root, 0]];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    const arr = res[level] || (res[level] = []);
+    if (level % 2 === 0) {
+      arr.push(current.val);
+    } else {
+      arr.unshift(current.val);
+    }
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
+  }
+  return res;
+}
+
+export function levelOrderBottom(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[][] = [];
+  const queue: [TreeNode, number][] = [[root, 0]];
+  let currentLevel = -1;
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    if (level === currentLevel) {
+      const arr = res[0];
+      arr.push(current.val);
+    } else {
+      const arr = [];
+      arr.push(current.val);
+      res.unshift(arr);
+      currentLevel = level;
+    }
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
+  }
+  return res;
+}
+
+export function minDepth(root: TreeNode | null) {
+  if (!root) return 0;
+  const queue: [TreeNode, number][] = [[root, 1]];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    if (!current.left && !current.right) return level;
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
+  }
 }
