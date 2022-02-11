@@ -19,19 +19,19 @@ export default function recoverTree(root: TreeNode | null): void {
     inorder(node.right, nums);
   };
   const findTwo = (nums: number[]) => {
-    let x = -1,
-      y = -1;
+    let x = null,
+      y = null;
     for (let i = 0; i < nums.length - 1; i++) {
       if (nums[i + 1] < nums[i]) {
         y = nums[i + 1];
-        if (x === -1) {
+        if (x == null) {
           x = nums[i];
         } else {
           break;
         }
       }
     }
-    return [x, y];
+    return [x, y] as [number, number];
   };
   const recover = (
     node: TreeNode | null,

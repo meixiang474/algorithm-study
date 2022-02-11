@@ -279,90 +279,106 @@ export function inOrder1(root: TreeNode | null) {
   return res;
 }
 
-// bfs 1 - 5
-
-export function isSymmetric(root: TreeNode | null) {
-  if (!root) return true;
-  const compare = (p: TreeNode | null, q: TreeNode | null) => {
-    if (!p && !q) return true;
-    if (
-      p &&
-      q &&
-      p.val === q.val &&
-      compare(p.left, q.right) &&
-      compare(p.right, q.left)
-    )
+export function hasPathSum(root: TreeNode | null, sum: number) {
+  if (!root) return false;
+  const dfs = (node: TreeNode, count: number): boolean => {
+    if (!node.left && !node.right && count === sum) {
       return true;
-    return false;
+    }
+    return (
+      (!!node.left && dfs(node.left, count + node.left.val)) ||
+      (!!node.right && dfs(node.right, count + node.right.val))
+    );
   };
-  return compare(root.left, root.right);
+  return dfs(root, root.val);
 }
 
-export function levelOrder(root: TreeNode | null) {
+export function postOrderTraversal(root: TreeNode | null) {
   if (!root) return [];
-  const queue: [TreeNode, number][] = [[root, 0]];
-  const res: number[][] = [];
-  while (queue.length) {
-    const [current, level] = queue.shift()!;
-    const arr = res[level] || (res[level] = []);
-    arr.push(current.val);
-    if (current.left) {
-      queue.push([current.left, level + 1]);
+  const res: number[] = [];
+  const stack: TreeNode[] = [];
+  let p: TreeNode | null = root;
+  let prevRight: TreeNode | null = null;
+  while (stack.length || p) {
+    while (p) {
+      stack.push(p);
+      p = p.left;
     }
-    if (current.right) {
-      queue.push([current.right, level + 1]);
-    }
-  }
-  return res;
-}
-
-export function zigzagLevelOrder(root: TreeNode | null) {
-  if (!root) return [];
-  const res: number[][] = [];
-  const queue: [TreeNode, number][] = [[root, 0]];
-  while (queue.length) {
-    const [current, level] = queue.shift()!;
-    const arr = res[level] || (res[level] = []);
-    if (level % 2 === 0) {
-      arr.push(current.val);
+    const current = stack.pop()!;
+    if (!current.right || current.right === prevRight) {
+      prevRight = current;
+      res.push(current.val);
     } else {
-      arr.unshift(current.val);
+      stack.push(current);
+      p = current.right;
     }
-    if (current.left) queue.push([current.left, level + 1]);
-    if (current.right) queue.push([current.right, level + 1]);
   }
   return res;
 }
 
-export function levelOrderBottom(root: TreeNode | null) {
-  if (!root) return [];
-  const res: number[][] = [];
-  const queue: [TreeNode, number][] = [[root, 0]];
-  let currentLevel = -1;
-  while (queue.length) {
-    const [current, level] = queue.shift()!;
-    if (level === currentLevel) {
-      const arr = res[0];
-      arr.push(current.val);
-    } else {
-      const arr = [];
-      arr.push(current.val);
-      res.unshift(arr);
-      currentLevel = level;
-    }
-    if (current.left) queue.push([current.left, level + 1]);
-    if (current.right) queue.push([current.right, level + 1]);
-  }
-  return res;
+// dfs 1 - 5
+export function isValidBST(root: TreeNode | null) {
+  const dfs = (node: TreeNode | null, floor: number, ceil: number): boolean => {
+    if (!node) return true;
+    if (node.val <= floor || node.val >= ceil) return false;
+    return dfs(node.left, floor, node.val) && dfs(node.right, node.val, ceil);
+  };
+  return dfs(root, -Infinity, Infinity);
 }
 
-export function minDepth(root: TreeNode | null) {
-  if (!root) return 0;
-  const queue: [TreeNode, number][] = [[root, 1]];
-  while (queue.length) {
-    const [current, level] = queue.shift()!;
-    if (!current.left && !current.right) return level;
-    if (current.left) queue.push([current.left, level + 1]);
-    if (current.right) queue.push([current.right, level + 1]);
-  }
+export function recoverTree(root: TreeNode | null) {
+  const inorder = (node: TreeNode | null, nums: number[]) => {
+    if (!node) return;
+    inorder(node.left, nums);
+    nums.push(node.val);
+    inorder(node.right, nums);
+  };
+  const findTwo = (nums: number[]) => {
+    let x = null,
+      y = null;
+    for (let i = 0; i < nums.length; i++) {
+      if (nums[i + 1] < nums[i]) {
+        y = nums[i + 1];
+        if (x == null) {
+          x = nums[i];
+        } else {
+          break;
+        }
+      }
+    }
+    return [x, y] as [number, number];
+  };
+  const recover = (
+    node: TreeNode | null,
+    count: number,
+    x: number,
+    y: number
+  ) => {
+    if (node) {
+      if (node.val === x || node.val === y) {
+        node.val = node.val === x ? y : x;
+        count--;
+        if (count === 0) return;
+      }
+      recover(node.left, count, x, y);
+      recover(node.right, count, x, y);
+    }
+  };
+  const nums: number[] = [];
+  inorder(root, nums);
+  const [x, y] = findTwo(nums);
+  recover(root, 2, x, y);
+}
+
+export function isSameTree(p: TreeNode | null, q: TreeNode | null) {
+  if (!p && !q) return true;
+  if (
+    p &&
+    q &&
+    p.val === q.val &&
+    isSameTree(p.left, q.left) &&
+    isSameTree(p.right, q.right)
+  )
+    return true;
+  return false;
 }
