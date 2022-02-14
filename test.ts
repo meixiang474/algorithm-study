@@ -382,3 +382,32 @@ export function isSameTree(p: TreeNode | null, q: TreeNode | null) {
     return true;
   return false;
 }
+
+export function isSymmetric(root: TreeNode | null) {
+  if (!root) return true;
+  const compare = (p: TreeNode | null, q: TreeNode | null) => {
+    if (!p && !q) return true;
+    if (
+      p &&
+      q &&
+      p.val === q.val &&
+      compare(p.left, q.right) &&
+      compare(p.right, q.left)
+    )
+      return true;
+    return false;
+  };
+  return compare(root.left, root.right);
+}
+
+export function maxDepth1(root: TreeNode | null) {
+  if (!root) return 0;
+  let res = 0;
+  const dfs = (node: TreeNode, level: number) => {
+    if (!node.left && !node.right) res = Math.max(res, level);
+    if (node.left) dfs(node.left, level + 1);
+    if (node.right) dfs(node.right, level + 1);
+  };
+  dfs(root, 1);
+  return res;
+}
