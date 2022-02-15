@@ -1,7 +1,7 @@
 // leetcode 62
 
 export default function uniquePaths(m: number, n: number) {
-  const dp = Array.from({ length: m }, () => new Array(n));
+  const dp: number[][] = Array.from({ length: m }, () => new Array(n).fill(0));
   for (let r = 0; r < m; r++) {
     dp[r][0] = 1;
   }
