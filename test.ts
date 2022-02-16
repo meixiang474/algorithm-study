@@ -1,137 +1,129 @@
 import { BST } from "./11.BST";
 import { LinkedList } from "./7.LinkedList";
 
-// offer 12
-export function exists(board: string[][], word: string) {
-  if (board.length === 0 || board[0].length === 0) return false;
-  const m = board.length;
-  const n = board[0].length;
-  const dfs = (r: number, c: number, index: number) => {
-    if (index === word.length - 1) return true;
-    const temp = board[r][c];
-    board[r][c] = "";
-    const res = [
+// offer 13
+export function movingCount(m: number, n: number, k: number) {
+  let res = 0;
+  const map: boolean[][] = Array.from({ length: m }, () =>
+    new Array(n).fill(false)
+  );
+  const dfs = (r: number, c: number) => {
+    res++;
+    [
       [r + 1, c],
       [r - 1, c],
       [r, c + 1],
       [r, c - 1],
-    ].some(([nextR, nextC]) => {
+    ].forEach(([nextR, nextC]) => {
       if (
         nextR >= 0 &&
         nextR < m &&
         nextC >= 0 &&
         nextC < n &&
-        board[nextR][nextC] === word[index + 1]
+        !map[nextR][nextC]
       ) {
-        return dfs(nextR, nextC, index + 1);
+        const sum =
+          nextR
+            .toString()
+            .split("")
+            .map((i) => parseInt(i))
+            .reduce((a, b) => a + b) +
+          nextC
+            .toString()
+            .split("")
+            .map((i) => parseInt(i))
+            .reduce((a, b) => a + b);
+        if (sum <= k) {
+          dfs(nextR, nextC);
+        }
       }
-      return false;
     });
-    if (res) {
-      return true;
-    }
-    board[r][c] = temp;
-    return false;
   };
-  for (let r = 0; r < m; r++) {
-    for (let c = 0; c < n; c++) {
-      if (board[r][c] === word[0]) {
-        const res = dfs(r, c, 0);
-        if (res) return true;
+  dfs(0, 0);
+  return res;
+}
+
+// map
+export class LinkedListMapNode<K = string, V = any> {
+  key: K | null;
+  value: V | null;
+  next: LinkedListMapNode<K, V> | null;
+  constructor(
+    key: K | null = null,
+    value: V | null = null,
+    next: LinkedListMapNode<K, V> | null = null
+  ) {
+    this.key = key;
+    this.value = value;
+    this.next = next;
+  }
+  toString() {
+    return `${JSON.stringify(this.key)} : ${JSON.stringify(this.value)}`;
+  }
+}
+
+export class LinkedListMap<K = string, V = any> {
+  dummyHead: LinkedListMapNode<K, V>;
+  size: number;
+  constructor() {
+    this.dummyHead = new LinkedListMapNode();
+    this.size = 0;
+  }
+  getSize() {
+    return this.size;
+  }
+  isEmpty() {
+    return this.size === 0;
+  }
+  getNode(key: K) {
+    let current = this.dummyHead.next;
+    while (current) {
+      if (current.key === key) {
+        return current;
       }
+      current = current.next;
+    }
+    return null;
+  }
+  contains(key: K) {
+    return this.getNode(key) != null;
+  }
+  get(key: K) {
+    const node = this.getNode(key);
+    return node == null ? null : node.value;
+  }
+  add(key: K, value: V) {
+    const node = this.getNode(key);
+    if (node == null) {
+      this.dummyHead.next = new LinkedListMapNode(
+        key,
+        value,
+        this.dummyHead.next
+      );
+      this.size++;
+    } else {
+      node.value = value;
     }
   }
-  return false;
-}
-
-// bst
-export class BSTSet<T = number> {
-  bst: BST<T>;
-  constructor() {
-    this.bst = new BST<T>();
+  set(key: K, value: V) {
+    const node = this.getNode(key);
+    if (node == null) throw new Error("error");
+    node.value = value;
   }
-  getSize() {
-    return this.bst.getSize();
-  }
-  isEmpty() {
-    return this.bst.isEmpty();
-  }
-  add(e: T) {
-    this.bst.add(e);
-  }
-  contains(e: T) {
-    return this.bst.contains(e);
-  }
-  remove(e: T) {
-    this.bst.remove(e);
-  }
-}
-
-export class LinkedListSet<T> {
-  list: LinkedList<T>;
-  constructor() {
-    this.list = new LinkedList<T>(-1 as any);
-  }
-  getSize() {
-    return this.list.getSize();
-  }
-  isEmpty() {
-    return this.list.isEmpty();
-  }
-  contains(e: T) {
-    return this.list.contains(e);
-  }
-  add(e: T) {
-    if (!this.list.contains(e)) {
-      this.list.addFirst(e);
+  remove(key: K) {
+    let prev = this.dummyHead;
+    while (prev.next) {
+      if (prev.next.key === key) break;
+      prev = prev.next;
     }
+    if (prev.next) {
+      const node = prev.next;
+      prev.next = node.next;
+      this.size--;
+      return node.value;
+    }
+    return null;
   }
-  remove(e: T) {
-    this.list.removeElement(e);
-  }
-}
-
-export function intersection(nums1: number[], nums2: number[]) {
-  return [...new Set(nums1)].filter((item) => nums2.includes(item));
-}
-
-export function uniqueMorse(word: string[]) {
-  const arr = [
-    ".-",
-    "-...",
-    "-.-.",
-    "-..",
-    ".",
-    "..-.",
-    "--.",
-    "....",
-    "..",
-    ".---",
-    "-.-",
-    ".-..",
-    "--",
-    "-.",
-    "---",
-    ".--.",
-    "--.-",
-    ".-.",
-    "...",
-    "-",
-    "..-",
-    "...-",
-    ".--",
-    "-..-",
-    "-.--",
-    "--..",
-  ];
-  const set = new Set<string>();
-  for (let item of word) {
-    const code = item.split("").reduce((memo, current) => {
-      return memo + arr[current.charCodeAt(0) - "a".charCodeAt(0)];
-    }, "");
-    set.add(code);
-  }
-  return set.size;
 }
 
 // dp 1 - 5
@@ -157,4 +149,53 @@ export function uniquePaths(m: number, n: number) {
     }
   }
   return dp[m - 1][n - 1];
+}
+
+export function uniquePathsTwo(board: number[][]) {
+  if (board.length === 0 || board[0].length === 0) return 0;
+  const m = board.length;
+  const n = board[0].length;
+  const dp = Array.from({ length: m }, () => new Array(n).fill(0));
+  for (let r = 0; r < m; r++) {
+    if (board[r][0] === 1) break;
+    dp[r][0] = 1;
+  }
+  for (let c = 0; c < n; c++) {
+    if (board[0][c] === 1) break;
+    dp[0][c] = 1;
+  }
+  for (let r = 1; r < m; r++) {
+    for (let c = 1; c < n; c++) {
+      if (board[r][c] === 1) continue;
+      dp[r][c] = dp[r - 1][c] + dp[r][c - 1];
+    }
+  }
+  return dp[m - 1][n - 1];
+}
+
+export function minPathSum(grid: number[][]) {
+  if (grid.length === 0 || grid[0].length === 0) return 0;
+  const m = grid.length;
+  const n = grid[0].length;
+  const dp = Array.from({ length: m }, () => new Array(n).fill(0));
+  for (let r = 0; r < m; r++) {
+    dp[r][0] = dp[r - 1][0] + grid[r][0];
+  }
+  for (let c = 0; c < n; c++) {
+    dp[0][c] = dp[0][c - 1] + grid[0][c];
+  }
+  for (let r = 1; r < m; r++) {
+    for (let c = 1; c < n; c++) {
+      dp[r][c] = Math.min(dp[r - 1][c], dp[r][c - 1]) + grid[r][c];
+    }
+  }
+  return dp[m - 1][n - 1];
+}
+
+export function climbStairs(n: number) {
+  const dp = [1, 1];
+  for (let i = 2; i <= n; i++) {
+    dp[i] = dp[i - 1] + dp[i - 2];
+  }
+  return dp[n];
 }
