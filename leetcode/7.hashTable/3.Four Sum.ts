@@ -9,9 +9,10 @@ export default function fourSum(nums: number[], target: number) {
     if (current + nums[i + 1] + nums[i + 2] + nums[i + 3] > target) break;
     if (
       current +
-      nums[nums.length - 1] +
-      nums[nums.length - 2] +
-      nums[nums.length - 3]
+        nums[nums.length - 1] +
+        nums[nums.length - 2] +
+        nums[nums.length - 3] <
+      target
     ) {
       continue;
     }

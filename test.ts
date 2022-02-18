@@ -234,76 +234,185 @@ export class BSTMap<K = number, V = any> {
   }
 }
 
-// dp 1 - 5
-export function maxSubArr(arr: number[]) {
-  const dp = [arr[0]];
-  for (let i = 0; i < arr.length; i++) {
-    dp[i] = Math.max(dp[i - 1] + arr[i], arr[i]);
+export function intersection(nums1: number[], nums2: number[]) {
+  const map = new Map<number, true>();
+  const res: number[] = [];
+  for (let item of nums1) {
+    map.set(item, true);
   }
-  return Math.max(...dp);
-}
-
-export function uniquePaths(m: number, n: number) {
-  const dp: number[][] = Array.from({ length: m }, () => new Array(n).fill(0));
-  for (let r = 0; r < m; r++) {
-    dp[r][0] = 1;
-  }
-  for (let c = 0; c < n; c++) {
-    dp[0][c] = 1;
-  }
-  for (let r = 1; r < m; r++) {
-    for (let c = 1; c < n; c++) {
-      dp[r][c] = dp[r - 1][c] + dp[r][c - 1];
+  for (let item of nums2) {
+    if (map.has(item)) {
+      res.push(item);
+      map.delete(item);
     }
   }
-  return dp[m - 1][n - 1];
+  return res;
 }
 
-export function uniquePathsTwo(board: number[][]) {
-  if (board.length === 0 || board[0].length === 0) return 0;
-  const m = board.length;
-  const n = board[0].length;
-  const dp = Array.from({ length: m }, () => new Array(n).fill(0));
-  for (let r = 0; r < m; r++) {
-    if (board[r][0] === 1) break;
-    dp[r][0] = 1;
+export function twoSum(nums: number[], target: number) {
+  const map = new Map<number, number>();
+  for (let i = 0; i < nums.length; i++) {
+    const current = nums[i];
+    const rest = target - current;
+    if (map.has(rest)) {
+      return [i, map.get(rest)];
+    }
+    map.set(current, i);
   }
-  for (let c = 0; c < n; c++) {
-    if (board[0][c] === 1) break;
-    dp[0][c] = 1;
+}
+
+export function fn(nums: number[]) {
+  let res = 0;
+  let l = 0,
+    r = 0;
+  const map = new Map<number, number>();
+  while (r < nums.length) {
+    const current = nums[r];
+    if (map.has(current) && map.get(current)! >= l) {
+      l = map.get(current)! + 1;
+    }
+    res = Math.max(res, r - l + 1);
+    map.set(current, r);
+    r++;
   }
-  for (let r = 1; r < m; r++) {
-    for (let c = 1; c < n; c++) {
-      if (board[r][c] === 1) continue;
-      dp[r][c] = dp[r - 1][c] + dp[r][c - 1];
+  return res;
+}
+
+export function fn1(s: string, t: string) {
+  const map = new Map<string, number>();
+  for (let item of t) {
+    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
+  }
+  let needType = map.size;
+  let res = "";
+  let l = 0,
+    r = 0;
+  while (r < s.length) {
+    const current = s[r];
+    if (map.has(current)) {
+      map.set(current, map.get(current)! - 1);
+      if (map.get(current) === 0) {
+        needType--;
+      }
+    }
+    while (!needType) {
+      const newRes = s.slice(l, r + 1);
+      if (!res || res.length > newRes.length) res = newRes;
+      const currentl = s[l];
+      if (map.has(currentl)) {
+        map.set(currentl, map.get(currentl)! + 1);
+        if (map.get(currentl) === 1) {
+          needType++;
+        }
+      }
+      l++;
+    }
+    r++;
+  }
+  return res;
+}
+
+export function intersectionTwo(nums1: number[], nums2: number[]) {
+  const map = new Map<number, number>();
+  const res: number[] = [];
+  for (let item of nums1) {
+    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
+  }
+  for (let item of nums2) {
+    if (map.has(item)) {
+      res.push(item);
+      map.set(item, map.get(item)! - 1);
+      if (map.get(item) === 0) {
+        map.delete(item);
+      }
     }
   }
-  return dp[m - 1][n - 1];
+  return res;
 }
 
-export function minPathSum(grid: number[][]) {
-  if (grid.length === 0 || grid[0].length === 0) return 0;
-  const m = grid.length;
-  const n = grid[0].length;
-  const dp = Array.from({ length: m }, () => new Array(n).fill(0));
-  for (let r = 0; r < m; r++) {
-    dp[r][0] = dp[r - 1][0] + grid[r][0];
+// hashtable 1 - 5
+export function twoSum1(nums: number[], target: number) {
+  const map = new Map<number, number>();
+  for (let i = 0; i < nums.length; i++) {
+    const current = nums[i];
+    const rest = target - current;
+    if (map.has(rest)) {
+      return [i, map.get(rest)];
+    }
+    map.set(current, i);
   }
-  for (let c = 0; c < n; c++) {
-    dp[0][c] = dp[0][c - 1] + grid[0][c];
+}
+
+export function longestSubstring(s: string) {
+  const map = new Map<string, number>();
+  let res = 0;
+  let l = 0,
+    r = 0;
+  while (r < s.length) {
+    const current = s[r];
+    if (map.has(current) && map.get(current)! >= l) {
+      l = map.get(current)! + 1;
+    }
+    res = Math.max(res, r - l + 1);
+    map.set(current, r);
+    r++;
   }
-  for (let r = 1; r < m; r++) {
-    for (let c = 1; c < n; c++) {
-      dp[r][c] = Math.min(dp[r - 1][c], dp[r][c - 1]) + grid[r][c];
+  return res;
+}
+
+export function fourSum(nums: number[], target: number) {
+  nums.sort((a, b) => a - b);
+  const res: number[][] = [];
+  for (let i = 0; i < nums.length - 3; i++) {
+    const current = nums[i];
+    if (i > 0 && nums[i - 1] === current) continue;
+    if (current + nums[i + 1] + nums[i + 2] + nums[i + 3] > target) break;
+    if (
+      current +
+        nums[nums.length - 1] +
+        nums[nums.length - 2] +
+        nums[nums.length - 3] <
+      target
+    )
+      continue;
+    for (let j = i + 1; j < nums.length - 2; j++) {
+      const currentj = nums[j];
+      if (j > i + 1 && nums[j - 1] === currentj) continue;
+      if (current + currentj + nums[j + 1] + nums[j + 2] > target) break;
+      if (
+        current + currentj + nums[nums.length - 1] + nums[nums.length - 2] <
+        target
+      )
+        continue;
+      let l = j + 1,
+        r = nums.length - 1;
+      while (l < r) {
+        const currentl = nums[l];
+        const currentr = nums[r];
+        const sum = current + currentj + currentl + currentr;
+        if (sum === target) {
+          res.push([current, currentj, currentl, currentr]);
+          while (l < r) {
+            l++;
+            if (nums[l] !== currentl) break;
+          }
+          while (l < r) {
+            r--;
+            if (nums[r] !== currentr) break;
+          }
+        } else if (sum < target) {
+          while (l < r) {
+            l++;
+            if (nums[l] !== currentl) break;
+          }
+        } else {
+          while (l < r) {
+            r--;
+            if (nums[r] !== currentr) break;
+          }
+        }
+      }
     }
   }
-  return dp[m - 1][n - 1];
-}
-
-export function climbStairs(n: number) {
-  const dp = [1, 1];
-  for (let i = 2; i <= n; i++) {
-    dp[i] = dp[i - 1] + dp[i - 2];
-  }
-  return dp[n];
+  return res;
 }
