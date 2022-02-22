@@ -49,135 +49,162 @@ export function dfs(
   });
 }
 
-// hashtable 1 - 5
-export function twoSum1(nums: number[], target: number) {
-  const map = new Map<number, number>();
-  for (let i = 0; i < nums.length; i++) {
-    const current = nums[i];
-    const rest = target - current;
-    if (map.has(rest)) {
-      return [i, map.get(rest)];
-    }
-    map.set(current, i);
-  }
-}
-
-export function longestSubstring(s: string) {
-  const map = new Map<string, number>();
-  let res = 0;
-  let l = 0,
-    r = 0;
-  while (r < s.length) {
-    const current = s[r];
-    if (map.has(current) && map.get(current)! >= l) {
-      l = map.get(current)! + 1;
-    }
-    res = Math.max(res, r - l + 1);
-    map.set(current, r);
-    r++;
-  }
-  return res;
-}
-
-export function fourSum(nums: number[], target: number) {
-  nums.sort((a, b) => a - b);
-  const res: number[][] = [];
-  for (let i = 0; i < nums.length - 3; i++) {
-    const current = nums[i];
-    if (i > 0 && nums[i - 1] === current) continue;
-    if (current + nums[i + 1] + nums[i + 2] + nums[i + 3] > target) break;
-    if (
-      current +
-        nums[nums.length - 1] +
-        nums[nums.length - 2] +
-        nums[nums.length - 3] <
-      target
-    )
-      continue;
-    for (let j = i + 1; j < nums.length - 2; j++) {
-      const currentj = nums[j];
-      if (j > i + 1 && nums[j - 1] === currentj) continue;
-      if (current + currentj + nums[j + 1] + nums[j + 2] > target) break;
+export function fn(matrix: number[][]) {
+  if (matrix.length === 0 || matrix[0].length === 0) return [];
+  const m = matrix.length;
+  const n = matrix[0].length;
+  const flow1: boolean[][] = Array.from({ length: m }, () =>
+    new Array(n).fill(false)
+  );
+  const flow2: boolean[][] = Array.from({ length: m }, () =>
+    new Array(n).fill(false)
+  );
+  const dfs = (r: number, c: number, flow: boolean[][]) => {
+    flow[r][c] = true;
+    [
+      [r + 1, c],
+      [r - 1, c],
+      [r, c + 1],
+      [r, c - 1],
+    ].forEach(([nextR, nextC]) => {
       if (
-        current + currentj + nums[nums.length - 1] + nums[nums.length - 2] <
-        target
-      )
-        continue;
-      let l = j + 1,
-        r = nums.length - 1;
-      while (l < r) {
-        const currentl = nums[l];
-        const currentr = nums[r];
-        const sum = current + currentj + currentl + currentr;
-        if (sum === target) {
-          res.push([current, currentj, currentl, currentr]);
-          while (l < r) {
-            l++;
-            if (nums[l] !== currentl) break;
-          }
-          while (l < r) {
-            r--;
-            if (nums[r] !== currentr) break;
-          }
-        } else if (sum < target) {
-          while (l < r) {
-            l++;
-            if (nums[l] !== currentl) break;
-          }
-        } else {
-          while (l < r) {
-            r--;
-            if (nums[r] !== currentr) break;
-          }
-        }
+        nextR >= 0 &&
+        nextR < m &&
+        nextC >= 0 &&
+        nextC < n &&
+        !flow[nextR][nextC] &&
+        matrix[nextR][nextC] >= matrix[r][c]
+      ) {
+        dfs(nextR, nextC, flow);
       }
-    }
+    });
+  };
+  for (let r = 0; r < m; r++) {
+    dfs(r, 0, flow1);
+    dfs(r, n - 1, flow2);
   }
-  return res;
-}
-
-export function isValidSudoku(board: string[][]) {
-  if (board.length === 0 || board[0].length === 0) return false;
-  const m = board.length;
-  const n = board[0].length;
-  const rows: number[][] = new Array(m).fill(0).map(() => new Array(9).fill(0));
-  const cols: number[][] = new Array(n).fill(0).map(() => new Array(9).fill(0));
-  const subs: number[][][] = new Array(3)
-    .fill(0)
-    .map(() => new Array(3).fill(0).map(() => new Array(9).fill(0)));
+  for (let c = 0; c < n; c++) {
+    dfs(0, c, flow1);
+    dfs(m - 1, c, flow2);
+  }
+  const res: [number, number][] = [];
   for (let r = 0; r < m; r++) {
     for (let c = 0; c < n; c++) {
-      const current = board[r][c];
-      if (current !== ".") {
-        const index = parseInt(current) - 1;
-        rows[r][index]++;
-        cols[c][index]++;
-        subs[Math.floor(r / 3)][Math.floor(c / 3)][index]++;
-        if (
-          rows[r][index] > 1 ||
-          cols[c][index] > 1 ||
-          subs[Math.floor(r / 3)][Math.floor(c / 3)][index] > 1
-        )
-          return false;
+      if (flow1[r][c] && flow2[r][c]) {
+        res.push([r, c]);
       }
     }
   }
-  return true;
+  return res;
 }
 
-export function groupAnagrams(strs: string[]) {
-  const map = new Map<string, string[]>();
-  for (let item of strs) {
-    const str = item.split("").sort().join("");
-    const arr = map.has(str) ? map.get(str)! : [];
-    arr.push(str);
-    if (!map.has(str)) {
-      map.set(str, arr);
-    }
+export class GraphNode {
+  val: number;
+  neighbours: GraphNode[];
+  constructor(val: number) {
+    this.val = val;
+    this.neighbours = [];
   }
-  const res: string[][] = [];
-  map.forEach((item) => {
-    res.push(item);
-  });
-  return res;
+}
+
+export function cloneGraph(node: GraphNode | null) {
+  if (!node) return null;
+  const map = new Map<GraphNode, GraphNode>();
+  const dfs = (node: GraphNode) => {
+    map.set(node, new GraphNode(node.val));
+    node.neighbours.forEach((item) => {
+      if (!map.has(item)) {
+        dfs(item);
+      }
+      map.get(node)!.neighbours.push(map.get(item)!);
+    });
+  };
+  return map.get(node)!;
+}
+
+export function cloneGraph1(node: GraphNode | null) {
+  if (!node) return null;
+  const map = new Map<GraphNode, GraphNode>();
+  map.set(node, new GraphNode(node.val));
+  const queue: GraphNode[] = [node];
+  while (queue.length) {
+    const current = queue.shift()!;
+    current.neighbours.forEach((item) => {
+      if (!map.has(item)) {
+        map.set(item, new GraphNode(item.val));
+        queue.push(item);
+      }
+      map.get(current)!.neighbours.push(map.get(item)!);
+    });
+  }
+  return map.get(node)!;
+}
+
+// linkedlist 1 - 5
+export class ListNode {
+  val: number;
+  next: ListNode | null;
+  constructor(val: number) {
+    this.val = val;
+    this.next = null;
+  }
+}
+
+export function addTwo(l1: ListNode | null, l2: ListNode | null) {
+  const l3 = new ListNode(-1);
+  let p1 = l1;
+  let p2 = l2;
+  let p3 = l3;
+  let carry = 0;
+  while (p1 || p2) {
+    const n1 = p1 ? p1.val : 0;
+    const n2 = p2 ? p2.val : 0;
+    const sum = n1 + n2 + carry;
+    carry = Math.floor(sum / 10);
+    p3.next = new ListNode(sum % 10);
+    p3 = p3.next;
+    if (p1) p1 = p1.next;
+    if (p2) p2 = p2.next;
+  }
+  if (carry) {
+    p3.next = new ListNode(carry);
+  }
+  return l3.next;
+}
+
+export function removeNthFromEnd(head: ListNode | null, n: number) {
+  const dummyHead = new ListNode(-1);
+  dummyHead.next = head;
+  const stack: ListNode[] = [];
+  let current: ListNode | null = dummyHead;
+  while (current) {
+    stack.push(current);
+    current = current.next;
+  }
+  for (let i = 0; i < n; i++) {
+    stack.pop();
+  }
+  const prev = stack[stack.length - 1];
+  prev.next = prev.next!.next;
+  return dummyHead.next;
+}
+
+export function mergeTwoLists(l1: ListNode | null, l2: ListNode | null) {
+  const l3 = new ListNode(-1);
+  let p1 = l1;
+  let p2 = l2;
+  let p3 = l3;
+  while (p1 && p2) {
+    if (p1.val > p2.val) {
+      p3.next = p2;
+      p2 = p2.next;
+    } else {
+      p3.next = p1;
+      p1 = p1.next;
+    }
+    p3 = p3.next;
+  }
+  if (p1) p3.next = p1;
+  if (p2) p3.next = p2;
+  return l3.next;
 }
