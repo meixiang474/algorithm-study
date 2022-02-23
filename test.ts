@@ -1,143 +1,96 @@
-// offer 14-I
-export function cuttingRope(n: number) {
-  const compute = (n: number, m: number) => {
-    const floor = Math.floor(n / m);
-    const ceil = Math.ceil(n / m);
-    return Math.max(
-      floor ** (m - 1) * (n - (m - 1) * floor),
-      ceil ** (m - 1) * (n - (m - 1) * ceil)
-    );
-  };
-  let res = 0;
-  for (let i = 2; i <= n; i++) {
-    res = Math.max(res, compute(n, i));
+// offer 14-II
+export function cuttingRope1(n: number) {
+  const arr = [0, 0, 1, 2, 4];
+  if (n < 5) {
+    return arr[n];
   }
-  return res;
+  let res = 1;
+  while (n >= 5) {
+    res *= 3;
+    n -= 3;
+  }
+  return res * n;
 }
 
-// graph
-export function bfs(
-  graph: Record<number, number[]>,
-  visited: Set<number>,
-  node: number
-) {
-  const queue: number[] = [node];
-  visited.add(node);
-  while (queue.length) {
-    const current = queue.shift()!;
-    console.log(current);
-    graph[current].forEach((item) => {
-      if (!visited.has(item)) {
-        visited.add(item);
-        queue.push(item);
-      }
-    });
+// heap
+export class MinHeap<T = number> {
+  heap: T[];
+  constructor(compare?: (a: T, b: T) => boolean) {
+    this.heap = [];
+    this.compare = compare || this.compare;
   }
-}
-
-export function dfs(
-  graph: Record<number, number[]>,
-  visited: Set<number>,
-  node: number
-) {
-  console.log(node);
-  visited.add(node);
-  graph[node].forEach((item) => {
-    if (!visited.has(item)) {
-      dfs(graph, visited, item);
-    }
-  });
-}
-
-export function fn(matrix: number[][]) {
-  if (matrix.length === 0 || matrix[0].length === 0) return [];
-  const m = matrix.length;
-  const n = matrix[0].length;
-  const flow1: boolean[][] = Array.from({ length: m }, () =>
-    new Array(n).fill(false)
-  );
-  const flow2: boolean[][] = Array.from({ length: m }, () =>
-    new Array(n).fill(false)
-  );
-  const dfs = (r: number, c: number, flow: boolean[][]) => {
-    flow[r][c] = true;
-    [
-      [r + 1, c],
-      [r - 1, c],
-      [r, c + 1],
-      [r, c - 1],
-    ].forEach(([nextR, nextC]) => {
-      if (
-        nextR >= 0 &&
-        nextR < m &&
-        nextC >= 0 &&
-        nextC < n &&
-        !flow[nextR][nextC] &&
-        matrix[nextR][nextC] >= matrix[r][c]
-      ) {
-        dfs(nextR, nextC, flow);
-      }
-    });
-  };
-  for (let r = 0; r < m; r++) {
-    dfs(r, 0, flow1);
-    dfs(r, n - 1, flow2);
+  compare(a: T, b: T) {
+    return a < b;
   }
-  for (let c = 0; c < n; c++) {
-    dfs(0, c, flow1);
-    dfs(m - 1, c, flow2);
+  swap(i: number, j: number) {
+    [this.heap[i], this.heap[j]] = [this.heap[j], this.heap[i]];
   }
-  const res: [number, number][] = [];
-  for (let r = 0; r < m; r++) {
-    for (let c = 0; c < n; c++) {
-      if (flow1[r][c] && flow2[r][c]) {
-        res.push([r, c]);
-      }
+  insert(val: T) {
+    this.heap.push(val);
+    this.shiftUp(this.heap.length - 1);
+  }
+  getParentIndex(index: number) {
+    return Math.floor((index - 1) / 2);
+  }
+  getLeftIndex(index: number) {
+    return 2 * index + 1;
+  }
+  getRightIndex(index: number) {
+    return 2 * index + 2;
+  }
+  shiftUp(index: number) {
+    if (index === 0) return;
+    const parentIndex = this.getParentIndex(index);
+    if (
+      this.heap[parentIndex] != null &&
+      this.compare(this.heap[index], this.heap[parentIndex])
+    ) {
+      this.swap(index, parentIndex);
+      this.shiftUp(parentIndex);
     }
   }
-  return res;
-}
-
-export class GraphNode {
-  val: number;
-  neighbours: GraphNode[];
-  constructor(val: number) {
-    this.val = val;
-    this.neighbours = [];
+  pop() {
+    if (this.heap.length === 0) throw new Error("error");
+    if (this.heap.length === 1) return this.heap.pop()!;
+    const res = this.heap[0];
+    this.heap[0] = this.heap.pop()!;
+    this.shiftDown(0);
+    return res;
+  }
+  shiftDown(index: number) {
+    const leftIndex = this.getLeftIndex(index);
+    const rightIndex = this.getRightIndex(index);
+    if (
+      this.heap[leftIndex] != null &&
+      this.compare(this.heap[leftIndex], this.heap[index])
+    ) {
+      this.swap(leftIndex, index);
+      this.shiftDown(leftIndex);
+    }
+    if (
+      this.heap[rightIndex] != null &&
+      this.compare(this.heap[rightIndex], this.heap[index])
+    ) {
+      this.swap(rightIndex, index);
+      this.shiftUp(rightIndex);
+    }
+  }
+  peek() {
+    if (this.heap.length === 0) throw new Error("error");
+    return this.heap[0];
+  }
+  size() {
+    return this.heap.length;
   }
 }
 
-export function cloneGraph(node: GraphNode | null) {
-  if (!node) return null;
-  const map = new Map<GraphNode, GraphNode>();
-  const dfs = (node: GraphNode) => {
-    map.set(node, new GraphNode(node.val));
-    node.neighbours.forEach((item) => {
-      if (!map.has(item)) {
-        dfs(item);
-      }
-      map.get(node)!.neighbours.push(map.get(item)!);
-    });
-  };
-  return map.get(node)!;
-}
-
-export function cloneGraph1(node: GraphNode | null) {
-  if (!node) return null;
-  const map = new Map<GraphNode, GraphNode>();
-  map.set(node, new GraphNode(node.val));
-  const queue: GraphNode[] = [node];
-  while (queue.length) {
-    const current = queue.shift()!;
-    current.neighbours.forEach((item) => {
-      if (!map.has(item)) {
-        map.set(item, new GraphNode(item.val));
-        queue.push(item);
-      }
-      map.get(current)!.neighbours.push(map.get(item)!);
-    });
+export function findKthLargest(nums: number[], k: number) {
+  const heap = new MinHeap();
+  for (let i = 0; i < nums.length; i++) {
+    heap.insert(nums[i]);
+    if (heap.size() > k) heap.pop();
   }
-  return map.get(node)!;
+  return heap.peek();
 }
 
 // linkedlist 1 - 5
@@ -207,4 +160,46 @@ export function mergeTwoLists(l1: ListNode | null, l2: ListNode | null) {
   if (p1) p3.next = p1;
   if (p2) p3.next = p2;
   return l3.next;
+}
+
+export function mergeKLists(lists: (ListNode | null)[]) {
+  const merge = (
+    lists: (ListNode | null)[],
+    l: number,
+    r: number
+  ): ListNode | null => {
+    if (l === r) return lists[l];
+    if (l > r) return null;
+    const mid = Math.floor(l + (r - l) / 2);
+    return mergeTwoList(merge(lists, l, mid), merge(lists, mid + 1, r));
+  };
+  const mergeTwoList = (l1: ListNode | null, l2: ListNode | null) => {
+    const l3 = new ListNode(-1);
+    let p1 = l1;
+    let p2 = l2;
+    let p3 = l3;
+    while (p1 && p2) {
+      if (p1.val < p2.val) {
+        p3.next = p1;
+        p1 = p1.next;
+      } else {
+        p3.next = p2;
+        p2 = p2.next;
+      }
+      p3 = p3.next;
+    }
+    if (p1) p3.next = p1;
+    if (p2) p3.next = p2;
+    return l3.next;
+  };
+  return merge(lists, 0, lists.length - 1);
+}
+
+export function swapPairs(head: ListNode | null) {
+  if (!head || !head.next) return head;
+  const nextHead = head.next;
+  const res = swapPairs(nextHead.next);
+  head.next = res;
+  nextHead.next = head;
+  return nextHead;
 }
