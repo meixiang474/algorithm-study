@@ -93,7 +93,44 @@ export function findKthLargest(nums: number[], k: number) {
   return heap.peek();
 }
 
-// linkedlist 1 - 5
+export function topKFrequent(nums: number[], k: number) {
+  const map = new Map<number, number>();
+  for (let item of nums) {
+    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
+  }
+  const heap = new MinHeap<{ value: number; key: number }>(
+    (a, b) => a.value < b.value
+  );
+  map.forEach((value, key) => {
+    heap.insert({ value, key });
+    if (heap.size() > k) {
+      heap.pop();
+    }
+  });
+  return heap.heap.map((item) => item.key);
+}
+
+export function mergeKLists1(lists: (ListNode | null)[]) {
+  const heap = new MinHeap<ListNode>((a, b) => a.val < b.val);
+  for (let item of lists) {
+    if (item) {
+      heap.insert(item);
+    }
+  }
+  const res = new ListNode(-1);
+  let p = res;
+  while (heap.size()) {
+    const current = heap.pop()!;
+    p.next = current;
+    if (current.next) {
+      heap.insert(current.next);
+    }
+    p = p.next;
+  }
+  return res.next;
+}
+
+// math 1 - 5
 export class ListNode {
   val: number;
   next: ListNode | null;
@@ -104,10 +141,10 @@ export class ListNode {
 }
 
 export function addTwo(l1: ListNode | null, l2: ListNode | null) {
-  const l3 = new ListNode(-1);
+  const res = new ListNode(-1);
   let p1 = l1;
   let p2 = l2;
-  let p3 = l3;
+  let p3 = res;
   let carry = 0;
   while (p1 || p2) {
     const n1 = p1 ? p1.val : 0;
@@ -122,84 +159,40 @@ export function addTwo(l1: ListNode | null, l2: ListNode | null) {
   if (carry) {
     p3.next = new ListNode(carry);
   }
-  return l3.next;
+  return res.next;
 }
 
-export function removeNthFromEnd(head: ListNode | null, n: number) {
-  const dummyHead = new ListNode(-1);
-  dummyHead.next = head;
-  const stack: ListNode[] = [];
-  let current: ListNode | null = dummyHead;
-  while (current) {
-    stack.push(current);
-    current = current.next;
-  }
-  for (let i = 0; i < n; i++) {
-    stack.pop();
-  }
-  const prev = stack[stack.length - 1];
-  prev.next = prev.next!.next;
-  return dummyHead.next;
-}
-
-export function mergeTwoLists(l1: ListNode | null, l2: ListNode | null) {
-  const l3 = new ListNode(-1);
-  let p1 = l1;
-  let p2 = l2;
-  let p3 = l3;
-  while (p1 && p2) {
-    if (p1.val > p2.val) {
-      p3.next = p2;
-      p2 = p2.next;
-    } else {
-      p3.next = p1;
-      p1 = p1.next;
-    }
-    p3 = p3.next;
-  }
-  if (p1) p3.next = p1;
-  if (p2) p3.next = p2;
-  return l3.next;
-}
-
-export function mergeKLists(lists: (ListNode | null)[]) {
-  const merge = (
-    lists: (ListNode | null)[],
-    l: number,
-    r: number
-  ): ListNode | null => {
-    if (l === r) return lists[l];
-    if (l > r) return null;
-    const mid = Math.floor(l + (r - l) / 2);
-    return mergeTwoList(merge(lists, l, mid), merge(lists, mid + 1, r));
+export function myPow(x: number, n: number) {
+  const isNegative = n < 0;
+  n = Math.abs(n);
+  const absPow = (x: number, n: number): number => {
+    if (n === 0) return 1;
+    if (n === 1) return x;
+    const res = absPow(x, Math.floor(n / 2));
+    return n % 2 === 0 ? res * res : res * res * x;
   };
-  const mergeTwoList = (l1: ListNode | null, l2: ListNode | null) => {
-    const l3 = new ListNode(-1);
-    let p1 = l1;
-    let p2 = l2;
-    let p3 = l3;
-    while (p1 && p2) {
-      if (p1.val < p2.val) {
-        p3.next = p1;
-        p1 = p1.next;
+  return isNegative ? 1 / absPow(x, n) : absPow(x, n);
+}
+
+export function getPermutation(n: number, k: number) {
+  let groupNum = 1;
+  for (let i = 1; i <= n; i++) {
+    groupNum *= i;
+  }
+  const bc = (path: number[]): string => {
+    if (path.length === n) {
+      return path.join("");
+    }
+    groupNum = groupNum / (n - path.length);
+    for (let i = 1; i <= n; i++) {
+      if (path.includes(i)) continue;
+      if (k > groupNum) {
+        k -= groupNum;
       } else {
-        p3.next = p2;
-        p2 = p2.next;
+        return bc(path.concat(i));
       }
-      p3 = p3.next;
     }
-    if (p1) p3.next = p1;
-    if (p2) p3.next = p2;
-    return l3.next;
+    return "";
   };
-  return merge(lists, 0, lists.length - 1);
-}
-
-export function swapPairs(head: ListNode | null) {
-  if (!head || !head.next) return head;
-  const nextHead = head.next;
-  const res = swapPairs(nextHead.next);
-  head.next = res;
-  nextHead.next = head;
-  return nextHead;
+  return bc([]);
 }
