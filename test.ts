@@ -1,133 +1,96 @@
-// offer 14-II
-export function cuttingRope1(n: number) {
-  const arr = [0, 0, 1, 2, 4];
-  if (n < 5) {
-    return arr[n];
-  }
-  let res = 1;
-  while (n >= 5) {
-    res *= 3;
-    n -= 3;
-  }
-  return res * n;
+// offer 15
+export function harmmingWeight(n: number) {
+  return n
+    .toString(2)
+    .split("")
+    .reduce((memo, current) => {
+      if (current === "1") memo++;
+      return memo;
+    }, 0);
 }
 
-// heap
-export class MinHeap<T = number> {
-  heap: T[];
-  constructor(compare?: (a: T, b: T) => boolean) {
-    this.heap = [];
-    this.compare = compare || this.compare;
+// fenzhi donggui tanxin huisu
+export class TreeNode {
+  val: number;
+  left: TreeNode | null;
+  right: TreeNode | null;
+  constructor(val: number) {
+    this.val = val;
+    this.left = null;
+    this.right = null;
   }
-  compare(a: T, b: T) {
-    return a < b;
-  }
-  swap(i: number, j: number) {
-    [this.heap[i], this.heap[j]] = [this.heap[j], this.heap[i]];
-  }
-  insert(val: T) {
-    this.heap.push(val);
-    this.shiftUp(this.heap.length - 1);
-  }
-  getParentIndex(index: number) {
-    return Math.floor((index - 1) / 2);
-  }
-  getLeftIndex(index: number) {
-    return 2 * index + 1;
-  }
-  getRightIndex(index: number) {
-    return 2 * index + 2;
-  }
-  shiftUp(index: number) {
-    if (index === 0) return;
-    const parentIndex = this.getParentIndex(index);
+}
+
+export function reverseTree(root: TreeNode | null) {
+  if (!root) return null;
+  const dfs = (node: TreeNode) => {
+    const temp = node.left;
+    node.left = node.right;
+    node.right = temp;
+    if (node.left) dfs(node.left);
+    if (node.right) dfs(node.right);
+  };
+  dfs(root);
+  return root;
+}
+
+export function isSameTree(p: TreeNode | null, q: TreeNode | null) {
+  if (!p && !q) return true;
+  if (
+    p &&
+    q &&
+    p.val === q.val &&
+    isSameTree(p.left, q.left) &&
+    isSameTree(p.right, q.right)
+  )
+    return true;
+  return false;
+}
+
+export function fn(root: TreeNode | null) {
+  if (!root) return true;
+  const isMirror = (p: TreeNode | null, q: TreeNode | null) => {
+    if (!p && !q) return true;
     if (
-      this.heap[parentIndex] != null &&
-      this.compare(this.heap[index], this.heap[parentIndex])
-    ) {
-      this.swap(index, parentIndex);
-      this.shiftUp(parentIndex);
-    }
-  }
-  pop() {
-    if (this.heap.length === 0) throw new Error("error");
-    if (this.heap.length === 1) return this.heap.pop()!;
-    const res = this.heap[0];
-    this.heap[0] = this.heap.pop()!;
-    this.shiftDown(0);
-    return res;
-  }
-  shiftDown(index: number) {
-    const leftIndex = this.getLeftIndex(index);
-    const rightIndex = this.getRightIndex(index);
-    if (
-      this.heap[leftIndex] != null &&
-      this.compare(this.heap[leftIndex], this.heap[index])
-    ) {
-      this.swap(leftIndex, index);
-      this.shiftDown(leftIndex);
-    }
-    if (
-      this.heap[rightIndex] != null &&
-      this.compare(this.heap[rightIndex], this.heap[index])
-    ) {
-      this.swap(rightIndex, index);
-      this.shiftUp(rightIndex);
-    }
-  }
-  peek() {
-    if (this.heap.length === 0) throw new Error("error");
-    return this.heap[0];
-  }
-  size() {
-    return this.heap.length;
-  }
+      p &&
+      q &&
+      p.val === q.val &&
+      isMirror(p.left, q.right) &&
+      isMirror(p.right, q.left)
+    )
+      return true;
+    return false;
+  };
+  return isMirror(root.left, root.right);
 }
 
-export function findKthLargest(nums: number[], k: number) {
-  const heap = new MinHeap();
-  for (let i = 0; i < nums.length; i++) {
-    heap.insert(nums[i]);
-    if (heap.size() > k) heap.pop();
+export function climbStairs(n: number) {
+  const dp = [1, 1];
+  for (let i = 2; i <= n; i++) {
+    dp[i] = dp[i - 2] + dp[i - 1];
   }
-  return heap.peek();
+  return dp[n];
 }
 
-export function topKFrequent(nums: number[], k: number) {
-  const map = new Map<number, number>();
-  for (let item of nums) {
-    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
+export function rob(nums: number[]) {
+  if (nums.length === 0) return 0;
+  const dp = [0, nums[0]];
+  for (let i = 2; i <= nums.length; i++) {
+    dp[i] = Math.max(dp[i - 1], dp[i - 2] + nums[i - 1]);
   }
-  const heap = new MinHeap<{ value: number; key: number }>(
-    (a, b) => a.value < b.value
-  );
-  map.forEach((value, key) => {
-    heap.insert({ value, key });
-    if (heap.size() > k) {
-      heap.pop();
-    }
-  });
-  return heap.heap.map((item) => item.key);
+  return dp[nums.length];
 }
 
-export function mergeKLists1(lists: (ListNode | null)[]) {
-  const heap = new MinHeap<ListNode>((a, b) => a.val < b.val);
-  for (let item of lists) {
-    if (item) {
-      heap.insert(item);
+export function rob1(nums: number[]) {
+  if (nums.length === 1) return nums[0];
+  const compute = (nums: number[]) => {
+    const dp = [0, nums[0]];
+    for (let i = 2; i <= nums.length; i++) {
+      dp[i] = Math.max(dp[i - 1] + dp[i - 2] + nums[i - 1]);
     }
-  }
-  const res = new ListNode(-1);
-  let p = res;
-  while (heap.size()) {
-    const current = heap.pop()!;
-    p.next = current;
-    if (current.next) {
-      heap.insert(current.next);
-    }
-    p = p.next;
-  }
-  return res.next;
+    return dp[nums.length];
+  };
+  return Math.max(compute(nums.slice(1)), compute(nums.slice(0, -1)));
 }
 
 // math 1 - 5
@@ -195,4 +158,36 @@ export function getPermutation(n: number, k: number) {
     return "";
   };
   return bc([]);
+}
+
+export function sqrt(n: number) {
+  let l = 0,
+    r = n;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l + 1) / 2);
+    if (mid ** 2 <= n) {
+      l = mid;
+    } else {
+      r = mid - 1;
+    }
+  }
+  return l;
+}
+
+export function isHappy(n: number) {
+  const compute = (n: number) => {
+    return n
+      .toString()
+      .split("")
+      .reduce((memo, current) => {
+        return memo + parseInt(current) ** 2;
+      }, 0);
+  };
+  const map = new Map<number, true>();
+  while (!map.has(n)) {
+    if (n === 1) return true;
+    map.set(n, true);
+    n = compute(n);
+  }
+  return false;
 }

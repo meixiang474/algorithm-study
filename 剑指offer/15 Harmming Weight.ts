@@ -1,4 +1,4 @@
-export default function hammingWeight(n: number) {
+export default function harmmingWeight(n: number) {
   return n
     .toString(2)
     .split("")
