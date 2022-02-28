@@ -93,101 +93,97 @@ export function rob1(nums: number[]) {
   return Math.max(compute(nums.slice(1)), compute(nums.slice(0, -1)));
 }
 
-// math 1 - 5
-export class ListNode {
-  val: number;
-  next: ListNode | null;
-  constructor(val: number) {
-    this.val = val;
-    this.next = null;
-  }
-}
-
-export function addTwo(l1: ListNode | null, l2: ListNode | null) {
-  const res = new ListNode(-1);
-  let p1 = l1;
-  let p2 = l2;
-  let p3 = res;
-  let carry = 0;
-  while (p1 || p2) {
-    const n1 = p1 ? p1.val : 0;
-    const n2 = p2 ? p2.val : 0;
-    const sum = n1 + n2 + carry;
-    carry = Math.floor(sum / 10);
-    p3.next = new ListNode(sum % 10);
-    p3 = p3.next;
-    if (p1) p1 = p1.next;
-    if (p2) p2 = p2.next;
-  }
-  if (carry) {
-    p3.next = new ListNode(carry);
-  }
-  return res.next;
-}
-
-export function myPow(x: number, n: number) {
-  const isNegative = n < 0;
-  n = Math.abs(n);
-  const absPow = (x: number, n: number): number => {
-    if (n === 0) return 1;
-    if (n === 1) return x;
-    const res = absPow(x, Math.floor(n / 2));
-    return n % 2 === 0 ? res * res : res * res * x;
-  };
-  return isNegative ? 1 / absPow(x, n) : absPow(x, n);
-}
-
-export function getPermutation(n: number, k: number) {
-  let groupNum = 1;
-  for (let i = 1; i <= n; i++) {
-    groupNum *= i;
-  }
-  const bc = (path: number[]): string => {
-    if (path.length === n) {
-      return path.join("");
+export function findContentChildren(g: number[], s: number[]) {
+  s.sort((a, b) => a - b);
+  g.sort((a, b) => a - b);
+  let res = 0;
+  s.forEach((item) => {
+    if (item >= g[res]) {
+      res++;
     }
-    groupNum = groupNum / (n - path.length);
-    for (let i = 1; i <= n; i++) {
-      if (path.includes(i)) continue;
-      if (k > groupNum) {
-        k -= groupNum;
-      } else {
-        return bc(path.concat(i));
+  });
+  return res;
+}
+
+export function maxProfit(profits: number[]) {
+  let res = 0;
+  for (let i = 0; i < profits.length; i++) {
+    if (profits[i] < profits[i + 1]) {
+      res += profits[i + 1] - profits[i];
+    }
+  }
+  return res;
+}
+
+export function permute(nums: number[]) {
+  const res: number[][] = [];
+  const backtrack = (path: number[]) => {
+    if (path.length === nums.length) {
+      res.push(path);
+      return;
+    }
+    nums.forEach((item) => {
+      if (!path.includes(item)) {
+        backtrack(path.concat(item));
       }
-    }
-    return "";
+    });
   };
-  return bc([]);
+  backtrack([]);
+  return res;
 }
 
-export function sqrt(n: number) {
+export function subsets(nums: number[]) {
+  const res: number[][] = [];
+  const backtrack = (path: number[], start: number, length: number) => {
+    if (path.length === length) {
+      res.push(path);
+      return;
+    }
+    if (path.length + nums.length - start < length) {
+      return;
+    }
+    for (let i = start; i < nums.length; i++) {
+      backtrack(path.concat(nums[i]), i + 1, length);
+    }
+  };
+  for (let i = 0; i <= nums.length; i++) {
+    backtrack([], 0, i);
+  }
+  return res;
+}
+
+// sliding window 1 - 5
+
+export function longestSubstring(s: string) {
+  let res = 0;
+  const map = new Map<string, number>();
   let l = 0,
-    r = n;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l + 1) / 2);
-    if (mid ** 2 <= n) {
-      l = mid;
-    } else {
-      r = mid - 1;
+    r = 0;
+  while (r < s.length) {
+    const current = s[r];
+    if (map.has(current) && map.get(current)! >= l) {
+      l = map.get(current)! + 1;
     }
+    res = Math.max(res, r - l + 1);
+    map.set(current, r);
+    r++;
   }
-  return l;
+  return res;
 }
 
-export function isHappy(n: number) {
-  const compute = (n: number) => {
-    return n
-      .toString()
-      .split("")
-      .reduce((memo, current) => {
-        return memo + parseInt(current) ** 2;
-      }, 0);
-  };
-  const map = new Map<number, true>();
-  while (!map.has(n)) {
-    if (n === 1) return true;
-    map.set(n, true);
-    n = compute(n);
+export function charactorReplacement(s: string, k: number) {
+  const arr: number[] = new Array(26).fill(0);
+  let max = 0,
+    l = 0,
+    r = 0;
+  while (r < s.length) {
+    arr[s[r].charCodeAt(0) - "A".charCodeAt(0)]++;
+    max = Math.max(max, arr[s[r].charCodeAt(0) - "A".charCodeAt(0)]);
+    if (r - l + 1 - max > k) {
+      arr[s[l].charCodeAt(0) - "A".charCodeAt(0)]--;
+      l++;
+    }
+    r++;
   }
-  return false;
+  return r - l;
 }
