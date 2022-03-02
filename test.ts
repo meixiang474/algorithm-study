@@ -17,123 +17,140 @@ export function myPow(x: number, n: number) {
 export class PriorityQueue<T = number> {
   maxHeap: Heap<T>;
   constructor(compare?: (a: T, b: T) => boolean) {
-    this.maxHeap = new Heap('max', compare)
+    this.maxHeap = new Heap("max", compare);
   }
   getSize() {
-    return this.maxHeap.size()
+    return this.maxHeap.size();
   }
   isEmpty() {
-    return this.getSize() === 0
+    return this.getSize() === 0;
   }
   getFront() {
-    return this.maxHeap.peek()
+    return this.maxHeap.peek();
   }
   enqueue(item: T) {
-    this.maxHeap.insert(item)
+    this.maxHeap.insert(item);
   }
   dequeue() {
-    if(this.isEmpty()) throw new Error('error')
-    return this.maxHeap.pop()
+    if (this.isEmpty()) throw new Error("error");
+    return this.maxHeap.pop();
   }
 }
 
-// sliding window 1 - 5
-
-export function longestSubstring(s: string) {
-  let res = 0;
-  const map = new Map<string, number>();
-  let l = 0,
-    r = 0;
-  while (r < s.length) {
-    const current = s[r];
-    if (map.has(current) && map.get(current)! >= l) {
-      l = map.get(current)! + 1;
+export function shellSort(nums: number[]) {
+  const res = [...nums];
+  let h = Math.floor(res.length / 2);
+  while (h) {
+    for (let start = 0; start < h; start++) {
+      for (let i = start; i < res.length; i += h) {
+        const current = res[i];
+        let swapIndex = i;
+        for (let j = i - h; j >= start; j -= h) {
+          if (res[j] > current) {
+            res[j + h] = res[j];
+            swapIndex = j;
+          } else {
+            break;
+          }
+        }
+        if (swapIndex !== i) {
+          res[swapIndex] = current;
+        }
+      }
     }
-    res = Math.max(res, r - l + 1);
-    map.set(current, r);
-    r++;
+    h = Math.floor(h / 2);
   }
   return res;
 }
 
-export function charactorReplacement(s: string, k: number) {
-  const arr: number[] = new Array(26).fill(0);
-  let max = 0,
-    l = 0,
-    r = 0;
-  while (r < s.length) {
-    arr[s[r].charCodeAt(0) - "A".charCodeAt(0)]++;
-    max = Math.max(max, arr[s[r].charCodeAt(0) - "A".charCodeAt(0)]);
-    if (r - l + 1 - max > k) {
-      arr[s[l].charCodeAt(0) - "A".charCodeAt(0)]--;
-      l++;
-    }
-    r++;
-  }
-  return r - l;
-}
-
-export function checkInclusion(s1: string, s2: string) {
-  if (s1.length > s2.length) return false;
-  const arr1: number[] = new Array(26).fill(0);
-  const arr2: number[] = new Array(26).fill(0);
-  for (let i = 0; i < s1.length; i++) {
-    arr1[s1[i].charCodeAt(0) - "a".charCodeAt(0)]++;
-    arr2[s2[i].charCodeAt(0) - "a".charCodeAt(0)]++;
-  }
-  if (arr1.toString() === arr2.toString()) return true;
-  for (let i = s1.length; i < s2.length; i++) {
-    arr2[s2[i].charCodeAt(0) - "a".charCodeAt(0)]++;
-    arr2[s2[i - s1.length].charCodeAt(0) - "a".charCodeAt(0)]--;
-    if (arr1.toString() === arr2.toString()) return true;
-  }
-  return false;
-}
-
-export function maxTurbulence(nums: number[]) {
-  let res = 1;
-  let l = 0,
-    r = 0;
-  while (r < nums.length - 1) {
-    const left = nums[l];
-    const right = nums[r];
-    if (l === r) {
-      if (left === nums[l + 1]) {
-        l++;
+export function shellSort1(nums: number[]) {
+  const res = [...nums];
+  let h = Math.floor(res.length / 2);
+  while (h) {
+    for (let i = h; i < res.length; i++) {
+      let swapIndex = i;
+      const current = res[i];
+      for (let j = i - h; j >= 0; j -= h) {
+        if (res[j] > current) {
+          res[j + h] = res[j];
+          swapIndex = j;
+        } else {
+          break;
+        }
       }
-      r++;
+      if (swapIndex !== i) {
+        res[swapIndex] = current;
+      }
+    }
+    h = Math.floor(h / 2);
+  }
+  return res;
+}
+
+export function shellSort2(nums: number[]) {
+  const res = [...nums];
+  let h = Math.floor(res.length / 2);
+  while (h < res.length) {
+    h = h * 3 + 1;
+  }
+  while (h) {
+    for (let i = h; i < res.length; i++) {
+      let swapIndex = i;
+      const current = res[i];
+      for (let j = i - h; j >= 0; j -= h) {
+        if (res[j] > current) {
+          res[j + h] = res[j];
+          swapIndex = j;
+        } else {
+          break;
+        }
+      }
+      if (swapIndex !== i) {
+        res[swapIndex] = current;
+      }
+    }
+    h = Math.floor(h / 3);
+  }
+  return res;
+}
+
+// sort 1 - 5
+
+export function mergeField(fields: number[][]) {
+  fields.sort((a, b) => a[0] - b[0]);
+  const res: number[][] = [];
+  let prevEnd = -Infinity;
+  for (let i = 0; i < fields.length; i++) {
+    const [start, end] = fields[i];
+    if (i > 0 && prevEnd >= start) {
+      res.splice(res.length - 1, 1, [
+        res[res.length - 1][0],
+        Math.max(prevEnd, end),
+      ]);
     } else {
-      if (
-        (right > nums[r - 1] && right > nums[r + 1]) ||
-        (right < nums[r - 1] && right < nums[r + 1])
-      ) {
-        r++;
-      } else {
-        l = r;
-      }
+      res.push([start, end]);
     }
-    res = Math.max(res, r - l + 1);
+    prevEnd = Math.max(prevEnd, end);
   }
   return res;
 }
 
-export function longestOnes(nums: number[], k: number) {
-  let max = 0,
-    l = 0,
-    r = 0,
-    onesInWindow = 0;
-  while (r < nums.length) {
-    const current = nums[r];
-    if (current === 1) {
-      onesInWindow++;
+export function insertField(intervals: number[][], newInterval: number[]) {
+  intervals.push(newInterval);
+  intervals.sort((a, b) => a[0] - b[0]);
+  const res: number[][] = [];
+  let prevEnd = -Infinity;
+  for (let i = 0; i < intervals.length; i++) {
+    const [start, end] = intervals[i];
+    if (prevEnd >= start) {
+      res.splice(res.length - 1, 1, [
+        res[res.length - 1][0],
+        Math.max(prevEnd, end),
+      ]);
+    } else {
+      res.push([start, end]);
     }
-    max = Math.max(max, onesInWindow);
-    if (r - l + 1 - max > k) {
-      const currentl = nums[l];
-      if (currentl === 1) onesInWindow--;
-      l++;
-    }
-    r++;
+    prevEnd = Math.max(prevEnd, end);
   }
-  return r - l;
+  return res;
 }
