@@ -1,118 +1,17 @@
 import { Heap } from "./practice/week5/1.heap";
 
-// offer 16
-export function myPow(x: number, n: number) {
-  const isNegative = n < 0;
-  n = isNegative ? -n : n;
-  const absPow = (x: number, n: number): number => {
-    if (n === 0) return 1;
-    if (n === 1) return x;
-    const res = absPow(x, Math.floor(n / 2));
-    return n % 2 === 0 ? res * res : res * res * x;
-  };
-  return isNegative ? 1 / absPow(x, n) : absPow(x, n);
-}
-
-// priority tree shell sort
-export class PriorityQueue<T = number> {
-  maxHeap: Heap<T>;
-  constructor(compare?: (a: T, b: T) => boolean) {
-    this.maxHeap = new Heap("max", compare);
-  }
-  getSize() {
-    return this.maxHeap.size();
-  }
-  isEmpty() {
-    return this.getSize() === 0;
-  }
-  getFront() {
-    return this.maxHeap.peek();
-  }
-  enqueue(item: T) {
-    this.maxHeap.insert(item);
-  }
-  dequeue() {
-    if (this.isEmpty()) throw new Error("error");
-    return this.maxHeap.pop();
-  }
-}
-
-export function shellSort(nums: number[]) {
-  const res = [...nums];
-  let h = Math.floor(res.length / 2);
-  while (h) {
-    for (let start = 0; start < h; start++) {
-      for (let i = start; i < res.length; i += h) {
-        const current = res[i];
-        let swapIndex = i;
-        for (let j = i - h; j >= start; j -= h) {
-          if (res[j] > current) {
-            res[j + h] = res[j];
-            swapIndex = j;
-          } else {
-            break;
-          }
-        }
-        if (swapIndex !== i) {
-          res[swapIndex] = current;
-        }
-      }
-    }
-    h = Math.floor(h / 2);
+// offer 17
+export function printNumbers(n: number) {
+  const end = 10 ** n - 1;
+  const res: number[] = [];
+  for (let i = 0; i <= end; i++) {
+    res.push(i);
   }
   return res;
 }
 
-export function shellSort1(nums: number[]) {
-  const res = [...nums];
-  let h = Math.floor(res.length / 2);
-  while (h) {
-    for (let i = h; i < res.length; i++) {
-      let swapIndex = i;
-      const current = res[i];
-      for (let j = i - h; j >= 0; j -= h) {
-        if (res[j] > current) {
-          res[j + h] = res[j];
-          swapIndex = j;
-        } else {
-          break;
-        }
-      }
-      if (swapIndex !== i) {
-        res[swapIndex] = current;
-      }
-    }
-    h = Math.floor(h / 2);
-  }
-  return res;
-}
+// segment tree
 
-export function shellSort2(nums: number[]) {
-  const res = [...nums];
-  let h = Math.floor(res.length / 2);
-  while (h < res.length) {
-    h = h * 3 + 1;
-  }
-  while (h) {
-    for (let i = h; i < res.length; i++) {
-      let swapIndex = i;
-      const current = res[i];
-      for (let j = i - h; j >= 0; j -= h) {
-        if (res[j] > current) {
-          res[j + h] = res[j];
-          swapIndex = j;
-        } else {
-          break;
-        }
-      }
-      if (swapIndex !== i) {
-        res[swapIndex] = current;
-      }
-    }
-    h = Math.floor(h / 3);
-  }
-  return res;
-}
 
 // sort 1 - 5
 
@@ -153,4 +52,94 @@ export function insertField(intervals: number[][], newInterval: number[]) {
     prevEnd = Math.max(prevEnd, end);
   }
   return res;
+}
+
+export function sortColors(colors: number[]) {
+  let l = -1,
+    i = 0,
+    r = colors.length;
+  const swap = (arr: number[], i: number, j: number) =>
+    ([arr[i], arr[j]] = [arr[j], arr[i]]);
+  while (i < r) {
+    if (colors[i] === 0) {
+      l++;
+      swap(colors, l, i);
+      i++;
+    } else if (colors[i] === 2) {
+      r--;
+      swap(colors, r, i);
+    } else {
+      i++;
+    }
+  }
+}
+
+export class ListNode {
+  val: number;
+  next: ListNode | null;
+  constructor(val: number) {
+    this.val = val;
+    this.next = null;
+  }
+}
+
+export function insertionSortList(head: ListNode | null) {
+  if (!head || !head.next) return head;
+  const dummyHead = new ListNode(-1);
+  dummyHead.next = head;
+  let lastSorted = head;
+  let current: ListNode | null = head.next;
+  while (current) {
+    if (lastSorted.val <= current.val) {
+      lastSorted = current;
+      current = current.next;
+    } else {
+      let prev = dummyHead;
+      while (prev.next) {
+        if (prev.next.val > current.val) break;
+        prev = prev.next;
+      }
+      const insertNext = prev.next;
+      const next: ListNode | null = current.next;
+      prev.next = current;
+      current.next = insertNext;
+      current = next;
+      lastSorted.next = next;
+    }
+  }
+  return dummyHead.next;
+}
+
+export function sortList(head: ListNode | null) {
+  if (!head || !head.next) return head;
+  let slow = head,
+    fast = head;
+  while (slow && fast && fast.next && fast.next.next) {
+    slow = slow.next!;
+    fast = fast.next.next;
+  }
+  const next = slow.next;
+  const l1 = sortList(head);
+  const l2 = sortList(next);
+  const l3 = new ListNode(-1);
+  let p1 = l1;
+  let p2 = l2;
+  let p3 = l3;
+  while (p1 && p2) {
+    if (p1.val < p2.val) {
+      p3.next = p1;
+      p1 = p1.next;
+    } else {
+      p3.next = p2;
+      p2 = p2.next;
+    }
+    p3 = p3.next;
+  }
+  if (p1) {
+    p3.next = p1;
+  }
+  if (p2) {
+    p3.next = p2;
+  }
+  return l3.next;
 }
