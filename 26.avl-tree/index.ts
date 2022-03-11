@@ -24,6 +24,39 @@ export class AVLTree<K = number, V = any> {
   compare(a: K, b: K) {
     return a < b;
   }
+  getSize() {
+    return this.size;
+  }
+  isEmpty() {
+    return this.size === 0;
+  }
+  // 判断是否是一个二分搜索树
+  isBST() {
+    const keys: K[] = [];
+    this.inorder(this.root, keys);
+    for (let i = 1; i < keys.length; i++) {
+      if (!this.compare(keys[i - 1], keys[i])) return false;
+    }
+    return true;
+  }
+  // 判断是否平衡
+  isBalanced() {
+    return this.isBalancedNode(this.root);
+  }
+  isBalancedNode(node: AVLTreeNode<K, V> | null): boolean {
+    if (node == null) return true;
+    const balanceFactor = this.getBalanceFactor(node);
+    if (Math.abs(balanceFactor) > 1) return false;
+    return this.isBalancedNode(node.left) && this.isBalancedNode(node.right);
+  }
+  inorder(node: AVLTreeNode<K, V> | null, keys: K[]) {
+    if (node == null) {
+      return;
+    }
+    this.inorder(node.left, keys);
+    keys.push(node.key);
+    this.inorder(node.right, keys);
+  }
   // 获取每个节点的高度值
   getHeight(node: AVLTreeNode<K, V> | null) {
     if (!node) return 0;
