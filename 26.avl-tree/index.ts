@@ -67,6 +67,26 @@ export class AVLTree<K = number, V = any> {
     if (!node) return 0;
     return this.getHeight(node.left) - this.getHeight(node.right);
   }
+  // 右旋转
+  rightRotate(y: AVLTreeNode<K, V>) {
+    const x = y.left!;
+    const T3 = x.right;
+    x.right = y;
+    y.left = T3;
+    y.height = Math.max(this.getHeight(y.left), this.getHeight(y.right)) + 1;
+    x.height = Math.max(this.getHeight(x.left), this.getHeight(x.right)) + 1;
+    return x;
+  }
+  // 左旋转
+  leftRotate(y: AVLTreeNode<K, V>) {
+    const x = y.right!;
+    const T2 = x.left;
+    x.left = y;
+    y.right = T2;
+    y.height = Math.max(this.getHeight(y.left), this.getHeight(y.right)) + 1;
+    x.height = Math.max(this.getHeight(x.left), this.getHeight(x.right)) + 1;
+    return x;
+  }
   add(key: K, value: V) {
     this.root = this.addNode(key, value, this.root);
   }
@@ -88,6 +108,14 @@ export class AVLTree<K = number, V = any> {
     const balanceFactor = this.getBalanceFactor(node);
     if (Math.abs(balanceFactor) > 1) {
       // 此时不是一个平衡二叉树
+    }
+    // 不平衡原因，左侧的左侧多添加了一个节点
+    if (balanceFactor > 1 && this.getBalanceFactor(node.left) >= 0) {
+      return this.rightRotate(node);
+    }
+    // 不平衡原因，右侧的右侧多添加了一个节点
+    if (balanceFactor < -1 && this.getBalanceFactor(node.right) <= 0) {
+      return this.leftRotate(node);
     }
     return node;
   }
