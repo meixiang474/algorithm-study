@@ -117,6 +117,16 @@ export class AVLTree<K = number, V = any> {
     if (balanceFactor < -1 && this.getBalanceFactor(node.right) <= 0) {
       return this.leftRotate(node);
     }
+    // LR
+    if (balanceFactor > 1 && this.getBalanceFactor(node.left) < 0) {
+      node.left = this.leftRotate(node.left!);
+      return this.rightRotate(node);
+    }
+    // RL
+    if (balanceFactor < -1 && this.getBalanceFactor(node.right) > 0) {
+      node.right = this.rightRotate(node.right!);
+      return this.leftRotate(node);
+    }
     return node;
   }
   getNode(node: AVLTreeNode<K, V> | null, key: K): AVLTreeNode<K, V> | null {
