@@ -106,9 +106,6 @@ export class AVLTree<K = number, V = any> {
     node.height =
       1 + Math.max(this.getHeight(node.left), this.getHeight(node.right));
     const balanceFactor = this.getBalanceFactor(node);
-    if (Math.abs(balanceFactor) > 1) {
-      // 此时不是一个平衡二叉树
-    }
     // 不平衡原因，左侧的左侧多添加了一个节点
     if (balanceFactor > 1 && this.getBalanceFactor(node.left) >= 0) {
       return this.rightRotate(node);
@@ -157,43 +154,59 @@ export class AVLTree<K = number, V = any> {
     }
     return this.minimumNode(node.left);
   }
-  removeMinNode(node: AVLTreeNode<K, V>) {
-    if (!node.left) {
-      this.size--;
-      return node.right;
-    }
-    node.left = this.removeMinNode(node.left);
-    return node;
-  }
   remove(key: K) {
     const node = this.getNode(this.root, key);
     if (node == null) return null;
     this.root = this.removeNode(this.root, key);
     return node.value;
   }
-  removeNode(node: AVLTreeNode<K, V> | null, key: K) {
+  removeNode(node: AVLTreeNode<K, V> | null, key: K): AVLTreeNode<K, V> | null {
     if (!node) {
       return null;
     }
+    let resNode: AVLTreeNode<K, V> | null = null;
     if (this.compare(key, node.key)) {
       node.left = this.removeNode(node.left, key);
-      return node;
+      resNode = node;
     } else if (this.compare(node.key, key)) {
       node.right = this.removeNode(node.right, key);
-      return node;
+      resNode = node;
     } else {
       if (!node.left) {
         this.size--;
-        return node.right;
-      }
-      if (!node.right) {
+        resNode = node.right;
+      } else if (!node.right) {
         this.size--;
-        return node.left;
+        resNode = node.left;
+      } else {
+        const successor = this.minimumNode(node.right);
+        successor.left = node.left;
+        successor.right = this.removeNode(node.right, successor.key);
+        resNode = successor;
       }
-      const successor = this.minimumNode(node.right);
-      successor.left = node.left;
-      successor.right = this.removeMinNode(node.right);
-      return successor;
     }
+    if (!resNode) return resNode;
+    resNode.height =
+      1 + Math.max(this.getHeight(resNode.left), this.getHeight(resNode.right));
+    const balanceFactor = this.getBalanceFactor(resNode);
+    // 不平衡原因，左侧的左侧多添加了一个节点
+    if (balanceFactor > 1 && this.getBalanceFactor(resNode.left) >= 0) {
+      return this.rightRotate(resNode);
+    }
+    // 不平衡原因，右侧的右侧多添加了一个节点
+    if (balanceFactor < -1 && this.getBalanceFactor(resNode.right) <= 0) {
+      return this.leftRotate(resNode);
+    }
+    // LR
+    if (balanceFactor > 1 && this.getBalanceFactor(resNode.left) < 0) {
+      resNode.left = this.leftRotate(resNode.left!);
+      return this.rightRotate(resNode);
+    }
+    // RL
+    if (balanceFactor < -1 && this.getBalanceFactor(resNode.right) > 0) {
+      resNode.right = this.rightRotate(resNode.right!);
+      return this.leftRotate(resNode);
+    }
+    return resNode;
   }
 }
