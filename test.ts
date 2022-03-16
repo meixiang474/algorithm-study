@@ -134,110 +134,128 @@ export class UnionFind4 {
   }
 }
 
-// string 1-5
-export function longestSubstring(s: string) {
-  const map = new Map<string, number>();
-  let l = 0,
-    r = 0;
-  let res = 0;
-  while (r < s.length) {
-    const current = s[r];
-    if (map.has(current) && map.get(current)! >= l) {
-      l = map.get(current)! + 1;
-    }
-    res = Math.max(res, r - l + 1);
-    map.set(current, r);
-    r++;
+export class UnionFind5 {
+  parent: number[];
+  rank: number[];
+  constructor(size: number) {
+    this.parent = new Array(size).fill(0).map((item, index) => index);
+    this.rank = new Array(size).fill(1);
   }
-  return res;
-}
-
-export function letterCombinations(digits: string) {
-  if (!digits) return [];
-  const map: Record<string, string[]> = {
-    "2": ["a", "b", "c"],
-    "3": ["d", "e", "f"],
-    "4": ["g", "h", "i"],
-    "5": ["j", "k", "l"],
-    "6": ["m", "n", "o"],
-    "7": ["p", "q", "r", "s"],
-    "8": ["t", "u", "v"],
-    "9": ["w", "x", "y", "z"],
-  };
-  const res: string[] = [];
-  const dfs = (path: string, index: number) => {
-    if (index >= digits.length) {
-      res.push(path);
-      return;
+  getSize() {
+    return this.parent.length;
+  }
+  find(p: number) {
+    if (p < 0 || p >= this.parent.length) throw new Error("error");
+    while (p !== this.parent[p]) {
+      this.parent[p] = this.parent[this.parent[p]];
+      p = this.parent[p];
     }
-    const currentArr = map[digits[index]];
-    for (let item of currentArr) {
-      dfs(path + item, index + 1);
-    }
-  };
-  dfs("", 0);
-  return res;
-}
-
-export function isValid(s: string) {
-  if (s.length % 2 !== 0) return false;
-  const map = new Map<string, string>();
-  map.set("(", ")");
-  map.set("[", "]");
-  map.set("{", "}");
-  const stack: string[] = [];
-  for (let item of s) {
-    if (map.has(item)) {
-      stack.push(item);
+    return p;
+  }
+  isConnected(p: number, q: number) {
+    return this.find(p) === this.find(q);
+  }
+  unionElements(p: number, q: number) {
+    const pRoot = this.find(p);
+    const qRoot = this.find(q);
+    if (pRoot === qRoot) return;
+    if (this.rank[pRoot] < this.rank[qRoot]) {
+      this.parent[pRoot] = qRoot;
+    } else if (this.rank[pRoot] > this.rank[qRoot]) {
+      this.parent[qRoot] = pRoot;
     } else {
-      const prev = stack.pop();
-      if (!prev || map.get(prev) !== item) {
-        return false;
-      }
+      this.parent[qRoot] = pRoot;
+      this.rank[pRoot] += 1;
     }
   }
-  return stack.length === 0;
 }
 
-export function generateParenthesis(n: number) {
-  if (n === 0) return [];
-  const res: string[] = [];
-  const dfs = (path: string, open: number, close: number) => {
-    if (path.length >= n * 2) {
-      res.push(path);
-      return;
+export class UnionFind6 {
+  parent: number[];
+  rank: number[];
+  constructor(size: number) {
+    this.parent = new Array(size).fill(0).map((item, index) => index);
+    this.rank = new Array(size).fill(1);
+  }
+  getSize() {
+    return this.parent.length;
+  }
+  find(p: number) {
+    if (p < 0 || p >= this.parent.length) throw new Error("error");
+    if (p !== this.parent[p]) {
+      this.parent[p] = this.find(this.parent[p]);
     }
-    if (open < n) {
-      dfs(path + "(", open + 1, close);
+    return this.parent[p];
+  }
+  isConnected(p: number, q: number) {
+    return this.find(p) === this.find(q);
+  }
+  unionElements(p: number, q: number) {
+    const pRoot = this.find(p);
+    const qRoot = this.find(q);
+    if (pRoot === qRoot) return;
+    if (this.rank[pRoot] < this.rank[qRoot]) {
+      this.parent[pRoot] = qRoot;
+    } else if (this.rank[pRoot] > this.rank[qRoot]) {
+      this.parent[qRoot] = pRoot;
+    } else {
+      this.parent[qRoot] = pRoot;
+      this.rank[pRoot] += 1;
     }
-    if (close < open) {
-      dfs(path + ")", open, close + 1);
+  }
+}
+
+// tree 1-5
+
+export class TreeNode {
+  val: number;
+  left: TreeNode | null;
+  right: TreeNode | null;
+  constructor(val: number) {
+    this.val = val;
+    this.left = null;
+    this.right = null;
+  }
+}
+
+export function inorderTraversal(root: TreeNode | null) {
+  if (!root) return [];
+  const stack: TreeNode[] = [];
+  let p: TreeNode | null = root;
+  const res: number[] = [];
+  while (stack.length || p) {
+    while (p) {
+      stack.push(p);
+      p = p.left;
     }
+    const current = stack.pop()!;
+    res.push(current.val);
+    p = current.right;
+  }
+  return res;
+}
+
+export function inorderTraversal1(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  const dfs = (node: TreeNode) => {
+    if (node.left) dfs(node.left);
+    res.push(node.val);
+    if (node.right) dfs(node.right);
   };
-  dfs("", 0, 0);
+  dfs(root);
   return res;
 }
 
-export function strStr(haystack: string, needle: string) {
-  if (!needle) return 0;
-  if (haystack.length < needle.length) return -1;
-  let res = -1;
-  for (let index = 0; index < haystack.length; index++) {
-    if (haystack.length - index < needle.length) break;
-    const current = haystack[index];
-    if (current === needle[0]) {
-      let flag = true;
-      for (let i = index + 1; i < index + needle.length; i++) {
-        if (haystack[i] !== needle[i - index]) {
-          flag = false;
-          break;
-        }
-      }
-      if (flag) {
-        res = index;
-        break;
-      }
+export function numsTree(n: number) {
+  const dp = [1, 1];
+  for (let i = 1; i <= n; i++) {
+    if (dp[i] == null) {
+      dp[i] = 0;
+    }
+    for (let j = 1; j <= i; j++) {
+      dp[i] = dp[i] + dp[j - 1] * dp[i - j];
     }
   }
-  return res;
+  return dp[n];
 }
