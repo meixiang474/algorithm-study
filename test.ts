@@ -1,207 +1,84 @@
-// offer 21
-export function exchange(nums: number[]) {
-  const res: number[] = [];
-  for (let item of nums) {
-    if (item % 2 === 0) {
-      res.push(item);
-    } else {
-      res.unshift(item);
-    }
-  }
-  return res;
-}
+// offer 22
 
-// union-find
-export class UnionFind1 {
-  id: number[];
-  constructor(size: number) {
-    this.id = new Array(size).fill(0).map((item, index) => index);
-  }
-  getSize() {
-    return this.id.length;
-  }
-  find(p: number) {
-    if (p < 0 || p >= this.id.length) throw new Error("error");
-    return this.id[p];
-  }
-  isConnected(p: number, q: number) {
-    return this.find(p) === this.find(q);
-  }
-  unionElements(p: number, q: number) {
-    const pID = this.find(p);
-    const qID = this.find(q);
-    if (pID === qID) return;
-    for (let i = 0; i < this.id.length; i++) {
-      if (this.id[i] === pID) {
-        this.id[i] = qID;
-      }
-    }
+export class ListNode {
+  val: number;
+  next: ListNode | null;
+  constructor(val: number) {
+    this.val = val;
+    this.next = null;
   }
 }
 
-export class UnionFind2 {
-  parent: number[];
-  constructor(size: number) {
-    this.parent = new Array(size).fill(0).map((item, index) => index);
+export function getKthFromEnd(head: ListNode | null, k: number) {
+  let current = head;
+  const res: ListNode[] = [];
+  while (current) {
+    res.push(current);
+    current = current.next;
   }
-  getSize() {
-    return this.parent.length;
-  }
-  find(p: number) {
-    if (p < 0 || p >= this.parent.length) throw new Error("error");
-    while (p !== this.parent[p]) {
-      p = this.parent[p];
-    }
-    return p;
-  }
-  isConnected(p: number, q: number) {
-    return this.find(p) === this.find(q);
-  }
-  unionElements(p: number, q: number) {
-    const pRoot = this.find(p);
-    const qRoot = this.find(q);
-    if (pRoot === qRoot) return;
-    this.parent[pRoot] = qRoot;
+  return res[res.length - k];
+}
+
+// avl-tree
+export class AVLTreeNode<K = number, V = any> {
+  key: K;
+  value: V;
+  height: number;
+  left: AVLTreeNode<K, V> | null;
+  right: AVLTreeNode<K, V> | null;
+  constructor(key: K, value: V) {
+    this.height = 1;
+    this.key = key;
+    this.value = value;
+    this.left = null;
+    this.right = null;
   }
 }
 
-export class UnionFind3 {
-  parent: number[];
-  sz: number[];
-  constructor(size: number) {
-    this.parent = new Array(size).fill(0).map((item, index) => index);
-    this.sz = new Array(size).fill(1);
+export class AVLTree<K = number, V = any> {
+  root: AVLTreeNode<K, V> | null;
+  size: number;
+  constructor(compare?: (a: K, b: K) => boolean) {
+    this.root = null;
+    this.size = 0;
+    this.compare = compare || this.compare;
+  }
+  compare(a: K, b: K) {
+    return a < b;
   }
   getSize() {
-    return this.parent.length;
+    return this.size;
   }
-  find(p: number) {
-    if (p < 0 || p >= this.parent.length) throw new Error("error");
-    while (p !== this.parent[p]) {
-      p = this.parent[p];
+  isEmpty() {
+    return this.size === 0;
+  }
+  isBST() {
+    const keys: K[] = [];
+    this.inorder(this.root, keys);
+    for (let i = 1; i < keys.length; i++) {
+      if (!this.compare(keys[i - 1], keys[i])) return false;
     }
-    return p;
+    return true;
   }
-  isConnected(p: number, q: number) {
-    return this.find(p) === this.find(q);
+  inorder(node: AVLTreeNode<K, V> | null, keys: K[]) {
+    if (node == null) return;
+    this.inorder(node.left, keys);
+    keys.push(node.key);
+    this.inorder(node.right, keys);
   }
-  unionElements(p: number, q: number) {
-    const pRoot = this.find(p);
-    const qRoot = this.find(q);
-    if (pRoot === qRoot) return;
-    if (this.sz[pRoot] < this.sz[qRoot]) {
-      this.parent[pRoot] = qRoot;
-      this.sz[qRoot] += this.sz[pRoot];
-    } else {
-      this.parent[qRoot] = pRoot;
-      this.sz[pRoot] += this.sz[qRoot];
-    }
+  isBalancedNode(node: AVLTreeNode<K, V> | null): boolean {
+    if (node == null) return true;
+    const balanceFactor = this.getBalanceFactor(node);
+    if (Math.abs(balanceFactor) > 1) return false;
+    return this.isBalancedNode(node.left) && this.isBalancedNode(node.right);
   }
-}
-
-export class UnionFind4 {
-  parent: number[];
-  rank: number[];
-  constructor(size: number) {
-    this.parent = new Array(size).fill(0).map((item, index) => index);
-    this.rank = new Array(size).fill(1);
+  getBalanceFactor(node: AVLTreeNode<K, V> | null) {
+    if (!node) return 0;
+    return this.getHeight(node.left) - this.getHeight(node.right);
   }
-  getSize() {
-    return this.parent.length;
-  }
-  find(p: number) {
-    if (p < 0 || p >= this.parent.length) throw new Error("error");
-    while (p !== this.parent[p]) {
-      p = this.parent[p];
-    }
-    return p;
-  }
-  isConnected(p: number, q: number) {
-    return this.find(p) === this.find(q);
-  }
-  unionElements(p: number, q: number) {
-    const pRoot = this.find(p);
-    const qRoot = this.find(q);
-    if (pRoot === qRoot) return;
-    if (this.rank[pRoot] < this.rank[qRoot]) {
-      this.parent[pRoot] = qRoot;
-    } else if (this.rank[qRoot] < this.rank[pRoot]) {
-      this.parent[qRoot] = pRoot;
-    } else {
-      this.parent[qRoot] = pRoot;
-      this.rank[pRoot] += 1;
-    }
-  }
-}
-
-export class UnionFind5 {
-  parent: number[];
-  rank: number[];
-  constructor(size: number) {
-    this.parent = new Array(size).fill(0).map((item, index) => index);
-    this.rank = new Array(size).fill(1);
-  }
-  getSize() {
-    return this.parent.length;
-  }
-  find(p: number) {
-    if (p < 0 || p >= this.parent.length) throw new Error("error");
-    while (p !== this.parent[p]) {
-      this.parent[p] = this.parent[this.parent[p]];
-      p = this.parent[p];
-    }
-    return p;
-  }
-  isConnected(p: number, q: number) {
-    return this.find(p) === this.find(q);
-  }
-  unionElements(p: number, q: number) {
-    const pRoot = this.find(p);
-    const qRoot = this.find(q);
-    if (pRoot === qRoot) return;
-    if (this.rank[pRoot] < this.rank[qRoot]) {
-      this.parent[pRoot] = qRoot;
-    } else if (this.rank[pRoot] > this.rank[qRoot]) {
-      this.parent[qRoot] = pRoot;
-    } else {
-      this.parent[qRoot] = pRoot;
-      this.rank[pRoot] += 1;
-    }
-  }
-}
-
-export class UnionFind6 {
-  parent: number[];
-  rank: number[];
-  constructor(size: number) {
-    this.parent = new Array(size).fill(0).map((item, index) => index);
-    this.rank = new Array(size).fill(1);
-  }
-  getSize() {
-    return this.parent.length;
-  }
-  find(p: number) {
-    if (p < 0 || p >= this.parent.length) throw new Error("error");
-    if (p !== this.parent[p]) {
-      this.parent[p] = this.find(this.parent[p]);
-    }
-    return this.parent[p];
-  }
-  isConnected(p: number, q: number) {
-    return this.find(p) === this.find(q);
-  }
-  unionElements(p: number, q: number) {
-    const pRoot = this.find(p);
-    const qRoot = this.find(q);
-    if (pRoot === qRoot) return;
-    if (this.rank[pRoot] < this.rank[qRoot]) {
-      this.parent[pRoot] = qRoot;
-    } else if (this.rank[pRoot] > this.rank[qRoot]) {
-      this.parent[qRoot] = pRoot;
-    } else {
-      this.parent[qRoot] = pRoot;
-      this.rank[pRoot] += 1;
-    }
+  getHeight(node: AVLTreeNode<K, V> | null) {
+    if (!node) return 0;
+    return node.height;
   }
 }
 
@@ -258,4 +135,47 @@ export function numsTree(n: number) {
     }
   }
   return dp[n];
+}
+
+export function isValidBST(root: TreeNode | null) {
+  if (!root) return true;
+  const dfs = (node: TreeNode, floor: number, ceil: number): boolean => {
+    if (node.val <= floor || node.val >= ceil) return false;
+    return (
+      (!node.left || dfs(node.left, floor, node.val)) &&
+      (!node.right || dfs(node.right, node.val, ceil))
+    );
+  };
+  return dfs(root, -Infinity, Infinity);
+}
+
+export function isSameTree(p: TreeNode | null, q: TreeNode | null) {
+  if (!p && !q) return true;
+  if (
+    p &&
+    q &&
+    p.val === q.val &&
+    isSameTree(p.left, q.left) &&
+    isSameTree(p.right, q.right)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+export function isSymmetric(root: TreeNode | null) {
+  if (!root) return true;
+  const compare = (p: TreeNode | null, q: TreeNode | null) => {
+    if (!p && !q) return true;
+    if (
+      p &&
+      q &&
+      p.val === q.val &&
+      compare(p.left, q.right) &&
+      compare(p.right, q.left)
+    )
+      return true;
+    return false;
+  };
+  return compare(root.left, root.right);
 }
