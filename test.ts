@@ -80,102 +80,180 @@ export class AVLTree<K = number, V = any> {
     if (!node) return 0;
     return node.height;
   }
-}
-
-// tree 1-5
-
-export class TreeNode {
-  val: number;
-  left: TreeNode | null;
-  right: TreeNode | null;
-  constructor(val: number) {
-    this.val = val;
-    this.left = null;
-    this.right = null;
+  rightRotate(y: AVLTreeNode<K, V>) {
+    const x = y.left!;
+    const T3 = x.right;
+    x.right = y;
+    y.left = T3;
+    y.height = 1 + Math.max(this.getHeight(y.left), this.getHeight(y.right));
+    x.height = 1 + Math.max(this.getHeight(x.left), this.getHeight(x.right));
+    return x;
   }
-}
-
-export function inorderTraversal(root: TreeNode | null) {
-  if (!root) return [];
-  const stack: TreeNode[] = [];
-  let p: TreeNode | null = root;
-  const res: number[] = [];
-  while (stack.length || p) {
-    while (p) {
-      stack.push(p);
-      p = p.left;
+  leftRotate(y: AVLTreeNode<K, V>) {
+    const x = y.right!;
+    const T2 = x.left;
+    y.right = T2;
+    x.left = y;
+    y.height = 1 + Math.max(this.getHeight(y.left), this.getHeight(y.right));
+    x.height = 1 + Math.max(this.getHeight(x.left), this.getHeight(x.right));
+    return x;
+  }
+  add(key: K, value: V) {
+    this.root = this.addNode(key, value, this.root);
+  }
+  addNode(key: K, value: V, node: AVLTreeNode<K, V> | null) {
+    if (!node) {
+      this.size++;
+      return new AVLTreeNode(key, value);
     }
-    const current = stack.pop()!;
-    res.push(current.val);
-    p = current.right;
-  }
-  return res;
-}
-
-export function inorderTraversal1(root: TreeNode | null) {
-  if (!root) return [];
-  const res: number[] = [];
-  const dfs = (node: TreeNode) => {
-    if (node.left) dfs(node.left);
-    res.push(node.val);
-    if (node.right) dfs(node.right);
-  };
-  dfs(root);
-  return res;
-}
-
-export function numsTree(n: number) {
-  const dp = [1, 1];
-  for (let i = 1; i <= n; i++) {
-    if (dp[i] == null) {
-      dp[i] = 0;
+    if (this.compare(key, node.key)) {
+      node.left = this.addNode(key, value, node.left);
+    } else if (this.compare(node.key, key)) {
+      node.right = this.addNode(key, value, node.right);
+    } else {
+      node.value = value;
     }
-    for (let j = 1; j <= i; j++) {
-      dp[i] = dp[i] + dp[j - 1] * dp[i - j];
+    node.height =
+      1 + Math.max(this.getHeight(node.left), this.getHeight(node.right));
+    const balanceFactor = this.getBalanceFactor(node);
+    if (balanceFactor > 1 && this.getBalanceFactor(node.left) >= 0) {
+      return this.rightRotate(node);
+    } else if (balanceFactor < -1 && this.getBalanceFactor(node.right) <= 0) {
+      return this.leftRotate(node);
+    } else if (balanceFactor > 1 && this.getBalanceFactor(node.left) < 0) {
+      node.left = this.leftRotate(node.left!);
+      return this.rightRotate(node);
+    } else if (balanceFactor < -1 && this.getBalanceFactor(node.right) > 0) {
+      node.right = this.rightRotate(node.right!);
+      return this.leftRotate(node);
+    }
+    return node;
+  }
+  getNode(node: AVLTreeNode<K, V> | null, key: K): AVLTreeNode<K, V> | null {
+    if (!node) return null;
+    if (this.compare(node.key, key)) {
+      return this.getNode(node.right, key);
+    } else if (this.compare(key, node.key)) {
+      return this.getNode(node.left, key);
+    } else {
+      return node;
     }
   }
-  return dp[n];
-}
-
-export function isValidBST(root: TreeNode | null) {
-  if (!root) return true;
-  const dfs = (node: TreeNode, floor: number, ceil: number): boolean => {
-    if (node.val <= floor || node.val >= ceil) return false;
-    return (
-      (!node.left || dfs(node.left, floor, node.val)) &&
-      (!node.right || dfs(node.right, node.val, ceil))
-    );
-  };
-  return dfs(root, -Infinity, Infinity);
-}
-
-export function isSameTree(p: TreeNode | null, q: TreeNode | null) {
-  if (!p && !q) return true;
-  if (
-    p &&
-    q &&
-    p.val === q.val &&
-    isSameTree(p.left, q.left) &&
-    isSameTree(p.right, q.right)
-  ) {
-    return true;
+  contains(key: K) {
+    return this.getNode(this.root, key) != null;
   }
-  return false;
+  get(key: K) {
+    const node = this.getNode(this.root, key);
+    return node == null ? null : node.value;
+  }
+  set(key: K, value: V) {
+    const node = this.getNode(this.root, key);
+    if (node == null) throw new Error("error");
+    node.value = value;
+  }
+  minimumNode(node: AVLTreeNode<K, V>): AVLTreeNode<K, V> {
+    if (!node.left) return node;
+    return this.minimumNode(node.left);
+  }
+  remove(key: K) {
+    const node = this.getNode(this.root, key);
+    if (node == null) return null;
+    this.root = this.removeNode(this.root, key);
+    return node.value;
+  }
+  removeNode(node: AVLTreeNode<K, V> | null, key: K): AVLTreeNode<K, V> | null {
+    if (!node) return null;
+    let resNode: AVLTreeNode<K, V> | null = null;
+    if (this.compare(key, node.key)) {
+      node.left = this.removeNode(node.left, key);
+      resNode = node;
+    } else if (this.compare(node.key, key)) {
+      node.right = this.removeNode(node.right, key);
+      resNode = node;
+    } else {
+      if (!node.left) {
+        this.size--;
+        resNode = node.right;
+      } else if (!node.right) {
+        this.size--;
+        resNode = node.left;
+      } else {
+        const successor = this.minimumNode(node.right);
+        successor.left = node.left;
+        successor.right = this.removeNode(node.right, successor.key);
+        resNode = successor;
+      }
+    }
+    if (!resNode) return resNode;
+    resNode.height =
+      1 + Math.max(this.getHeight(resNode.left), this.getHeight(node.right));
+    const balanceFactor = this.getBalanceFactor(resNode);
+    if (balanceFactor > 1 && this.getBalanceFactor(resNode.left) >= 0) {
+      return this.rightRotate(resNode);
+    }
+    if (balanceFactor < -1 && this.getBalanceFactor(resNode.right) <= 0) {
+      return this.leftRotate(resNode);
+    }
+    if (balanceFactor > 1 && this.getBalanceFactor(resNode.left) < 0) {
+      resNode.left = this.leftRotate(resNode.left!);
+      return this.rightRotate(resNode);
+    }
+    if (balanceFactor < -1 && this.getBalanceFactor(resNode.right) > 0) {
+      resNode.right = this.rightRotate(resNode.right!);
+      return this.leftRotate(resNode);
+    }
+    return resNode;
+  }
 }
 
-export function isSymmetric(root: TreeNode | null) {
-  if (!root) return true;
-  const compare = (p: TreeNode | null, q: TreeNode | null) => {
-    if (!p && !q) return true;
-    if (
-      p &&
-      q &&
-      p.val === q.val &&
-      compare(p.left, q.right) &&
-      compare(p.right, q.left)
-    )
-      return true;
-    return false;
-  };
-  return compare(root.left, root.right);
+export class AVLMap<K = number, V = any> {
+  avl: AVLTree<K, V>;
+  constructor(compare?: (a: K, b: K) => boolean) {
+    this.avl = new AVLTree(compare);
+  }
+  getSize() {
+    return this.avl.getSize();
+  }
+  isEmpty() {
+    return this.avl.isEmpty();
+  }
+  add(key: K, value: V) {
+    this.avl.add(key, value);
+  }
+  contains(key: K) {
+    return this.avl.contains(key);
+  }
+  get(key: K) {
+    return this.avl.get(key);
+  }
+  set(key: K, value: V) {
+    this.avl.set(key, value);
+  }
+  remove(key: K) {
+    return this.avl.remove(key);
+  }
 }
+
+export class AVLSet<T = number> {
+  avl: AVLTree<T>;
+  constructor(compare?: (a: T, b: T) => boolean) {
+    this.avl = new AVLTree(compare);
+  }
+  getSize() {
+    return this.avl.getSize();
+  }
+  isEmpty() {
+    return this.avl.isEmpty();
+  }
+  add(e: T) {
+    this.avl.add(e, null);
+  }
+  contains(e: T) {
+    return this.avl.contains(e);
+  }
+  remove(e: T) {
+    return this.avl.remove(e);
+  }
+}
+
+// two-ponters 1-5
