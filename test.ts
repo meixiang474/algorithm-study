@@ -1,5 +1,4 @@
-// offer 22
-
+// offer 23
 export class ListNode {
   val: number;
   next: ListNode | null;
@@ -9,14 +8,25 @@ export class ListNode {
   }
 }
 
-export function getKthFromEnd(head: ListNode | null, k: number) {
-  let current = head;
-  const res: ListNode[] = [];
+export function reverseList(head: ListNode | null): ListNode | null {
+  if (!head || !head.next) return head;
+  const res = reverseList(head.next);
+  head.next.next = head;
+  head.next = null;
+  return res;
+}
+
+export function reverseList1(head: ListNode | null): ListNode | null {
+  if (!head || !head.next) return head;
+  let prev = null,
+    current: ListNode | null = head;
   while (current) {
-    res.push(current);
-    current = current.next;
+    const next: ListNode | null = current.next;
+    current.next = prev;
+    prev = current;
+    current = next;
   }
-  return res[res.length - k];
+  return prev;
 }
 
 // avl-tree
@@ -257,3 +267,184 @@ export class AVLSet<T = number> {
 }
 
 // two-ponters 1-5
+
+export function longestSubstring(s: string) {
+  const map = new Map<string, number>();
+  let l = 0,
+    r = l;
+  let res = 0;
+  while (r < s.length) {
+    const current = s[r];
+    if (map.has(current) && map.get(current)! >= l) {
+      l = map.get(current)! + 1;
+    }
+    res = Math.max(res, r - l + 1);
+    map.set(current, r);
+    r++;
+  }
+  return res;
+}
+
+export function maxArea(nums: number[]) {
+  let res = 0;
+  let l = 0,
+    r = nums.length - 1;
+  while (l < r) {
+    const currentl = nums[l];
+    const currentr = nums[r];
+    res = Math.max(res, Math.min(currentl, currentr) * (r - l));
+    if (currentl > currentr) {
+      r--;
+    } else {
+      l++;
+    }
+  }
+  return res;
+}
+
+export function threeSum(nums: number[]) {
+  nums.sort((a, b) => a - b);
+  const res: [number, number, number][] = [];
+  for (let i = 0; i < nums.length - 2; i++) {
+    const current = nums[i];
+    if (current > 0) break;
+    if (i > 0 && nums[i - 1] === current) continue;
+    let l = i + 1,
+      r = nums.length - 1;
+    while (l < r) {
+      const currentl = nums[l];
+      const currentr = nums[r];
+      const sum = currentl + currentr + current;
+      if (sum === 0) {
+        res.push([currentl, currentr, current]);
+        while (l < r) {
+          l++;
+          if (nums[l] !== currentl) break;
+        }
+        while (l < r) {
+          r--;
+          if (nums[r] !== currentr) break;
+        }
+      } else if (sum > 0) {
+        while (l < r) {
+          r--;
+          if (nums[r] !== currentr) break;
+        }
+      } else {
+        while (l < r) {
+          l++;
+          if (nums[l] !== currentl) break;
+        }
+      }
+    }
+  }
+  return res;
+}
+
+export function threeSumClosest(nums: number[], target: number) {
+  nums.sort((a, b) => a - b);
+  let res = 0;
+  let diff = Infinity;
+  for (let i = 0; i < nums.length - 2; i++) {
+    const current = nums[i];
+    if (i > 0 && current === nums[i - 1]) continue;
+    let isEqual = false;
+    let l = i + 1,
+      r = nums.length - 1;
+    while (l < r) {
+      const currentl = nums[l];
+      const currentr = nums[r];
+      const sum = currentl + currentr + current;
+      const newDiff = Math.abs(sum - target);
+      if (newDiff < diff) {
+        res = sum;
+        diff = newDiff;
+        if (sum > target) {
+          while (l < r) {
+            r--;
+            if (nums[r] !== currentr) break;
+          }
+        } else if (sum < target) {
+          while (l < r) {
+            l++;
+            if (nums[l] !== currentl) break;
+          }
+        } else {
+          isEqual = true;
+          break;
+        }
+      } else {
+        if (sum > target) {
+          while (l < r) {
+            r--;
+            if (nums[r] !== currentr) break;
+          }
+        } else if (sum < target) {
+          while (l < r) {
+            l++;
+            if (nums[l] !== currentl) break;
+          }
+        }
+      }
+      if (isEqual) break;
+    }
+  }
+  return res;
+}
+
+export function fourSum(nums: number[], target: number) {
+  nums.sort((a, b) => a - b);
+  const res: [number, number, number, number][] = [];
+  for (let i = 0; i < nums.length - 3; i++) {
+    const current = nums[i];
+    if (i > 0 && current === nums[i - 1]) continue;
+    if (current + nums[i + 1] + nums[i + 2] + nums[i + 3] > target) break;
+    if (
+      current +
+        nums[nums.length - 1] +
+        nums[nums.length - 2] +
+        nums[nums.length - 3] <
+      target
+    )
+      continue;
+    for (let j = i + 1; j < nums.length - 2; j++) {
+      const currentj = nums[j];
+      if (j > i + 1 && currentj === nums[j - 1]) continue;
+      if (current + currentj + nums[j + 1] + nums[j + 2] > target) break;
+      if (
+        current + currentj + nums[nums.length - 1] + nums[nums.length - 2] <
+        target
+      )
+        continue;
+      let l = j + 1,
+        r = nums.length - 1;
+      while (l < r) {
+        const currentl = nums[l];
+        const currentr = nums[r];
+        const sum = currentl + currentr + current + currentj;
+        if (sum === target) {
+          res.push([currentl, currentr, currentj, current]);
+          while (l < r) {
+            l++;
+            if (nums[l] !== currentl) break;
+          }
+          while (l < r) {
+            r--;
+            if (nums[r] !== currentr) break;
+          }
+        } else if (sum < target) {
+          while (l < r) {
+            l++;
+            if (nums[l] !== currentl) break;
+          }
+        } else {
+          while (l < r) {
+            r--;
+            if (nums[r] !== currentr) break;
+          }
+        }
+      }
+    }
+  }
+  return res;
+}
