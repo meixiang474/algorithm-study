@@ -1,7 +1,7 @@
 // leetcode 130
 
 export default function solve(board: string[][]) {
-  if (board.length === 0 || board[0].length === 0) return board;
+  if (board.length === 0 || board[0].length === 0) return;
   const m = board.length;
   const n = board[0].length;
   const dfs = (r: number, c: number) => {

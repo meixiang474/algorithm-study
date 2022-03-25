@@ -1,4 +1,4 @@
-// offer 23
+// offer 25
 export class ListNode {
   val: number;
   next: ListNode | null;
@@ -8,25 +8,28 @@ export class ListNode {
   }
 }
 
-export function reverseList(head: ListNode | null): ListNode | null {
-  if (!head || !head.next) return head;
-  const res = reverseList(head.next);
-  head.next.next = head;
-  head.next = null;
-  return res;
-}
-
-export function reverseList1(head: ListNode | null): ListNode | null {
-  if (!head || !head.next) return head;
-  let prev = null,
-    current: ListNode | null = head;
-  while (current) {
-    const next: ListNode | null = current.next;
-    current.next = prev;
-    prev = current;
-    current = next;
+export function mergeTwoLists(l1: ListNode | null, l2: ListNode | null) {
+  const l3 = new ListNode(-1);
+  let p1 = l1;
+  let p2 = l2;
+  let p3 = l3;
+  while (p1 && p2) {
+    if (p1.val < p2.val) {
+      p3.next = p1;
+      p1 = p1.next;
+    } else {
+      p3.next = p2;
+      p2 = p2.next;
+    }
+    p3 = p3.next;
   }
-  return prev;
+  if (p1) {
+    p3.next = p1;
+  }
+  if (p2) {
+    p3.next = p2;
+  }
+  return l3.next;
 }
 
 // search sort
@@ -108,184 +111,166 @@ export function bubbleSort(arr: number[]) {
   return res;
 }
 
-// two-ponters 1-5
+// union find 1-4
 
-export function longestSubstring(s: string) {
-  const map = new Map<string, number>();
-  let l = 0,
-    r = l;
-  let res = 0;
-  while (r < s.length) {
-    const current = s[r];
-    if (map.has(current) && map.get(current)! >= l) {
-      l = map.get(current)! + 1;
-    }
-    res = Math.max(res, r - l + 1);
-    map.set(current, r);
-    r++;
-  }
-  return res;
-}
-
-export function maxArea(nums: number[]) {
-  let res = 0;
-  let l = 0,
-    r = nums.length - 1;
-  while (l < r) {
-    const currentl = nums[l];
-    const currentr = nums[r];
-    res = Math.max(res, Math.min(currentl, currentr) * (r - l));
-    if (currentl > currentr) {
-      r--;
-    } else {
-      l++;
-    }
-  }
-  return res;
-}
-
-export function threeSum(nums: number[]) {
-  nums.sort((a, b) => a - b);
-  const res: [number, number, number][] = [];
-  for (let i = 0; i < nums.length - 2; i++) {
-    const current = nums[i];
-    if (current > 0) break;
-    if (i > 0 && nums[i - 1] === current) continue;
-    let l = i + 1,
-      r = nums.length - 1;
-    while (l < r) {
-      const currentl = nums[l];
-      const currentr = nums[r];
-      const sum = currentl + currentr + current;
-      if (sum === 0) {
-        res.push([currentl, currentr, current]);
-        while (l < r) {
-          l++;
-          if (nums[l] !== currentl) break;
-        }
-        while (l < r) {
-          r--;
-          if (nums[r] !== currentr) break;
-        }
-      } else if (sum > 0) {
-        while (l < r) {
-          r--;
-          if (nums[r] !== currentr) break;
-        }
-      } else {
-        while (l < r) {
-          l++;
-          if (nums[l] !== currentl) break;
-        }
-      }
-    }
-  }
-  return res;
-}
-
-export function threeSumClosest(nums: number[], target: number) {
-  nums.sort((a, b) => a - b);
-  let res = 0;
-  let diff = Infinity;
-  for (let i = 0; i < nums.length - 2; i++) {
-    const current = nums[i];
-    if (i > 0 && current === nums[i - 1]) continue;
-    let isEqual = false;
-    let l = i + 1,
-      r = nums.length - 1;
-    while (l < r) {
-      const currentl = nums[l];
-      const currentr = nums[r];
-      const sum = currentl + currentr + current;
-      const newDiff = Math.abs(sum - target);
-      if (newDiff < diff) {
-        res = sum;
-        diff = newDiff;
-        if (sum > target) {
-          while (l < r) {
-            r--;
-            if (nums[r] !== currentr) break;
-          }
-        } else if (sum < target) {
-          while (l < r) {
-            l++;
-            if (nums[l] !== currentl) break;
-          }
-        } else {
-          isEqual = true;
-          break;
-        }
-      } else {
-        if (sum > target) {
-          while (l < r) {
-            r--;
-            if (nums[r] !== currentr) break;
-          }
-        } else if (sum < target) {
-          while (l < r) {
-            l++;
-            if (nums[l] !== currentl) break;
-          }
-        }
-      }
-      if (isEqual) break;
-    }
-  }
-  return res;
-}
-
-export function fourSum(nums: number[], target: number) {
-  nums.sort((a, b) => a - b);
-  const res: [number, number, number, number][] = [];
-  for (let i = 0; i < nums.length - 3; i++) {
-    const current = nums[i];
-    if (i > 0 && current === nums[i - 1]) continue;
-    if (current + nums[i + 1] + nums[i + 2] + nums[i + 3] > target) break;
-    if (
-      current +
-        nums[nums.length - 1] +
-        nums[nums.length - 2] +
-        nums[nums.length - 3] <
-      target
-    )
-      continue;
-    for (let j = i + 1; j < nums.length - 2; j++) {
-      const currentj = nums[j];
-      if (j > i + 1 && currentj === nums[j - 1]) continue;
-      if (current + currentj + nums[j + 1] + nums[j + 2] > target) break;
+export function solve(board: string[][]) {
+  if (board.length === 0 || board[0].length === 0) return;
+  const m = board.length;
+  const n = board[0].length;
+  const dfs = (r: number, c: number) => {
+    board[r][c] = "A";
+    [
+      [r - 1, c],
+      [r + 1, c],
+      [r, c - 1],
+      [r, c + 1],
+    ].forEach(([nextR, nextC]) => {
       if (
-        current + currentj + nums[nums.length - 1] + nums[nums.length - 2] <
-        target
-      )
-        continue;
-      let l = j + 1,
-        r = nums.length - 1;
-      while (l < r) {
-        const currentl = nums[l];
-        const currentr = nums[r];
-        const sum = currentl + currentr + current + currentj;
-        if (sum === target) {
-          res.push([currentl, currentr, currentj, current]);
-          while (l < r) {
-            l++;
-            if (nums[l] !== currentl) break;
-          }
-          while (l < r) {
-            r--;
-            if (nums[r] !== currentr) break;
-          }
-        } else if (sum < target) {
-          while (l < r) {
-            l++;
-            if (nums[l] !== currentl) break;
-          }
-        } else {
-          while (l < r) {
-            r--;
-            if (nums[r] !== currentr) break;
-          }
+        nextR >= 0 &&
+        nextR < m &&
+        nextC >= 0 &&
+        nextC < n &&
+        board[nextR][nextC] === "O"
+      ) {
+        dfs(nextR, nextC);
+      }
+    });
+  };
+  for (let r = 0; r < m; r++) {
+    if (board[r][0] === "O") {
+      dfs(r, 0);
+    }
+    if (board[r][n - 1] === "O") {
+      dfs(r, n - 1);
+    }
+  }
+  for (let c = 0; c < n; c++) {
+    if (board[0][c] === "O") {
+      dfs(0, c);
+    }
+    if (board[m - 1][c] === "O") {
+      dfs(m - 1, c);
+    }
+  }
+  for (let r = 0; r < m; r++) {
+    for (let c = 0; c < n; c++) {
+      if (board[r][c] === "A") {
+        board[r][c] = "O";
+      } else {
+        board[r][c] = "X";
+      }
+    }
+  }
+}
+
+export function numIslands(grid: string[][]) {
+  if (grid.length === 0 || grid[0].length === 0) return 0;
+  const m = grid.length;
+  const n = grid[0].length;
+  const dfs = (r: number, c: number) => {
+    grid[r][c] = "0";
+    [
+      [r - 1, c],
+      [r + 1, c],
+      [r, c - 1],
+      [r, c + 1],
+    ].forEach(([nextR, nextC]) => {
+      if (
+        nextR >= 0 &&
+        nextR < m &&
+        nextC >= 0 &&
+        nextC < n &&
+        grid[nextR][nextC] === "1"
+      ) {
+        dfs(nextR, nextC);
+      }
+    });
+  };
+  let res = 0;
+  for (let r = 0; r < m; r++) {
+    for (let c = 0; c < n; c++) {
+      if (grid[r][c] === "1") {
+        res++;
+        dfs(r, c);
+      }
+    }
+  }
+  return res;
+}
+
+export function calcEqualtion(
+  euqations: string[][],
+  values: number[],
+  queries: string[][]
+) {
+  let nodeCount = 0;
+  const map = new Map<string, number>();
+  for (let i = 0; i < euqations.length; i++) {
+    if (!map.has(euqations[i][0])) {
+      map.set(euqations[i][0], nodeCount++);
+    }
+    if (!map.has(euqations[i][1])) {
+      map.set(euqations[i][1], nodeCount++);
+    }
+  }
+  const graph: [number, number][][] = new Array(nodeCount).fill(null);
+  for (let i = 0; i < graph.length; i++) {
+    graph[i] = [];
+  }
+  for (let i = 0; i < euqations.length; i++) {
+    const node1 = map.get(euqations[i][0])!;
+    const node2 = map.get(euqations[i][1])!;
+    graph[node1].push([node2, values[i]]);
+    graph[node2].push([node1, 1 / values[i]]);
+  }
+  const res: number[] = [];
+  for (let i = 0; i < queries.length; i++) {
+    const node1 = map.get(queries[i][0]);
+    const node2 = map.get(queries[i][1]);
+    if (node1 == null || node2 == null) {
+      res[i] = -1;
+      continue;
+    }
+    if (node1 === node2) {
+      res[i] = 1;
+      continue;
+    }
+    const ratios: number[] = new Array(nodeCount).fill(-1);
+    ratios[node1] = 1;
+    const queue = [node1];
+    while (queue.length > 0 && ratios[node2] === -1) {
+      const current = queue.shift()!;
+      for (let i = 0; i < graph[current].length; i++) {
+        const [node, value] = graph[current][i];
+        if (ratios[node] === -1) {
+          ratios[node] = value * ratios[current];
+          queue.push(node);
         }
       }
+    }
+    res[i] = ratios[node2];
+  }
+  return res;
+}
+
+export function findCircleNum(isConnected: number[][]) {
+  if (isConnected.length === 0) return 0;
+  const m = isConnected.length;
+  const visited = new Set<number>();
+  const dfs = (r: number) => {
+    for (let c = 0; c < m; c++) {
+      if (isConnected[r][c] === 1 && !visited.has(c)) {
+        visited.add(c);
+        dfs(c);
+      }
+    }
+  };
+  let res = 0;
+  for (let r = 0; r < m; r++) {
+    if (!visited.has(r)) {
+      visited.add(r);
+      res++;
+      dfs(r);
     }
   }
   return res;
