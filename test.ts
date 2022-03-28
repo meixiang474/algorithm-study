@@ -32,246 +32,112 @@ export function mergeTwoLists(l1: ListNode | null, l2: ListNode | null) {
   return l3.next;
 }
 
-// search sort
-export function isObject<T extends any>(obj: T) {
-  return typeof obj === "object" && obj;
-}
-
-export function isEqual(a: any, b: any) {
-  if (!isObject(a) || !isObject(b)) return a === b;
-  const keysA = Object.keys(a);
-  const keysB = Object.keys(b);
-  if (keysA.length !== keysB.length) return false;
-  for (let key in a) {
-    if (a.hasOwnProperty(key)) {
-      const flag = isEqual(a[key], b[key]);
-      if (!flag) return false;
-    }
+// array
+export class MyArray<T = any> {
+  data: T[];
+  size: number;
+  constructor(size: number = 10) {
+    this.data = new Array(size).fill(null);
+    this.size = 0;
   }
-  return true;
-}
-
-export function linearSearch<T extends any>(arr: T[], target: T) {
-  for (let i = 0; i < arr.length; i++) {
-    if (isEqual(arr[i], target)) return i;
+  getCapacity() {
+    return this.data.length;
   }
-  return -1;
-}
-
-export function selectionSort(arr: number[]) {
-  const res = [...arr];
-  const swap = (arr: number[], i: number, j: number) =>
-    ([arr[i], arr[j]] = [arr[j], arr[i]]);
-  for (let i = 0; i < arr.length; i++) {
-    let minIndex = i;
-    for (let j = i + 1; j < arr.length; j++) {
-      minIndex = arr[j] < arr[minIndex] ? j : minIndex;
-    }
-    if (minIndex !== i) {
-      swap(arr, minIndex, i);
-    }
+  getSize() {
+    return this.size;
   }
-  return res;
-}
-
-export function insertionSort(arr: number[]) {
-  const res = [...arr];
-  for (let i = 0; i < arr.length; i++) {
-    let swapIndex = i;
-    let current = arr[i];
-    for (let j = i - 1; j >= 0; j--) {
-      if (arr[j] > current) {
-        arr[j + 1] = arr[j];
-        swapIndex = j;
-      } else {
-        break;
-      }
-    }
-    if (swapIndex !== i) {
-      arr[swapIndex] = current;
-    }
+  isEmpty() {
+    return this.size === 0;
   }
-  return res;
-}
-
-export function bubbleSort(arr: number[]) {
-  const res = [...arr];
-  const swap = (arr: number[], i: number, j: number) =>
-    ([arr[i], arr[j]] = [arr[j], arr[i]]);
-  for (let i = 0; i < arr.length - 1; i++) {
-    let flag = false;
-    for (let j = 0; j < arr.length - i - 1; j++) {
-      if (arr[j] > arr[j + 1]) {
-        swap(arr, j + 1, j);
-        flag = true;
-      }
+  resize(newSize: number) {
+    const newData = new Array(newSize).fill(newSize);
+    for (let i = 0; i < this.size; i++) {
+      newData[i] = this.data[i];
     }
-    if (!flag) break;
+    this.data = newData;
   }
-  return res;
-}
-
-// union find 1-4
-
-export function solve(board: string[][]) {
-  if (board.length === 0 || board[0].length === 0) return;
-  const m = board.length;
-  const n = board[0].length;
-  const dfs = (r: number, c: number) => {
-    board[r][c] = "A";
-    [
-      [r - 1, c],
-      [r + 1, c],
-      [r, c - 1],
-      [r, c + 1],
-    ].forEach(([nextR, nextC]) => {
-      if (
-        nextR >= 0 &&
-        nextR < m &&
-        nextC >= 0 &&
-        nextC < n &&
-        board[nextR][nextC] === "O"
-      ) {
-        dfs(nextR, nextC);
-      }
-    });
-  };
-  for (let r = 0; r < m; r++) {
-    if (board[r][0] === "O") {
-      dfs(r, 0);
+  add(index: number, e: T) {
+    if (index < 0 || index > this.size) throw new Error("error");
+    if (this.size === this.getCapacity()) {
+      this.resize(2 * this.size);
     }
-    if (board[r][n - 1] === "O") {
-      dfs(r, n - 1);
+    for (let i = this.size; i > index; i--) {
+      this.data[i] = this.data[i - 1];
     }
+    this.data[index] = e;
+    this.size++;
   }
-  for (let c = 0; c < n; c++) {
-    if (board[0][c] === "O") {
-      dfs(0, c);
-    }
-    if (board[m - 1][c] === "O") {
-      dfs(m - 1, c);
-    }
+  addFirst(e: T) {
+    this.add(0, e);
   }
-  for (let r = 0; r < m; r++) {
-    for (let c = 0; c < n; c++) {
-      if (board[r][c] === "A") {
-        board[r][c] = "O";
-      } else {
-        board[r][c] = "X";
-      }
+  addLast(e: T) {
+    this.add(this.size, e);
+  }
+  get(index: number) {
+    if (index < 0 || index >= this.size) throw new Error("error");
+    return this.data[index];
+  }
+  getFirst() {
+    return this.get(0);
+  }
+  getLast() {
+    return this.get(this.size - 1);
+  }
+  contains(e: T) {
+    for (let i = 0; i < this.size; i++) {
+      if (this.data[i] === e) return true;
     }
+    return false;
+  }
+  find(e: T) {
+    for (let i = 0; i < this.size; i++) {
+      if (this.data[i] === e) return i;
+    }
+    return -1;
+  }
+  remove(index: number) {
+    if (index < 0 || index >= this.size) throw new Error("error");
+    const res = this.data[index];
+    for (let i = index; i < this.size; i++) {
+      this.data[i] = this.data[i + 1];
+    }
+    this.size--;
+    if (
+      this.size <= Math.floor(this.getCapacity() / 4) &&
+      Math.floor(this.getCapacity() / 2) !== 0
+    ) {
+      this.resize(Math.floor(this.getCapacity() / 2));
+    }
+    return res;
+  }
+  removeFirst() {
+    return this.remove(0);
+  }
+  removeLast() {
+    return this.remove(this.size - 1);
+  }
+  removeElement(e: T) {
+    const index = this.find(e);
+    if (index < 0) {
+      return false;
+    }
+    this.remove(index);
+    return true;
+  }
+  set(index: number, e: T) {
+    if (index < 0 || index >= this.size) throw new Error("error");
+    this.data[index] = e;
+  }
+  toString() {
+    let res = `MyArray: size=${this.size}, capacity=${this.getCapacity()}\r\n`;
+    res += "[";
+    for (let i = 0; i < this.size; i++) {
+      res += JSON.stringify(this.data[i]) + ",";
+    }
+    res = res.slice(0, -1) + "]";
+    return res;
   }
 }
 
-export function numIslands(grid: string[][]) {
-  if (grid.length === 0 || grid[0].length === 0) return 0;
-  const m = grid.length;
-  const n = grid[0].length;
-  const dfs = (r: number, c: number) => {
-    grid[r][c] = "0";
-    [
-      [r - 1, c],
-      [r + 1, c],
-      [r, c - 1],
-      [r, c + 1],
-    ].forEach(([nextR, nextC]) => {
-      if (
-        nextR >= 0 &&
-        nextR < m &&
-        nextC >= 0 &&
-        nextC < n &&
-        grid[nextR][nextC] === "1"
-      ) {
-        dfs(nextR, nextC);
-      }
-    });
-  };
-  let res = 0;
-  for (let r = 0; r < m; r++) {
-    for (let c = 0; c < n; c++) {
-      if (grid[r][c] === "1") {
-        res++;
-        dfs(r, c);
-      }
-    }
-  }
-  return res;
-}
+// leetcode array 26-41
 
-export function calcEqualtion(
-  euqations: string[][],
-  values: number[],
-  queries: string[][]
-) {
-  let nodeCount = 0;
-  const map = new Map<string, number>();
-  for (let i = 0; i < euqations.length; i++) {
-    if (!map.has(euqations[i][0])) {
-      map.set(euqations[i][0], nodeCount++);
-    }
-    if (!map.has(euqations[i][1])) {
-      map.set(euqations[i][1], nodeCount++);
-    }
-  }
-  const graph: [number, number][][] = new Array(nodeCount).fill(null);
-  for (let i = 0; i < graph.length; i++) {
-    graph[i] = [];
-  }
-  for (let i = 0; i < euqations.length; i++) {
-    const node1 = map.get(euqations[i][0])!;
-    const node2 = map.get(euqations[i][1])!;
-    graph[node1].push([node2, values[i]]);
-    graph[node2].push([node1, 1 / values[i]]);
-  }
-  const res: number[] = [];
-  for (let i = 0; i < queries.length; i++) {
-    const node1 = map.get(queries[i][0]);
-    const node2 = map.get(queries[i][1]);
-    if (node1 == null || node2 == null) {
-      res[i] = -1;
-      continue;
-    }
-    if (node1 === node2) {
-      res[i] = 1;
-      continue;
-    }
-    const ratios: number[] = new Array(nodeCount).fill(-1);
-    ratios[node1] = 1;
-    const queue = [node1];
-    while (queue.length > 0 && ratios[node2] === -1) {
-      const current = queue.shift()!;
-      for (let i = 0; i < graph[current].length; i++) {
-        const [node, value] = graph[current][i];
-        if (ratios[node] === -1) {
-          ratios[node] = value * ratios[current];
-          queue.push(node);
-        }
-      }
-    }
-    res[i] = ratios[node2];
-  }
-  return res;
-}
-
-export function findCircleNum(isConnected: number[][]) {
-  if (isConnected.length === 0) return 0;
-  const m = isConnected.length;
-  const visited = new Set<number>();
-  const dfs = (r: number) => {
-    for (let c = 0; c < m; c++) {
-      if (isConnected[r][c] === 1 && !visited.has(c)) {
-        visited.add(c);
-        dfs(c);
-      }
-    }
-  };
-  let res = 0;
-  for (let r = 0; r < m; r++) {
-    if (!visited.has(r)) {
-      visited.add(r);
-      res++;
-      dfs(r);
-    }
-  }
-  return res;
-}
