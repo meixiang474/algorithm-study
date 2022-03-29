@@ -1,35 +1,23 @@
 // offer 25
-export class ListNode {
+export class TreeNode {
   val: number;
-  next: ListNode | null;
+  left: TreeNode | null;
+  right: TreeNode | null;
   constructor(val: number) {
     this.val = val;
-    this.next = null;
+    this.left = null;
+    this.right = null;
   }
 }
 
-export function mergeTwoLists(l1: ListNode | null, l2: ListNode | null) {
-  const l3 = new ListNode(-1);
-  let p1 = l1;
-  let p2 = l2;
-  let p3 = l3;
-  while (p1 && p2) {
-    if (p1.val < p2.val) {
-      p3.next = p1;
-      p1 = p1.next;
-    } else {
-      p3.next = p2;
-      p2 = p2.next;
-    }
-    p3 = p3.next;
+export function isSubStructure(A: TreeNode | null, B: TreeNode | null): boolean {
+  if(!A || !B) return false
+  const dfs = (A: TreeNode | null, B: TreeNode | null): boolean => {
+    if(!B) return true
+    if(!A || A.val !== B.val) return false
+    return dfs(A.left, B.left) && dfs(A.right, B.right)
   }
-  if (p1) {
-    p3.next = p1;
-  }
-  if (p2) {
-    p3.next = p2;
-  }
-  return l3.next;
+  return dfs(A, B) || isSubStructure(A.left, B) || isSubStructure(A.right, B)
 }
 
 // array
@@ -140,4 +128,91 @@ export class MyArray<T = any> {
 }
 
 // leetcode array 26-41
+export function removeDuplicates(nums: number[]) {
+  let res = nums.length;
+  let i = 0;
+  while (i < res) {
+    if (i > 0 && nums[i] === nums[i - 1]) {
+      res--;
+      for (let j = i; j < res; j++) {
+        nums[j] = nums[j + 1];
+      }
+    } else {
+      i++;
+    }
+  }
+  return res;
+}
 
+export function removeElement(nums: number[], val: number) {
+  let res = nums.length;
+  let i = 0;
+  while (i < res) {
+    if (nums[i] === val) {
+      res--;
+      for (let j = i; j < res; j++) {
+        nums[j] = nums[j + 1];
+      }
+    } else {
+      i++;
+    }
+  }
+  return res;
+}
+
+export function combinationSum(candidates: number[], target: number) {
+  const res: number[][] = [];
+  const backtrack = (path: number[], sum: number, index: number) => {
+    if (sum === target) {
+      res.push(path);
+      return;
+    }
+    if (sum > target) {
+      return;
+    }
+    if (index >= candidates.length) return;
+    backtrack(path, sum, index + 1);
+    backtrack(path.concat(candidates[index]), sum + candidates[index], index);
+  };
+  backtrack([], 0, 0);
+  return res;
+}
+
+export function combineSum(candidates: number[], target: number) {
+  candidates.sort((a, b) => a - b);
+  const res: number[][] = [];
+  const backtrack = (path: number[], sum: number, index: number) => {
+    if (sum === target) {
+      res.push(path);
+      return;
+    }
+    if (sum > target) return;
+    if (index >= candidates.length) return;
+    for (let i = index; i < candidates.length; i++) {
+      if (i > index && candidates[i] === candidates[i - 1]) continue;
+      backtrack(path.concat(candidates[i]), sum + candidates[i], i + 1);
+    }
+  };
+  backtrack([], 0, 0);
+  return res;
+}
+
+export function firstMissingPositive(nums: number[]) {
+  for (let i = 0; i < nums.length; i++) {
+    if (nums[i] <= 0) {
+      nums[i] = nums.length + 1;
+    }
+  }
+  for (let i = 0; i < nums.length; i++) {
+    const current = Math.abs(nums[i]);
+    if (current <= nums.length) {
+      nums[current - 1] = -Math.abs(nums[current - 1]);
+    }
+  }
+  for (let i = 0; i < nums.length; i++) {
+    if (nums[i] > 0) {
+      return i + 1;
+    }
+  }
+  return nums.length + 1;
+}
