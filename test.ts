@@ -1,4 +1,4 @@
-// offer 25
+// offer 27
 export class TreeNode {
   val: number;
   left: TreeNode | null;
@@ -10,19 +10,22 @@ export class TreeNode {
   }
 }
 
-export function isSubStructure(
-  A: TreeNode | null,
-  B: TreeNode | null
-): boolean {
-  if (!A || !B) return false;
-  const dfs = (A: TreeNode | null, B: TreeNode | null): boolean => {
-    if (!B) return true;
-    if (!A || A.val !== B.val) return false;
-    return dfs(A.left, B.left) && dfs(A.right, B.right);
+export function mirrorTree(root: TreeNode | null) {
+  if (!root) return null;
+  const res = new TreeNode(root.val);
+  const dfs = (node: TreeNode, newNode: TreeNode) => {
+    if (node.left) {
+      newNode.right = new TreeNode(node.left.val);
+      dfs(node.left, newNode.right);
+    }
+    if (node.right) {
+      newNode.left = new TreeNode(node.right.val);
+      dfs(node.right, newNode.left);
+    }
   };
-  return dfs(A, B) || isSubStructure(A.left, B) || isSubStructure(A.right, B);
+  dfs(root, res);
+  return res;
 }
-
 // stack
 export class Stack {
   items: number[];
@@ -156,3 +159,112 @@ export function decToBi(num: number) {
 }
 
 // leetcode backtracking 6-10
+export function subsets(nums: number[]) {
+  const res: number[][] = [];
+  const dfs = (path: number[], index: number, length: number) => {
+    if (path.length === length) {
+      res.push(path);
+      return;
+    }
+    if (nums.length - index + path.length < length) return;
+    for (let i = index; i < nums.length; i++) {
+      dfs(path.concat(nums[i]), i + 1, length);
+    }
+  };
+  for (let i = 0; i <= nums.length; i++) {
+    dfs([], 0, i);
+  }
+  return res;
+}
+
+export function exist(board: string[][], word: string) {
+  if (board.length === 0 || board[0].length === 0) return false;
+  const m = board.length;
+  const n = board[0].length;
+  const map: boolean[][] = Array.from({ length: m }, () =>
+    new Array(n).fill(false)
+  );
+  const dfs = (r: number, c: number, index: number) => {
+    if (index >= word.length) return true;
+    map[r][c] = true;
+    const res = [
+      [r + 1, c],
+      [r - 1, c],
+      [r, c - 1],
+      [r, c + 1],
+    ].forEach(([nextR, nextC]) => {
+      if (
+        nextR >= 0 &&
+        nextR < m &&
+        nextC >= 0 &&
+        nextC < n &&
+        board[nextR][nextC] === word[index] &&
+        !map[nextR][nextC]
+      ) {
+        return dfs(nextR, nextC, index + 1);
+      }
+      return false;
+    });
+    map[r][c] = false;
+    return res;
+  };
+  for (let r = 0; r < m; r++) {
+    for (let c = 0; c < n; c++) {
+      if (board[r][c] === word[0]) {
+        const res = dfs(r, c, 0);
+        if (res) return true;
+      }
+    }
+  }
+  return false;
+}
+
+export function subsetsWithDup(nums: number[]) {
+  const res: number[][] = [];
+  nums.sort((a, b) => a - b);
+  const dfs = (path: number[], index: number, length: number) => {
+    if (path.length >= length) {
+      res.push(path);
+      return;
+    }
+    if (path.length + nums.length - index < length) return;
+    for (let i = index; i < nums.length; i++) {
+      if (i > index && nums[i] === nums[i - 1]) continue;
+      dfs(path.concat(nums[i]), i + 1, length);
+    }
+  };
+  for (let i = 0; i <= nums.length; i++) {
+    dfs([], 0, i);
+  }
+  return res;
+}
+
+export function restoreIpAddresses(s: string) {
+  const ips: string[] = [];
+  const res: string[] = [];
+  const dfs = (index: number) => {
+    if (ips.length === 4 && index === s.length) {
+      res.push(ips.join("."));
+    }
+    if (index === s.length) return;
+    if (s[index] === "0") {
+      ips.push(s[index]);
+      dfs(index + 1);
+      ips.pop();
+      return;
+    }
+    let item = 0;
+    for (let i = index; i < s.length; i++) {
+      item = item * 10 + parseInt(s[i]);
+      if (item > 0 && item <= 255) {
+        ips.push(item.toString());
+        dfs(i + 1);
+        ips.pop();
+      } else {
+        break;
+      }
+    }
+  };
+  dfs(0);
+  return res;
+}

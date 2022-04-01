@@ -1,5 +1,5 @@
 /**
- * @description leetcode 89
+ * @description leetcode 89 read
  */
 
 export default function grayCode(n: number): number[] {
