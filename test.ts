@@ -209,113 +209,112 @@ export class Deque<T> {
   }
 }
 
-// leetcode backtracking 6-10
-export function subsets(nums: number[]) {
-  const res: number[][] = [];
-  const dfs = (path: number[], index: number, length: number) => {
-    if (path.length === length) {
-      res.push(path);
-      return;
-    }
-    if (nums.length - index + path.length < length) return;
-    for (let i = index; i < nums.length; i++) {
-      dfs(path.concat(nums[i]), i + 1, length);
-    }
-  };
-  for (let i = 0; i <= nums.length; i++) {
-    dfs([], 0, i);
+export class StackBasedOnQueue {
+  items: number[];
+  constructor() {
+    this.items = [];
   }
-  return res;
-}
-
-export function exist(board: string[][], word: string) {
-  if (board.length === 0 || board[0].length === 0) return false;
-  const m = board.length;
-  const n = board[0].length;
-  const map: boolean[][] = Array.from({ length: m }, () =>
-    new Array(n).fill(false)
-  );
-  const dfs = (r: number, c: number, index: number) => {
-    if (index >= word.length) return true;
-    map[r][c] = true;
-    const res = [
-      [r + 1, c],
-      [r - 1, c],
-      [r, c - 1],
-      [r, c + 1],
-    ].forEach(([nextR, nextC]) => {
-      if (
-        nextR >= 0 &&
-        nextR < m &&
-        nextC >= 0 &&
-        nextC < n &&
-        board[nextR][nextC] === word[index] &&
-        !map[nextR][nextC]
-      ) {
-        return dfs(nextR, nextC, index + 1);
-      }
-      return false;
-    });
-    map[r][c] = false;
+  push(item: number) {
+    this.items.push(item);
+  }
+  pop() {
+    if (this.isEmpty()) throw new Error("error");
+    for (let i = 0; i < this.items.length - 1; i++) {
+      this.items.push(this.items.shift()!);
+    }
+    return this.items.shift()!;
+  }
+  getSize() {
+    return this.items.length;
+  }
+  isEmpty() {
+    return this.getSize() === 0;
+  }
+  peek() {
+    if (this.isEmpty()) throw new Error("error");
+    const res = this.pop();
+    this.push(res);
     return res;
-  };
-  for (let r = 0; r < m; r++) {
-    for (let c = 0; c < n; c++) {
-      if (board[r][c] === word[0]) {
-        const res = dfs(r, c, 0);
-        if (res) return true;
-      }
-    }
   }
-  return false;
 }
 
-export function subsetsWithDup(nums: number[]) {
-  const res: number[][] = [];
-  nums.sort((a, b) => a - b);
-  const dfs = (path: number[], index: number, length: number) => {
-    if (path.length >= length) {
-      res.push(path);
+export class QueueBasedOnStack {
+  stack1: number[];
+  stack2: number[];
+  constructor() {
+    this.stack1 = [];
+    this.stack2 = [];
+  }
+  getSize() {
+    return this.stack1.length;
+  }
+  isEmpty() {
+    return this.getSize() === 0;
+  }
+  enqueue(item: number) {
+    this.stack1.push(item);
+  }
+  dequeue() {
+    if (this.isEmpty()) throw new Error("error");
+    while (this.stack1.length) {
+      this.stack2.push(this.stack1.pop()!);
+    }
+    const res = this.stack2.pop()!;
+    while (this.stack2.length) {
+      this.stack1.push(this.stack2.pop()!);
+    }
+    return res;
+  }
+  getFront() {
+    if (this.isEmpty()) throw new Error("error");
+    const res = this.dequeue();
+    while (this.stack1.length) {
+      this.stack2.push(this.stack1.pop()!);
+    }
+    this.stack1.push(res);
+    while (this.stack2.length) {
+      this.stack1.push(this.stack2.pop()!);
+    }
+    return res;
+  }
+}
+
+// leetcode binary search 6-10
+export function kthSmallest(root: TreeNode | null, k: number) {
+  if (!root) return null;
+  let index = 0;
+  let res = 0;
+  const dfs = (node: TreeNode) => {
+    if (node.left) {
+      dfs(node.left);
+    }
+    index++;
+    if (index === k) {
+      res = node.val;
       return;
     }
-    if (path.length + nums.length - index < length) return;
-    for (let i = index; i < nums.length; i++) {
-      if (i > index && nums[i] === nums[i - 1]) continue;
-      dfs(path.concat(nums[i]), i + 1, length);
+    if (node.right) {
+      dfs(node.right);
     }
   };
-  for (let i = 0; i <= nums.length; i++) {
-    dfs([], 0, i);
-  }
+  dfs(root);
   return res;
 }
 
-export function restoreIpAddresses(s: string) {
-  const ips: string[] = [];
-  const res: string[] = [];
-  const dfs = (index: number) => {
-    if (ips.length === 4 && index === s.length) {
-      res.push(ips.join("."));
+export function findDuplicate(nums: number[]) {
+  let l = 1,
+    r = nums.length;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    let count = 0;
+    for (let i = 0; i < nums.length; i++) {
+      if (nums[i] <= mid) count++;
     }
-    if (index === s.length) return;
-    if (s[index] === "0") {
-      ips.push(s[index]);
-      dfs(index + 1);
-      ips.pop();
-      return;
+    if (count <= mid) {
+      l = mid + 1;
+    } else {
+      r = mid;
     }
-    let item = 0;
-    for (let i = index; i < s.length; i++) {
-      item = item * 10 + parseInt(s[i]);
-      if (item > 0 && item <= 255) {
-        ips.push(item.toString());
-        dfs(i + 1);
-        ips.pop();
-      } else {
-        break;
-      }
-    }
-  };
-  dfs(0);
-  return res;
+  }
+  return l;
 }
