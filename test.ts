@@ -29,7 +29,7 @@ export function isSymmetric(root: TreeNode | null) {
 }
 
 // linked list
-export class ListNode<T = any> {
+export class ListNode<T = number> {
   val: T;
   next: ListNode<T> | null;
   constructor(val: T) {
@@ -38,7 +38,7 @@ export class ListNode<T = any> {
   }
 }
 
-export class LinkedList<T = any> {
+export class LinkedList<T = number> {
   dummyHead: ListNode<T>;
   size: number;
   constructor() {
@@ -99,8 +99,107 @@ export class LinkedList<T = any> {
     return false;
   }
   remove(index: number) {
-    if(index < 0 || index >= this.size) throw new Error('error')
+    if (index < 0 || index >= this.size) throw new Error("error");
+    let prev = this.dummyHead;
+    for (let i = 0; i < index; i++) {
+      prev = prev.next!;
+    }
+    const res = prev.next!;
+    prev.next = prev.next!.next;
+    this.size--;
+    return res.val;
   }
+  removeFirst() {
+    return this.remove(0);
+  }
+  removeLast() {
+    return this.remove(this.size--);
+  }
+  removeElement(val: T) {
+    let prev = this.dummyHead;
+    while (prev.next) {
+      if (prev.next.val === val) break;
+      prev = prev.next;
+    }
+    if (prev.next) {
+      prev.next = prev.next.next;
+      this.size--;
+    }
+  }
+  toString() {
+    let res = "";
+    let current = this.dummyHead.next;
+    while (current) {
+      res += JSON.stringify(current.val) + "->";
+      current = current.next;
+    }
+    res += "NULL";
+    return res;
+  }
+}
+
+export function removeElements(head: ListNode | null, val: number) {
+  while (head && head.val === val) {
+    head = head.next;
+  }
+  if (!head) return head;
+  let prev = head;
+  while (prev.next) {
+    if (prev.next.val === val) {
+      prev.next = prev.next.next;
+    } else {
+      prev = prev.next;
+    }
+  }
+  return head;
+}
+
+export function removeElements1(head: ListNode | null, val: number) {
+  const dummyHead = new ListNode(-1);
+  dummyHead.next = head;
+  let prev = dummyHead;
+  while (prev.next) {
+    if (prev.next.val === val) {
+      prev.next = prev.next.next;
+    } else {
+      prev = prev.next;
+    }
+  }
+  return dummyHead.next;
+}
+
+export function removeElements2(
+  head: ListNode | null,
+  val: number
+): ListNode | null {
+  if (!head) return head;
+  const res = removeElements2(head.next, val);
+  if (head.val === val) {
+    return res;
+  } else {
+    head.next = res;
+    return head;
+  }
+}
+
+export function reverse(head: ListNode | null) {
+  let prev = null,
+    current = head;
+  while (current) {
+    const next = current.next;
+    current.next = prev;
+    prev = current;
+    current = next;
+  }
+  return prev;
+}
+
+export function reverse1(head: ListNode | null): ListNode | null {
+  if(!head || !head.next) return head
+  const res = reverse1(head.next)
+  head.next.next = head
+  head.next = null
+  return res
 }
 
 // leetcode binary search 6-10
