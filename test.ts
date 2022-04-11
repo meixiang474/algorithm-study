@@ -195,94 +195,115 @@ export function reverse(head: ListNode | null) {
 }
 
 export function reverse1(head: ListNode | null): ListNode | null {
-  if(!head || !head.next) return head
-  const res = reverse1(head.next)
-  head.next.next = head
-  head.next = null
-  return res
-}
-
-// leetcode binary search 6-10
-export function kthSmallest(root: TreeNode | null, k: number) {
-  if (!root) return null;
-  let index = 0;
-  let res = 0;
-  const dfs = (node: TreeNode) => {
-    if (node.left) {
-      dfs(node.left);
-    }
-    index++;
-    if (index === k) {
-      res = node.val;
-      return;
-    }
-    if (node.right) {
-      dfs(node.right);
-    }
-  };
-  dfs(root);
+  if (!head || !head.next) return head;
+  const res = reverse1(head.next);
+  head.next.next = head;
+  head.next = null;
   return res;
 }
 
-export function findDuplicate(nums: number[]) {
-  let l = 1,
-    r = nums.length;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l) / 2);
-    let count = 0;
-    for (let i = 0; i < nums.length; i++) {
-      if (nums[i] <= mid) count++;
-    }
-    if (count <= mid) {
-      l = mid + 1;
+export function addTwoNumbers(l1: ListNode | null, l2: ListNode | null) {
+  const l3 = new ListNode(-1);
+  let p1 = l1;
+  let p2 = l2;
+  let p3 = l3;
+  let carry = 0;
+  while (p1 || p2) {
+    const n1 = p1 ? p1.val : 0;
+    const n2 = p2 ? p2.val : 0;
+    const sum = n1 + n2 + carry;
+    carry = Math.floor(sum / 10);
+    p3.next = new ListNode(sum % 10);
+    p3 = p3.next;
+    if (p1) p1 = p1.next;
+    if (p2) p2 = p2.next;
+  }
+  if (carry) {
+    p3.next = new ListNode(carry);
+  }
+  return l3.next;
+}
+
+export function fn(head: ListNode): ListNode | null {
+  if (!head || !head.next) return head;
+  const res = fn(head.next);
+  if (res && head.val === res.val) {
+    return res;
+  } else {
+    head.next = res;
+    return head;
+  }
+}
+
+export function fn1(head: ListNode) {
+  const dummyHead = new ListNode(-1);
+  dummyHead.next = head;
+  let prev = dummyHead;
+  while (prev.next && prev.next.next) {
+    if (prev.next.val === prev.next.next.val) {
+      prev.next = prev.next.next;
     } else {
-      r = mid;
+      prev = prev.next;
     }
   }
-  return l;
+  return dummyHead.next;
 }
 
-export function lengthOfLIS(nums: number[]) {
-  if (nums.length === 0) return 0;
-  const dp = [1];
-  let res = 1;
-  for (let i = 1; i < nums.length; i++) {
-    dp[i] = 1;
-    for (let j = 0; j < i; j++) {
-      if (nums[j] < nums[i]) {
-        dp[i] = Math.max(dp[i], dp[j] + 1);
-      }
+export function fn2(head: ListNode | null) {
+  let slow = head,
+    fast = head;
+  while (slow && fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
+    if (slow === fast) return true;
+  }
+  return false;
+}
+
+export function fn3(head: ListNode | null) {
+  if (!head || !head.next) return true;
+  let slow: ListNode | null = head,
+    fast: ListNode | null = head;
+  while (slow && fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
+  }
+  if (fast) {
+    slow = slow!.next;
+  }
+  let prev = null,
+    current = slow;
+  while (current) {
+    const next = current.next;
+    current.next = prev;
+    prev = current;
+    current = next;
+  }
+  let p1: ListNode | null = head;
+  let p2 = prev;
+  while (p1 && p2) {
+    if (p1.val !== p2.val) {
+      return false;
     }
-    res = Math.max(res, dp[i]);
+    p1 = p1.next;
+    p2 = p2.next;
   }
-  return res;
+  return true;
 }
 
-export function intersection(nums1: number[], nums2: number[]) {
-  const map = new Map<number, boolean>();
-  for (let item of nums1) {
-    map.set(item, true);
-  }
+// leetcode bfs 6-10
+export function rightSideView(root: TreeNode | null) {
+  if (!root) return [];
+  const queue: [TreeNode, number][] = [[root, 0]];
   const res: number[] = [];
-  for (let item of nums2) {
-    if (map.has(item)) {
-      res.push(item);
-      map.delete(item);
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    res[level] = current.val;
+    if (current.left) {
+      queue.push([current.left, level + 1]);
     }
-  }
-  return res;
-}
-
-export function intersection2(nums1: number[], nums2: number[]) {
-  const map = new Map<number, number>();
-  for (let item of nums1) {
-    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
-  }
-  const res: number[] = [];
-  for (let item of nums2) {
-    if (map.has(item) && map.get(item)! > 0) {
-      res.push(item);
-      map.set(item, map.get(item)! - 1);
+    if (current.right) {
+      queue.push([current.right, level + 1]);
     }
   }
   return res;
