@@ -39,4 +39,23 @@ export class RBTree<K = number, V = any> {
     if (node == null) return COLOR_MAP.BLACK;
     return COLOR_MAP.RED;
   }
+  leftRotate(node: RBTreeNode<K, V>) {
+    const x = node.right!;
+    const T2 = x.left;
+    node.right = T2;
+    x.left = node;
+    x.color = node.color;
+    // node 和 x 形成了一个3节点
+    node.color = COLOR_MAP.RED;
+    return x;
+  }
+  // add(key: K, value: V) {
+  //   this.root = this.addNode(this.root, key, value);
+  //   this.root.color = COLOR_MAP.BLACK;
+  // }
+  // addNode(node: RBTreeNode<K, V> | null, key: K, value: V): RBTreeNode<K, V> {
+  //   if (node == null) {
+  //     this.size++;
+  //   }
+  // }
 }
