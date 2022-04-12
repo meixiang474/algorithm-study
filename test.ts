@@ -308,3 +308,108 @@ export function rightSideView(root: TreeNode | null) {
   }
   return res;
 }
+
+export function numIslands(grid: string[][]) {
+  if (grid.length === 0 || grid[0].length === 0) return 0;
+  const m = grid.length;
+  const n = grid[0].length;
+  const dfs = (r: number, c: number) => {
+    grid[r][c] = "0";
+    [
+      [r + 1, c],
+      [r - 1, c],
+      [r, c + 1],
+      [r, c - 1],
+    ].forEach(([nextR, nextC]) => {
+      if (
+        nextR >= 0 &&
+        nextR < m &&
+        nextC >= 0 &&
+        nextC < n &&
+        grid[nextR][nextC] === "1"
+      ) {
+        dfs(nextR, nextC);
+      }
+    });
+  };
+  let res = 0;
+  for (let r = 0; r < m; r++) {
+    for (let c = 0; c < n; c++) {
+      if (grid[r][c] === "1") {
+        res++;
+        dfs(r, c);
+      }
+    }
+  }
+  return res;
+}
+
+export function canFinish(
+  numCourses: number,
+  prerequisites: [number, number][]
+) {
+  const inDegree: number[] = new Array(numCourses).fill(0);
+  const map = new Map<number, number[]>();
+  for (let i = 0; i < prerequisites.length; i++) {
+    inDegree[prerequisites[i][0]]++;
+    if (map.has(prerequisites[i][1])) {
+      map.get(prerequisites[i][1])?.push(prerequisites[i][0]);
+    } else {
+      map.set(prerequisites[i][1], [prerequisites[i][0]]);
+    }
+  }
+  const queue: number[] = [];
+  let count = 0;
+  for (let i = 0; i < inDegree.length; i++) {
+    if (inDegree[i] === 0) queue.push(i);
+  }
+  while (queue.length) {
+    const current = queue.shift()!;
+    count++;
+    const arr = map.get(current);
+    if (arr && arr.length) {
+      for (let i = 0; i < arr.length; i++) {
+        inDegree[arr[i]]--;
+        if (inDegree[arr[i]] === 0) {
+          queue.push(arr[i]);
+        }
+      }
+    }
+  }
+  return count === numCourses;
+}
+
+export function findOrder(
+  numCourses: number,
+  prerequisites: [number, number][]
+) {
+  const inDegree: number[] = new Array(numCourses).fill(0);
+  const map = new Map<number, number[]>();
+  for (let i = 0; i < prerequisites.length; i++) {
+    inDegree[prerequisites[i][0]]++;
+    if (map.has(prerequisites[i][1])) {
+      map.get(prerequisites[i][1])?.push(prerequisites[i][0]);
+    } else {
+      map.set(prerequisites[i][1], [prerequisites[i][0]]);
+    }
+  }
+  const queue: number[] = [];
+  const res: number[] = [];
+  for (let i = 0; i < inDegree.length; i++) {
+    if (inDegree[i] === 0) queue.push(i);
+  }
+  while (queue.length) {
+    const current = queue.shift()!;
+    res.push(current);
+    const arr = map.get(current);
+    if (arr && arr.length) {
+      for (let i = 0; i < arr.length; i++) {
+        inDegree[arr[i]]--;
+        if (inDegree[arr[i]] === 0) {
+          queue.push(arr[i]);
+        }
+      }
+    }
+  }
+  return res.length === numCourses ? res : [];
+}
