@@ -3,7 +3,9 @@ export default function spiralOrder(matrix: number[][]) {
   const res = [];
   const m = matrix.length;
   const n = matrix[0].length;
-  const map = Array.from({ length: m }, () => new Array(n));
+  const map: boolean[][] = Array.from({ length: m }, () =>
+    new Array(n).fill(false)
+  );
   const directions = [
     [0, 1],
     [1, 0],
