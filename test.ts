@@ -93,134 +93,83 @@ export function reversePairs(nums: number[]) {
 }
 
 export function reversePairs1(nums: number[]) {
-  let res = 0
-  const arr = [...nums]
-  
-}
-
-// leetcode bfs 6-10
-export function rightSideView(root: TreeNode | null) {
-  if (!root) return [];
-  const queue: [TreeNode, number][] = [[root, 0]];
-  const res: number[] = [];
-  while (queue.length) {
-    const [current, level] = queue.shift()!;
-    res[level] = current.val;
-    if (current.left) {
-      queue.push([current.left, level + 1]);
-    }
-    if (current.right) {
-      queue.push([current.right, level + 1]);
-    }
-  }
-  return res;
-}
-
-export function numIslands(grid: string[][]) {
-  if (grid.length === 0 || grid[0].length === 0) return 0;
-  const m = grid.length;
-  const n = grid[0].length;
-  const dfs = (r: number, c: number) => {
-    grid[r][c] = "0";
-    [
-      [r + 1, c],
-      [r - 1, c],
-      [r, c + 1],
-      [r, c - 1],
-    ].forEach(([nextR, nextC]) => {
-      if (
-        nextR >= 0 &&
-        nextR < m &&
-        nextC >= 0 &&
-        nextC < n &&
-        grid[nextR][nextC] === "1"
-      ) {
-        dfs(nextR, nextC);
-      }
-    });
-  };
   let res = 0;
-  for (let r = 0; r < m; r++) {
-    for (let c = 0; c < n; c++) {
-      if (grid[r][c] === "1") {
-        res++;
-        dfs(r, c);
+  const sortArr = (arr: number[], l: number, r: number, temp: number[]) => {
+    if (l >= r) return;
+    const mid = Math.floor(l + (r - l) / 2);
+    sortArr(arr, l, mid, temp);
+    sortArr(arr, mid + 1, r, temp);
+    if (arr[mid] > arr[mid + 1]) {
+      merge(arr, l, mid, r, temp);
+    }
+  };
+  const merge = (
+    arr: number[],
+    l: number,
+    mid: number,
+    r: number,
+    temp: number[]
+  ) => {
+    for (let i = l; i <= r; i++) {
+      temp[i] = arr[i];
+    }
+    let i = l,
+      j = mid + 1;
+    for (let k = l; k <= r; k++) {
+      if (i > mid) {
+        arr[k] = temp[j];
+        j++;
+      } else if (j > r) {
+        arr[k] = temp[i];
+        i++;
+      } else if (temp[i] <= temp[j]) {
+        arr[k] = temp[i];
+        i++;
+      } else {
+        arr[k] = temp[j];
+        res += mid - i + 1;
+        j++;
       }
     }
-  }
+  };
+  sortArr([...nums], 0, nums.length - 1, [...nums]);
   return res;
 }
 
-export function canFinish(
-  numCourses: number,
-  prerequisites: [number, number][]
-) {
-  const inDegree: number[] = new Array(numCourses).fill(0);
-  const map = new Map<number, number[]>();
-  for (let i = 0; i < prerequisites.length; i++) {
-    inDegree[prerequisites[i][0]]++;
-    if (map.has(prerequisites[i][1])) {
-      map.get(prerequisites[i][1])?.push(prerequisites[i][0]);
-    } else {
-      map.set(prerequisites[i][1], [prerequisites[i][0]]);
-    }
+export class ListNode {
+  val: number;
+  next: ListNode | null;
+  constructor(val: number) {
+    this.val = val;
+    this.next = null;
   }
-  const queue: number[] = [];
-  let count = 0;
-  for (let i = 0; i < inDegree.length; i++) {
-    if (inDegree[i] === 0) queue.push(i);
-  }
-  while (queue.length) {
-    const current = queue.shift()!;
-    count++;
-    const arr = map.get(current);
-    if (arr && arr.length) {
-      for (let i = 0; i < arr.length; i++) {
-        inDegree[arr[i]]--;
-        if (inDegree[arr[i]] === 0) {
-          queue.push(arr[i]);
-        }
-      }
-    }
-  }
-  return count === numCourses;
 }
 
-export function findOrder(
-  numCourses: number,
-  prerequisites: [number, number][]
-) {
-  const inDegree: number[] = new Array(numCourses).fill(0);
-  const map = new Map<number, number[]>();
-  for (let i = 0; i < prerequisites.length; i++) {
-    inDegree[prerequisites[i][0]]++;
-    if (map.has(prerequisites[i][1])) {
-      map.get(prerequisites[i][1])?.push(prerequisites[i][0]);
+export function mergeTwoLists(l1: ListNode | null, l2: ListNode | null) {
+  const l3 = new ListNode(-1);
+  let p1 = l1;
+  let p2 = l2;
+  let p3 = l3;
+  while (p1 && p2) {
+    if (p1.val <= p2.val) {
+      p3.next = p1;
+      p1 = p1.next;
     } else {
-      map.set(prerequisites[i][1], [prerequisites[i][0]]);
+      p3.next = p2;
+      p2 = p2.next;
     }
+    p3 = p3.next;
   }
-  const queue: number[] = [];
-  const res: number[] = [];
-  for (let i = 0; i < inDegree.length; i++) {
-    if (inDegree[i] === 0) queue.push(i);
+  if (p1) {
+    p3.next = p1;
   }
-  while (queue.length) {
-    const current = queue.shift()!;
-    res.push(current);
-    const arr = map.get(current);
-    if (arr && arr.length) {
-      for (let i = 0; i < arr.length; i++) {
-        inDegree[arr[i]]--;
-        if (inDegree[arr[i]] === 0) {
-          queue.push(arr[i]);
-        }
-      }
-    }
+  if (p2) {
+    p3.next = p2;
   }
-  return res.length === numCourses ? res : [];
+  return l3.next;
 }
 
+// leetcode dfs 6-10
 export class TreeNode {
   val: number;
   left: TreeNode | null;
@@ -232,23 +181,11 @@ export class TreeNode {
   }
 }
 
-export function largestValues(root: TreeNode | null) {
-  if (!root) return [];
-  const queue: [TreeNode, number][] = [[root, 0]];
-  const res: number[] = [];
-  while (queue.length) {
-    const [current, level] = queue.shift()!;
-    if (res[level] == null) {
-      res[level] = current.val;
-    } else {
-      res[level] = Math.max(res[level], current.val);
-    }
-    if (current.left) {
-      queue.push([current.left, level + 1]);
-    }
-    if (current.right) {
-      queue.push([current.right, level + 1]);
-    }
-  }
-  return res;
+export function sortedArrayToBST(nums: number[]): TreeNode | null {
+  if (nums.length === 0) return null;
+  const mid = Math.floor((nums.length - 1) / 2);
+  const node = new TreeNode(nums[mid]);
+  node.left = sortedArrayToBST(nums.slice(0, mid));
+  node.right = sortedArrayToBST(nums.slice(mid + 1));
+  return node;
 }
