@@ -1,41 +1,39 @@
-// offer 29
-export function spiralOrder(matrix: number[][]) {
-  if (matrix.length === 0 || matrix[0].length === 0) return [];
-  const m = matrix.length;
-  const n = matrix[0].length;
-  const res: number[] = [];
-  const map: boolean[][] = Array.from({ length: m }, () =>
-    new Array(n).fill(false)
-  );
-  const directions = [
-    [0, 1],
-    [1, 0],
-    [0, -1],
-    [-1, 0],
-  ];
-  let directionIndex = 0;
-  let r = 0;
-  let c = 0;
-  for (let i = 0; i < m * n; i++) {
-    res[i] = matrix[r][c];
-    map[r][c] = true;
-    const nextR = r + directions[directionIndex][0];
-    const nextC = c + directions[directionIndex][1];
-    if (
-      !(
-        nextR >= 0 &&
-        nextR < m &&
-        nextC >= 0 &&
-        nextC < n &&
-        !map[nextR][nextC]
-      )
-    ) {
-      directionIndex = (directionIndex + 1) % directions.length;
-    }
-    r += directions[directionIndex][0];
-    c += directions[directionIndex][1];
+// offer 30
+export class MinStack {
+  items: number[];
+  queue: number[];
+  constructor() {
+    this.items = [];
+    this.queue = [];
   }
-  return res;
+  getSize() {
+    return this.items.length;
+  }
+  isEmpty() {
+    return this.getSize() === 0;
+  }
+  push(item: number) {
+    this.items.push(item);
+    if (this.queue.length === 0 || item <= this.queue[0]) {
+      this.queue.unshift(item);
+    }
+  }
+  pop() {
+    if (this.isEmpty()) throw new Error("error");
+    const res = this.items.pop()!;
+    if (res === this.queue[0]) {
+      this.queue.shift();
+    }
+    return res;
+  }
+  top() {
+    if (this.isEmpty()) throw new Error("error");
+    return this.items[this.items.length - 1];
+  }
+  getMin() {
+    if (this.isEmpty()) throw new Error("error");
+    return this.queue[0];
+  }
 }
 
 // merge sort
@@ -188,4 +186,75 @@ export function sortedArrayToBST(nums: number[]): TreeNode | null {
   node.left = sortedArrayToBST(nums.slice(0, mid));
   node.right = sortedArrayToBST(nums.slice(mid + 1));
   return node;
+}
+
+export function sortedListToBST(head: ListNode | null) {
+  const buildTree = (
+    head: ListNode | null,
+    tail: ListNode | null
+  ): TreeNode | null => {
+    if (head === tail) return null;
+    const mid = getMid(head, tail);
+    const node = new TreeNode(mid.val);
+    node.left = buildTree(head, mid);
+    node.right = buildTree(mid.next, tail);
+    return node;
+  };
+  const getMid = (head: ListNode | null, tail: ListNode | null) => {
+    let slow = head;
+    let fast = head;
+    while (slow !== tail && fast !== tail && fast!.next !== tail) {
+      slow = slow!.next;
+      fast = fast!.next!.next;
+    }
+    return slow!;
+  };
+  return buildTree(head, null);
+}
+
+export function isBalanced(root: TreeNode | null): boolean {
+  if (!root) return true;
+  const height = (node: TreeNode | null): number => {
+    if (!node) return 0;
+    return Math.max(height(node.left), height(node.right)) + 1;
+  };
+  return (
+    Math.abs(height(root.left) - height(root.right)) <= 1 &&
+    isBalanced(root.left) &&
+    isBalanced(root.right)
+  );
+}
+
+export function minDepth(root: TreeNode | null) {
+  if (!root) return 0;
+  const queue: [TreeNode, number][] = [[root, 1]];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    if (!current.left && !current.right) {
+      return level;
+    }
+    if (current.left) {
+      queue.push([current.left, level + 1]);
+    }
+    if (current.right) {
+      queue.push([current.right, level + 1]);
+    }
+  }
+}
+
+export function hasPathSum(root: TreeNode | null, targetSum: number) {
+  if (!root) return false;
+  const dfs = (node: TreeNode, sum: number): boolean => {
+    if (!node.left && !node.right && sum === targetSum) return true;
+    let res = false;
+    if (node.left) {
+      res = dfs(node.left, node.left.val + sum);
+    }
+    if (res) return res;
+    if (node.right) {
+      res = dfs(node.right, node.right.val + sum);
+    }
+    return res;
+  };
+  return dfs(root, root.val);
 }
