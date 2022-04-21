@@ -1,40 +1,5 @@
-// offer 30
-export class MinStack {
-  items: number[];
-  queue: number[];
-  constructor() {
-    this.items = [];
-    this.queue = [];
-  }
-  getSize() {
-    return this.items.length;
-  }
-  isEmpty() {
-    return this.getSize() === 0;
-  }
-  push(item: number) {
-    this.items.push(item);
-    if (this.queue.length === 0 || item <= this.queue[0]) {
-      this.queue.unshift(item);
-    }
-  }
-  pop() {
-    if (this.isEmpty()) throw new Error("error");
-    const res = this.items.pop()!;
-    if (res === this.queue[0]) {
-      this.queue.shift();
-    }
-    return res;
-  }
-  top() {
-    if (this.isEmpty()) throw new Error("error");
-    return this.items[this.items.length - 1];
-  }
-  getMin() {
-    if (this.isEmpty()) throw new Error("error");
-    return this.queue[0];
-  }
-}
+// offer 31
+
 
 // quick sort
 export function quickSort(arr: number[]) {
@@ -241,6 +206,47 @@ export function numTrees(n: number) {
   return dp[n];
 }
 
-export function minimumTotal(triangle: number[]) {
-  
+export function minimumTotal(triangle: number[][]) {
+  const dp: number[][] = Array.from({ length: triangle.length }, () =>
+    new Array(triangle.length).fill(Infinity)
+  );
+  dp[0][0] = triangle[0][0];
+  for (let i = 1; i < triangle.length; i++) {
+    dp[i][0] = dp[i - 1][0] + triangle[i][0];
+    for (let j = 1; j < i; j++) {
+      dp[i][j] = Math.min(dp[i - 1][j], dp[i - 1][j - 1]) + triangle[i][j];
+    }
+    dp[i][i] = dp[i - 1][i - 1] + triangle[i][i];
+  }
+  return Math.min(...dp[triangle.length - 1]);
+}
+
+export function maxProfit(prices: number[]) {
+  const dp = [0];
+  let min = prices[0];
+  for (let i = 1; i <= prices.length; i++) {
+    const current = prices[i - 1];
+    const profit = current - min;
+    dp[i] = Math.max(dp[i - 1], profit);
+    min = Math.min(min, current);
+  }
+  return dp[prices.length];
+}
+
+export function maxProduct(nums: number[]) {
+  const dpMax = [nums[0]];
+  const dpMin = [nums[0]];
+  for (let i = 1; i < nums.length; i++) {
+    dpMax[i] = Math.max(
+      dpMax[i - 1] * nums[i],
+      dpMin[i - 1] * nums[i],
+      nums[i]
+    );
+    dpMin[i] = Math.min(
+      dpMin[i - 1] * nums[i],
+      dpMax[i - 1] * nums[i],
+      nums[i]
+    );
+  }
+  return Math.max(...dpMax);
 }
