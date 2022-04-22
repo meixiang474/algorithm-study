@@ -1,183 +1,64 @@
 // offer 31
-
-
-// quick sort
-export function quickSort(arr: number[]) {
-  const res = [...arr];
-  const sortArr = (arr: number[], l: number, r: number) => {
-    if (l >= r) return;
-    const p = partition(arr, l, r);
-    sortArr(arr, l, p - 1);
-    sortArr(arr, p + 1, r);
-  };
-  const getRandom = (l: number, r: number) =>
-    Math.floor(Math.random() * (r - l + 1) + l);
-  const swap = (arr: number[], i: number, j: number) =>
-    ([arr[i], arr[j]] = [arr[j], arr[i]]);
-  const partition = (arr: number[], l: number, r: number) => {
-    const p = getRandom(l, r);
-    swap(arr, l, p);
-    let i = l + 1,
-      j = r;
-    while (true) {
-      while (i <= j && arr[i] < arr[l]) {
-        i++;
-      }
-      while (i <= j && arr[j] > arr[l]) {
-        j--;
-      }
-      if (i >= j) break;
-      swap(arr, i, j);
-      i++;
-      j--;
-    }
-    swap(arr, l, j);
-    return j;
-  };
-  sortArr(res, 0, res.length - 1);
-  return res;
-}
-
-export function quickSort1(arr: number[]) {
-  const res = [...arr];
-  const sortArr = (arr: number[], l: number, r: number) => {
-    if (l >= r) return;
-    const { left, right } = partition(arr, l, r);
-    sortArr(arr, l, left);
-    sortArr(arr, right, r);
-  };
-  const getRandom = (l: number, r: number) =>
-    Math.floor(Math.random() * (r - l + 1) + l);
-  const swap = (arr: number[], i: number, j: number) =>
-    ([arr[i], arr[j]] = [arr[j], arr[i]]);
-  const partition = (arr: number[], l: number, r: number) => {
-    const p = getRandom(l, r);
-    swap(arr, l, p);
-    let left = l,
-      i = l + 1,
-      right = r + 1;
-    while (i < right) {
-      if (arr[i] < arr[l]) {
-        left++;
-        swap(arr, left, i);
-        i++;
-      } else if (arr[i] > arr[l]) {
-        right--;
-        swap(arr, right, i);
-      } else {
-        i++;
-      }
-    }
-    swap(arr, l, left);
-    return {
-      left: left - 1,
-      right,
-    };
-  };
-  sortArr(res, 0, res.length - 1);
-  return res;
-}
-
-export function sortColors(colors: number[]) {
-  const swap = (arr: number[], i: number, j: number) =>
-    ([arr[i], arr[j]] = [arr[j], arr[i]]);
-  let left = -1,
-    right = colors.length,
-    i = 0;
-  while (i < right) {
-    if (i === 0) {
-      left++;
-      swap(colors, left, i);
-      i++;
-    } else if (i === 2) {
-      right--;
-      swap(colors, right, i);
-    } else {
-      i++;
+export default function validateStackSequence(
+  pushed: number[],
+  popped: number[]
+) {
+  let stack: number[] = [];
+  for (let item of pushed) {
+    stack.push(item);
+    while (stack.length && stack[stack.length - 1] === popped[0]) {
+      popped.shift();
+      stack.pop();
     }
   }
-  return colors;
+  return stack.length === 0;
 }
 
-export function findKMax(nums: number[], k: number) {
-  k = nums.length - k;
-  const arr = [...nums];
-  const sortArr = (arr: number[], l: number, r: number): number => {
-    if (l >= r) return arr[l];
-    const p = partition(arr, l, r);
-    if (p === k) {
-      return arr[k];
-    } else if (p > k) {
-      return sortArr(arr, l, p - 1);
+// binary search
+export function binarySearch(data: number[], target: number) {
+  const searchData = (data: number[], l: number, r: number): number => {
+    if (l > r) return -1;
+    const mid = Math.floor(l + (r - l) / 2);
+    if (data[mid] > target) {
+      return searchData(data, l, mid - 1);
+    } else if (data[mid] < target) {
+      return searchData(data, mid + 1, r);
     } else {
-      return sortArr(arr, p + 1, r);
+      return mid;
     }
   };
-  const getRandom = (l: number, r: number) =>
-    Math.floor(Math.random() * (r - l + 1) + l);
-  const swap = (arr: number[], i: number, j: number) =>
-    ([arr[i], arr[j]] = [arr[j], arr[i]]);
-  const partition = (arr: number[], l: number, r: number) => {
-    const p = getRandom(l, r);
-    swap(arr, l, p);
-    let i = l + 1,
-      j = r;
-    while (true) {
-      while (i <= j && arr[i] < arr[l]) {
-        i++;
-      }
-      while (i <= j && arr[j] > arr[l]) {
-        j--;
-      }
-      if (i >= j) break;
-      swap(arr, i, j);
-      i++;
-      j--;
-    }
-    swap(arr, l, j);
-    return j;
-  };
-  return sortArr(arr, 0, arr.length - 1);
+  return searchData(data, 0, data.length - 1);
 }
 
-export function findKMin(nums: number[], k: number) {
-  if (k >= nums.length) return nums;
-  const sortArr = (arr: number[], l: number, r: number): number[] => {
-    if (l >= r) return nums.slice(0, k);
-    const p = partition(arr, l, r);
-    if (p === k) {
-      return nums.slice(0, k);
-    } else if (p > k) {
-      return sortArr(arr, l, p - 1);
+export function binarySearch1(data: number[], target: number) {
+  let l = 0,
+    r = data.length;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    if (data[mid] === target) {
+      return mid;
+    } else if (data[mid] > target) {
+      r = mid;
     } else {
-      return sortArr(arr, p + 1, r);
+      l = mid + 1;
     }
-  };
-  const getRandom = (l: number, r: number) =>
-    Math.floor(Math.random() * (r - l + 1) + l);
-  const swap = (arr: number[], i: number, j: number) =>
-    ([arr[i], arr[j]] = [arr[j], arr[i]]);
-  const partition = (arr: number[], l: number, r: number) => {
-    const p = getRandom(l, r);
-    swap(arr, l, p);
-    let i = l + 1,
-      j = r;
-    while (true) {
-      while (i <= j && arr[i] < arr[l]) {
-        i++;
-      }
-      while (i <= j && arr[j] > arr[l]) {
-        j--;
-      }
-      if (i >= j) break;
-      swap(arr, i, j);
-      i++;
-      j--;
+  }
+  return -1;
+}
+
+// > target的第一个
+export function upper(data: number[], target: number) {
+  let l = 0,
+    r = data.length;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    if (data[mid] > target) {
+      r = mid;
+    } else {
+      l = mid + 1;
     }
-    swap(arr, l, j);
-    return j;
-  };
-  return sortArr([...nums], 0, nums.length - 1);
+  }
+  return l;
 }
 
 // leetcode dp 6-10
