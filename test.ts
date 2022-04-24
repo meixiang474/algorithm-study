@@ -61,73 +61,80 @@ export function upper(data: number[], target: number) {
   return l;
 }
 
-// leetcode dp 6-10
-export function numDecoding(s: string) {
-  if (s.length === 0) return 0;
-  const dp = [1];
-  dp[1] = s[0] === "0" ? 0 : 1;
-  for (let i = 2; i <= s.length; i++) {
-    dp[i] =
-      (s[i - 1] === "0" ? 0 : dp[i - 1]) +
-      (s[i - 2] === "0" || parseInt(s[i - 2] + s[i - 1]) > 26 ? 0 : dp[i - 2]);
-  }
-  return dp[s.length];
+// = target的最后一个或者 > target的第一个
+export function ceil(data: number[], target: number) {
+  const index = upper(data, target);
+  if (index - 1 >= 0 && data[index - 1] === target) return index - 1;
+  return index;
 }
 
-export function numTrees(n: number) {
-  const dp = [1, 1];
-  for (let i = 2; i <= n; i++) {
-    if (dp[i] == null) {
-      dp[i] = 0;
-    }
-    for (let j = 1; j <= i; j++) {
-      dp[i] += dp[j - 1] * dp[i - j];
+// = target第一个或者 > target第一个
+export function lowerCeil(data: number[], target: number) {
+  let l = 0,
+    r = data.length;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    if (data[mid] >= target) {
+      r = mid;
+    } else {
+      l = mid + 1;
     }
   }
-  return dp[n];
+  return l;
 }
 
-export function minimumTotal(triangle: number[][]) {
-  const dp: number[][] = Array.from({ length: triangle.length }, () =>
-    new Array(triangle.length).fill(Infinity)
-  );
-  dp[0][0] = triangle[0][0];
-  for (let i = 1; i < triangle.length; i++) {
-    dp[i][0] = dp[i - 1][0] + triangle[i][0];
-    for (let j = 1; j < i; j++) {
-      dp[i][j] = Math.min(dp[i - 1][j], dp[i - 1][j - 1]) + triangle[i][j];
+// < target得第一个
+export function lower(data: number[], target: number) {
+  let l = -1,
+    r = data.length - 1;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l + 1) / 2);
+    if (data[mid] < target) {
+      l = mid;
+    } else {
+      r = mid - 1;
     }
-    dp[i][i] = dp[i - 1][i - 1] + triangle[i][i];
   }
-  return Math.min(...dp[triangle.length - 1]);
+  return l;
 }
 
-export function maxProfit(prices: number[]) {
-  const dp = [0];
-  let min = prices[0];
-  for (let i = 1; i <= prices.length; i++) {
-    const current = prices[i - 1];
-    const profit = current - min;
-    dp[i] = Math.max(dp[i - 1], profit);
-    min = Math.min(min, current);
+// = target的最后一个，< target的第一个
+export function upperFloor(data: number[], target: number) {
+  let l = -1,
+    r = data.length - 1;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l + 1) / 2);
+    if (data[mid] <= target) {
+      l = mid;
+    } else {
+      r = mid - 1;
+    }
   }
-  return dp[prices.length];
+  return l;
 }
 
-export function maxProduct(nums: number[]) {
-  const dpMax = [nums[0]];
-  const dpMin = [nums[0]];
-  for (let i = 1; i < nums.length; i++) {
-    dpMax[i] = Math.max(
-      dpMax[i - 1] * nums[i],
-      dpMin[i - 1] * nums[i],
-      nums[i]
-    );
-    dpMin[i] = Math.min(
-      dpMin[i - 1] * nums[i],
-      dpMax[i - 1] * nums[i],
-      nums[i]
-    );
+// < target得第一个，= target得第一个
+export function lowerFloor(data: number[], target: number) {
+  const index = lower(data, target);
+  if (index + 1 < data.length && data[index + 1] === target) {
+    return index + 1;
   }
-  return Math.max(...dpMax);
+  return index;
 }
+
+export function mySqrt(x: number) {
+  let l = 0,
+    r = x;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l + 1) / 2);
+    if (mid ** 2 <= x) {
+      l = mid;
+    } else {
+      r = mid - 1;
+    }
+  }
+  return l;
+}
+
+// leetcode hashtable 6-10
+
