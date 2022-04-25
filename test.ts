@@ -137,4 +137,75 @@ export function mySqrt(x: number) {
 }
 
 // leetcode hashtable 6-10
+export class TreeNode {
+  val: number;
+  left: TreeNode | null;
+  right: TreeNode | null;
+  constructor(val: number) {
+    this.val = val;
+    this.left = null;
+    this.right = null;
+  }
+}
 
+export function inorderTraversal(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  const dfs = (node: TreeNode) => {
+    if (node.left) dfs(node.left);
+    res.push(node.val);
+    if (node.right) dfs(node.right);
+  };
+  dfs(root);
+  return res;
+}
+
+export class ListNode {
+  val: number;
+  next: ListNode | null;
+  random: ListNode | null;
+  constructor(val: number) {
+    this.val = val;
+    this.next = null;
+    this.random = null;
+  }
+}
+
+export function copyRandomList(head: ListNode | null) {
+  if (!head) return head;
+  const map = new Map<ListNode | null, ListNode | null>();
+  map.set(null, null);
+  const dfs = (node: ListNode) => {
+    const newNode = new ListNode(node.val);
+    map.set(node, newNode);
+    if (!map.has(node.random)) {
+      dfs(node.random!);
+    }
+    newNode.random = map.get(node.random)!;
+    if (!map.has(node.next)) {
+      dfs(node.next!);
+    }
+    newNode.next = map.get(node.next)!;
+  };
+  dfs(head);
+  return map.get(head);
+}
+
+export function isHappy(n: number) {
+  const compute = (n: number) => {
+    return n
+      .toString()
+      .split("")
+      .map((item) => parseInt(item))
+      .reduce((memo, current) => {
+        return memo + current ** 2;
+      }, 0);
+  };
+  const set = new Set<number>();
+  while (!set.has(n)) {
+    if (n === 1) return true;
+    set.add(n);
+    n = compute(n);
+  }
+  return false;
+}
