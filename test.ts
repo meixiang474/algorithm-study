@@ -70,7 +70,43 @@ export class BST<T = number> {
       return this.containsNode(node.right, val);
     }
   }
-  preOrder(visitor: Visitor<T>) {}
+  preOrder(visitor: Visitor<T>) {
+    this.preOrderNode(this.root, visitor);
+  }
+  preOrderNode(node: TreeNode<T> | null, visitor: Visitor<T>) {
+    if (!node) return;
+    visitor.visit(node.val);
+    this.preOrderNode(node.left, visitor);
+    this.preOrderNode(node.right, visitor);
+  }
+  inOrder(visitor: Visitor<T>) {
+    this.inOrderNode(this.root, visitor);
+  }
+  inOrderNode(node: TreeNode<T> | null, visitor: Visitor<T>) {
+    if (!node) return;
+    this.inOrderNode(node.left, visitor);
+    visitor.visit(node.val);
+    this.inOrderNode(node.right, visitor);
+  }
+  postOrder(visitor: Visitor<T>) {
+    this.postOrderNode(this.root, visitor);
+  }
+  postOrderNode(node: TreeNode<T> | null, visitor: Visitor<T>) {
+    if (!node) return;
+    this.postOrderNode(node.left, visitor);
+    this.postOrderNode(node.right, visitor);
+    visitor.visit(node.val);
+  }
+  preOrderNR(visitor: Visitor<T>) {
+    if (!this.root) return;
+    const stack: TreeNode<T>[] = [this.root];
+    while (stack.length) {
+      const current = stack.pop()!;
+      visitor.visit(current.val);
+      if (current.right) stack.push(current.right);
+      if (current.left) stack.push(current.left);
+    }
+  }
 }
 
 // leetcode hashtable 6-10
