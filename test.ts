@@ -107,6 +107,37 @@ export class BST<T = number> {
       if (current.left) stack.push(current.left);
     }
   }
+  levelOrder(visitor: Visitor<T>) {
+    if (!this.root) return;
+    const queue: TreeNode<T>[] = [this.root];
+    while (queue.length) {
+      const current = queue.shift()!;
+      visitor.visit(current.val);
+      if (current.left) queue.push(current.left);
+      if (current.right) queue.push(current.right);
+    }
+  }
+  minimum() {
+    if (!this.root) throw new Error("error");
+    return this.minimumNode(this.root).val;
+  }
+  minimumNode(node: TreeNode<T>): TreeNode<T> {
+    if (!node.left) {
+      return node;
+    }
+    return this.minimumNode(node.left);
+  }
+  maximum() {
+    if (!this.root) throw new Error("error");
+    return this.maximumNode(this.root).val;
+  }
+  maximumNode(node: TreeNode<T>): TreeNode<T> {
+    if (!node.right) return node;
+    return this.maximumNode(node.right);
+  }
+  removeMin() {
+    
+  }
 }
 
 // leetcode hashtable 6-10
