@@ -54,10 +54,10 @@ export class BST<T = number> {
     if (node.e === e) {
       return true;
     }
-    if (node.e < e) {
-      return this.containsNode(node.right, e);
-    } else {
+    if (node.e > e) {
       return this.containsNode(node.left, e);
+    } else {
+      return this.containsNode(node.right, e);
     }
   }
   preOrder(visitor: Visitor<T>) {

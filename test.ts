@@ -136,7 +136,72 @@ export class BST<T = number> {
     return this.maximumNode(node.right);
   }
   removeMin() {
-    
+    if (!this.root) throw new Error("error");
+    const { res, next } = this.removeMinNode(this.root);
+    this.root = next;
+    return res;
+  }
+  removeMinNode(node: TreeNode<T>): { res: T; next: TreeNode<T> | null } {
+    if (!node.left) {
+      this.size--;
+      return {
+        next: node.right,
+        res: node.val,
+      };
+    }
+    const { res, next } = this.removeMinNode(node.left);
+    node.left = next;
+    return {
+      res,
+      next: node,
+    };
+  }
+  removeMax() {
+    if (!this.root) throw new Error("error");
+    const { res, next } = this.removeMaxNode(this.root);
+    this.root = next;
+    return res;
+  }
+  removeMaxNode(node: TreeNode<T>): { res: T; next: TreeNode<T> | null } {
+    if (!node.right) {
+      this.size--;
+      return {
+        res: node.val,
+        next: node.left,
+      };
+    }
+    const { res, next } = this.removeMaxNode(node.right);
+    node.right = next;
+    return {
+      res,
+      next: node,
+    };
+  }
+  remove(val: T) {
+    this.root = this.removeNode(this.root, val);
+  }
+  removeNode(node: TreeNode<T> | null, val: T): TreeNode<T> | null {
+    if (!node) return null;
+    if (node.val > val) {
+      node.left = this.removeNode(node.left, val);
+      return node;
+    } else if (node.val < val) {
+      node.right = this.removeNode(node.right, val);
+      return node;
+    } else {
+      if (!node.left) {
+        this.size--;
+        return node.right;
+      }
+      if (!node.right) {
+        this.size--;
+        return node.left;
+      }
+      const successor = this.minimumNode(node.right);
+      successor.left = node.left;
+      successor.right = this.removeMinNode(node.right).next;
+      return successor;
+    }
   }
 }
 
