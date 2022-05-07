@@ -205,94 +205,59 @@ export class BST<T = number> {
   }
 }
 
-// leetcode hashtable 6-10
-
-export function inorderTraversal(root: TreeNode | null) {
-  if (!root) return [];
-  const res: number[] = [];
-  const dfs = (node: TreeNode) => {
-    if (node.left) dfs(node.left);
-    res.push(node.val);
-    if (node.right) dfs(node.right);
-  };
-  dfs(root);
-  return res;
-}
+// leetcode linkedlist 6-10
 
 export class ListNode {
   val: number;
   next: ListNode | null;
-  random: ListNode | null;
   constructor(val: number) {
     this.val = val;
     this.next = null;
-    this.random = null;
   }
 }
 
-export function copyRandomList(head: ListNode | null) {
-  if (!head) return head;
-  const map = new Map<ListNode | null, ListNode | null>();
-  map.set(null, null);
-  const dfs = (node: ListNode) => {
-    const newNode = new ListNode(node.val);
-    map.set(node, newNode);
-    if (!map.has(node.random)) {
-      dfs(node.random!);
+export function rotateRight(head: ListNode | null, k: number) {
+  if (k === 0 || !head || !head.next) return head;
+  let count = 1;
+  let current = head;
+  while (current.next) {
+    count++;
+    current = current.next;
+  }
+  current.next = head;
+  k = count - (k % count);
+  let prev = head;
+  for (let i = 0; i < k - 1; i++) {
+    prev = prev.next!;
+  }
+  const res = prev.next;
+  prev.next = null;
+  return res;
+}
+
+export function deleteDuplicates(head: ListNode | null): ListNode | null {
+  if (!head || !head.next) return head;
+  const res = deleteDuplicates(head.next);
+  if (res && head.val === res.val) {
+    return res.next;
+  } else if (head.val === head.next.val) {
+    return res;
+  } else {
+    head.next = res;
+    return head;
+  }
+}
+
+export function deleteDuplicates1(head: ListNode | null) {
+  if (!head || !head.next) return head;
+  const dummyHead = new ListNode(-1);
+  let prev = dummyHead;
+  while (prev.next && prev.next.next) {
+    if (prev.next.val === prev.next.next.val) {
+      prev.next = prev.next.next;
+    } else {
+      prev = prev.next;
     }
-    newNode.random = map.get(node.random)!;
-    if (!map.has(node.next)) {
-      dfs(node.next!);
-    }
-    newNode.next = map.get(node.next)!;
-  };
-  dfs(head);
-  return map.get(head);
-}
-
-export function isHappy(n: number) {
-  const compute = (n: number) => {
-    return n
-      .toString()
-      .split("")
-      .map((item) => parseInt(item))
-      .reduce((memo, current) => {
-        return memo + current ** 2;
-      }, 0);
-  };
-  const set = new Set<number>();
-  while (!set.has(n)) {
-    if (n === 1) return true;
-    set.add(n);
-    n = compute(n);
   }
-  return false;
-}
-
-export function isIsomorphic(s: string, t: string) {
-  if (s.length !== t.length) return false;
-  const smap = new Map<string, string>();
-  const tmap = new Map<string, string>();
-  for (let i = 0; i < s.length; i++) {
-    const scurrent = s[i];
-    const tcurrent = t[i];
-    if (
-      (smap.has(scurrent) && smap.get(scurrent) !== tcurrent) ||
-      (tmap.has(tcurrent) && tmap.get(tcurrent) !== scurrent)
-    ) {
-      return false;
-    }
-    smap.set(scurrent, tcurrent);
-    tmap.set(tcurrent, scurrent);
-  }
-  return true;
-}
-
-export function containerDuplicate(nums: number[]) {
-  const set = new Set<number>();
-  for (let item of nums) {
-    if (set.has(item)) return true;
-    set.add(item);
-  }
-  return false;
+  return dummyHead.next;
 }

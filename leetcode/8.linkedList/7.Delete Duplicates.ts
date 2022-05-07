@@ -14,7 +14,7 @@ export default function deleteDuplicates(
 ): ListNode | null {
   if (!head || !head.next) return head;
   const res = deleteDuplicates(head.next);
-  if (head.val === head.next.val && res && head.val === res.val) {
+  if (res && head.val === res.val) {
     return res.next;
   } else if (head.val === head.next.val) {
     return res;
