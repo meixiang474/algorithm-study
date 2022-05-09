@@ -1,13 +1,14 @@
-// offer 32-I
-export function levelOrder(root: TreeNode | null) {
+// offer 32-II
+export function levelOrder(root: TreeNode) {
   if (!root) return [];
-  const queue: TreeNode[] = [root];
-  const res: number[] = [];
+  const queue: [TreeNode, number][] = [[root, 0]];
+  const res: number[][] = [];
   while (queue.length) {
-    const current = queue.shift()!;
-    res.push(current.val);
-    if (current.left) queue.push(current.left);
-    if (current.right) queue.push(current.right);
+    const [current, level] = queue.shift()!;
+    const arr = res[level] || (res[level] = []);
+    arr.push(current.val);
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
   }
   return res;
 }
@@ -205,6 +206,8 @@ export class BST<T = number> {
   }
 }
 
+// todo 11.bst 
+
 // leetcode linkedlist 6-10
 
 export class ListNode {
@@ -260,4 +263,69 @@ export function deleteDuplicates1(head: ListNode | null) {
     }
   }
   return dummyHead.next;
+}
+
+export function partition(head: ListNode | null, x: number) {
+  const minHead = new ListNode(-1);
+  const maxHead = new ListNode(-1);
+  let prev1 = minHead;
+  let prev2 = maxHead;
+  let current = head;
+  while (current) {
+    if (current.val < x) {
+      prev1.next = current;
+      prev1 = prev1.next;
+    } else {
+      prev2.next = current;
+      prev2 = prev2.next;
+    }
+    current = current.next;
+  }
+  prev2.next = null;
+  prev1.next = maxHead.next;
+  return minHead.next;
+}
+
+export function reverseBetween(
+  head: ListNode | null,
+  left: number,
+  right: number
+) {
+  if (!head || !head.next) return head;
+  let prevNode = null;
+  let leftNode = null;
+  let rightNode = null;
+  let nextNode = null;
+  let index = 1;
+  let current: ListNode | null = head;
+  while (current) {
+    if (index === left - 1) {
+      prevNode = current;
+    }
+    if (index === left) {
+      leftNode = current;
+    }
+    if (index === right) {
+      rightNode = current;
+      nextNode = current.next;
+    }
+    index++;
+    current = current.next;
+  }
+  rightNode!.next = null;
+  let prev = null;
+  let reverseCurrent = leftNode;
+  while (reverseCurrent) {
+    const next = reverseCurrent.next;
+    reverseCurrent.next = prev;
+    prev = reverseCurrent;
+    reverseCurrent = next;
+  }
+  if (prevNode) {
+    prevNode.next = rightNode;
+  } else {
+    head = rightNode;
+  }
+  leftNode!.next = nextNode;
+  return head;
 }
