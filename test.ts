@@ -206,7 +206,97 @@ export class BST<T = number> {
   }
 }
 
-// todo 11.bst 
+// todo 11.bst
+export function maxDepth(root: TreeNode | null) {
+  if (!root) return 0;
+  let res = 0;
+  const dfs = (node: TreeNode, level: number) => {
+    if (!node.left && !node.right) {
+      res = Math.max(res, level);
+      return;
+    }
+    if (node.left) {
+      dfs(node.left, level + 1);
+    }
+    if (node.right) {
+      dfs(node.right, level + 1);
+    }
+  };
+  dfs(root, 1);
+  return res;
+}
+
+export function minDepth(root: TreeNode | null) {
+  if (!root) return 0;
+  const queue: [TreeNode, number][] = [[root, 1]];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    if (!current.left && !current.right) return level;
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
+  }
+}
+
+export function levelOrder1(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[][] = [];
+  const queue: [TreeNode, number][] = [];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    const arr = res[level] || (res[level] = []);
+    arr.push(current.val);
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
+  }
+  return res;
+}
+
+export function inOrderTraversal(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  const dfs = (node: TreeNode) => {
+    if (node.left) dfs(node.left);
+    res.push(node.val);
+    if (node.right) dfs(node.right);
+  };
+  dfs(root);
+  return res;
+}
+
+export function inOrderTraversal1(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  const stack: TreeNode[] = [];
+  let p: TreeNode | null = root;
+  while (stack.length || p) {
+    while (p) {
+      stack.push(p);
+      p = p.left;
+    }
+    const current = stack.pop()!;
+    res.push(current.val);
+    p = current.right;
+  }
+  return res;
+}
+
+export function hasPathSum(root: TreeNode | null, target: number) {
+  if (!root) return false;
+  const dfs = (node: TreeNode, sum: number): boolean => {
+    if (!node.left && !node.right && sum === target) return true;
+    if (!node.left && !node.right) return false;
+    let res = false;
+    if (node.left) {
+      res = dfs(node.left, sum + node.left.val);
+    }
+    if (res) return res;
+    if (node.right) {
+      res = dfs(node.right, sum + node.right.val);
+    }
+    return res;
+  };
+  return dfs(root, root.val);
+}
 
 // leetcode linkedlist 6-10
 
