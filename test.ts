@@ -1,12 +1,16 @@
-// offer 32-II
-export function levelOrder(root: TreeNode) {
+// offer 32-III
+export function levelOrder(root: TreeNode | null) {
   if (!root) return [];
   const queue: [TreeNode, number][] = [[root, 0]];
   const res: number[][] = [];
   while (queue.length) {
     const [current, level] = queue.shift()!;
     const arr = res[level] || (res[level] = []);
-    arr.push(current.val);
+    if (level % 2 === 0) {
+      arr.push(current.val);
+    } else {
+      arr.unshift(current.val);
+    }
     if (current.left) queue.push([current.left, level + 1]);
     if (current.right) queue.push([current.right, level + 1]);
   }
@@ -298,124 +302,77 @@ export function hasPathSum(root: TreeNode | null, target: number) {
   return dfs(root, root.val);
 }
 
-// leetcode linkedlist 6-10
-
-export class ListNode {
-  val: number;
-  next: ListNode | null;
-  constructor(val: number) {
-    this.val = val;
-    this.next = null;
+export function postOrderTraversal(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  const stack: TreeNode[] = [];
+  let p: TreeNode | null = root;
+  let prevRight: TreeNode | null = null;
+  while (stack.length || p) {
+    while (p) {
+      stack.push(p);
+      p = p.left;
+    }
+    const current = stack.pop()!;
+    if (!current.right || prevRight === current.right) {
+      res.push(current.val);
+      prevRight = current;
+    } else {
+      stack.push(current);
+      p = current.right;
+    }
   }
-}
-
-export function rotateRight(head: ListNode | null, k: number) {
-  if (k === 0 || !head || !head.next) return head;
-  let count = 1;
-  let current = head;
-  while (current.next) {
-    count++;
-    current = current.next;
-  }
-  current.next = head;
-  k = count - (k % count);
-  let prev = head;
-  for (let i = 0; i < k - 1; i++) {
-    prev = prev.next!;
-  }
-  const res = prev.next;
-  prev.next = null;
   return res;
 }
 
-export function deleteDuplicates(head: ListNode | null): ListNode | null {
-  if (!head || !head.next) return head;
-  const res = deleteDuplicates(head.next);
-  if (res && head.val === res.val) {
-    return res.next;
-  } else if (head.val === head.next.val) {
-    return res;
-  } else {
-    head.next = res;
-    return head;
-  }
+// leetcode math 6-10
+
+export function powerOfTwo(n: number): boolean {
+  if (n === 0) return false;
+  if (n === 1) return true;
+  if (n % 2 !== 0) return false;
+  return powerOfTwo(n / 2);
 }
 
-export function deleteDuplicates1(head: ListNode | null) {
-  if (!head || !head.next) return head;
-  const dummyHead = new ListNode(-1);
-  let prev = dummyHead;
-  while (prev.next && prev.next.next) {
-    if (prev.next.val === prev.next.next.val) {
-      prev.next = prev.next.next;
-    } else {
-      prev = prev.next;
+export function isUgly(n: number) {
+  if (n <= 0) return false;
+  const arr = [2, 3, 5];
+  for (let item of arr) {
+    while (n % item === 0) {
+      n /= item;
     }
   }
-  return dummyHead.next;
+  return n === 1;
 }
 
-export function partition(head: ListNode | null, x: number) {
-  const minHead = new ListNode(-1);
-  const maxHead = new ListNode(-1);
-  let prev1 = minHead;
-  let prev2 = maxHead;
-  let current = head;
-  while (current) {
-    if (current.val < x) {
-      prev1.next = current;
-      prev1 = prev1.next;
-    } else {
-      prev2.next = current;
-      prev2 = prev2.next;
-    }
-    current = current.next;
-  }
-  prev2.next = null;
-  prev1.next = maxHead.next;
-  return minHead.next;
+export function powerOfThree(n: number): boolean {
+  if (n === 0) return false;
+  if (n === 1) return true;
+  if (n % 3 !== 0) return false;
+  return powerOfThree(n / 3);
 }
 
-export function reverseBetween(
-  head: ListNode | null,
-  left: number,
-  right: number
-) {
-  if (!head || !head.next) return head;
-  let prevNode = null;
-  let leftNode = null;
-  let rightNode = null;
-  let nextNode = null;
-  let index = 1;
-  let current: ListNode | null = head;
-  while (current) {
-    if (index === left - 1) {
-      prevNode = current;
-    }
-    if (index === left) {
-      leftNode = current;
-    }
-    if (index === right) {
-      rightNode = current;
-      nextNode = current.next;
-    }
-    index++;
-    current = current.next;
+export function integerBreak(n: number) {
+  const arr = [1, 2, 4, 6, 9];
+  if (n <= 6) {
+    return arr[n - 2];
   }
-  rightNode!.next = null;
-  let prev = null;
-  let reverseCurrent = leftNode;
-  while (reverseCurrent) {
-    const next = reverseCurrent.next;
-    reverseCurrent.next = prev;
-    prev = reverseCurrent;
-    reverseCurrent = next;
+  let res = 1;
+  while (n > 6) {
+    res *= 3;
+    n -= 3;
   }
-  if (prevNode) {
-    prevNode.next = rightNode;
-  } else {
-    head = rightNode;
+  return res * arr[n - 2];
+}
+
+export function countNumbers(n: number) {
+  if (n === 0) return 1;
+  if (n === 1) return 10;
+  let res = 10,
+    current = 9;
+  for (let i = 0; i < n - 1; i++) {
+    current *= 9 - i;
+    res += current;
   }
-  leftNode!.next = nextNode;
-  return head;
+  return res;
 }
