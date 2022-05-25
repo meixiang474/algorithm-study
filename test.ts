@@ -1,121 +1,48 @@
 import { BST } from "./11.BST";
 import { LinkedList } from "./7.LinkedList";
 
-// offer 32-III
+// offer 33
 
-export function levelOrder(root: TreeNode | null) {
-  if (!root) return [];
-  const queue: [TreeNode, number][] = [[root, 0]];
-  const res: number[][] = [];
-  while (queue.length) {
-    const [current, level] = queue.shift()!;
-    const arr = res[level] || (res[level] = []);
-    if (level % 2 === 0) {
-      arr.push(current.val);
-    } else {
-      arr.unshift(current.val);
+export function verifyPostorder(postorder: number[]): boolean {
+  if (postorder.length === 0 || postorder.length === 1) return true;
+  const upper = (data: number[], target: number) => {
+    let l = 0,
+      r = data.length;
+    while (l < r) {
+      const mid = Math.floor(l + (r - l) / 2);
+      if (data[mid] > target) {
+        r = mid;
+      } else {
+        l = mid + 1;
+      }
     }
-    if (current.left) queue.push([current.left, level + 1]);
-    if (current.right) queue.push([current.right, level + 1]);
-  }
-  return res;
-}
-
-// set
-
-export function fn(nums1: number[], nums2: number[]) {
-  return [...new Set(nums1)].filter((item) => nums2.includes(item));
-}
-
-export function fn1(nums1: number[], nums2: number[]) {
-  return [...new Set(nums1)].filter((item) => !nums2.includes(item));
-}
-
-export class BSTSet<T = number> {
-  bst: BST<T>;
-  constructor() {
-    this.bst = new BST();
-  }
-  getSize() {
-    return this.bst.getSize();
-  }
-  isEmpty() {
-    return this.bst.isEmpty();
-  }
-  add(e: T) {
-    this.bst.add(e);
-  }
-  contains(e: T) {
-    return this.bst.contains(e);
-  }
-  remove(e: T) {
-    this.bst.remove(e);
-  }
-}
-
-export class LinkedListSet<T = number> {
-  list: LinkedList<T>;
-  constructor() {
-    this.list = new LinkedList(-1 as any);
-  }
-  getSize() {
-    return this.list.getSize();
-  }
-  isEmpty() {
-    return this.list.isEmpty();
-  }
-  contains(e: T) {
-    return this.list.contains(e);
-  }
-  add(e: T) {
-    if (!this.list.contains(e)) {
-      this.list.addFirst(e);
-    }
-  }
-  remove(e: T) {
-    this.list.removeElement(e);
-  }
-}
-
-export function uniqueMorse(words: string[]) {
-  const arr = [
-    ".-",
-    "-...",
-    "-.-.",
-    "-..",
-    ".",
-    "..-.",
-    "--.",
-    "....",
-    "..",
-    ".---",
-    "-.-",
-    ".-..",
-    "--",
-    "-.",
-    "---",
-    ".--.",
-    "--.-",
-    ".-.",
-    "...",
-    "-",
-    "..-",
-    "...-",
-    ".--",
-    "-..-",
-    "-.--",
-    "--..",
-  ];
-  const set = new Set<string>();
-  for (let item of words) {
-    set.add(
-      item.split("").reduce((memo, current) => {
-        return memo + arr[current.charCodeAt(0) - "a".charCodeAt(0)];
-      }, "")
+    return l;
+  };
+  const isTree = (postorder: number[], rootVal: number, rightIndex: number) => {
+    const left = postorder.slice(0, rightIndex);
+    const right = postorder.slice(rightIndex, -1);
+    return (
+      left.every((item) => item < rootVal) &&
+      right.every((item) => item > rootVal)
+    );
+  };
+  const rightIndex = upper(
+    postorder.slice(0, -1),
+    postorder[postorder.length - 1]
+  );
+  const flag = isTree(postorder, postorder[postorder.length - 1], rightIndex);
+  if (flag) {
+    return (
+      verifyPostorder(postorder.slice(0, rightIndex)) &&
+      verifyPostorder(postorder.slice(rightIndex, -1))
     );
   }
-  return set.size;
+  return false;
 }
+
+// map
+
+
 
 // leetcode sliding-window 6-7
 
@@ -141,4 +68,28 @@ export function moveStones(nums: number[]) {
     min = Math.min(res, min);
   }
   return [min, max];
+}
+
+export function maxSatisfied(
+  customers: number[],
+  grumpy: number[],
+  minutes: number
+) {
+  let base = 0;
+  for (let i = 0; i < customers.length; i++) {
+    if (grumpy[i] === 0) base += customers[i];
+  }
+  let increase = 0;
+  for (let i = 0; i < minutes; i++) {
+    increase += customers[i] * grumpy[i];
+  }
+  let maxIncrease = increase;
+  for (let i = minutes; i < customers.length; i++) {
+    increase =
+      increase -
+      customers[i - minutes] * grumpy[i - minutes] +
+      customers[i] * grumpy[i];
+    maxIncrease = Math.max(maxIncrease, increase);
+  }
+  return base + maxIncrease;
 }
