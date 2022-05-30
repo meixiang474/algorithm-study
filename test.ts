@@ -41,8 +41,144 @@ export function verifyPostorder(postorder: number[]): boolean {
 }
 
 // map
+export class LinkedListMapNode<K = string, V = any> {
+  key: K | null;
+  value: V | null;
+  next: LinkedListMapNode<K, V> | null;
+  constructor(
+    key: K | null = null,
+    value: V | null = null,
+    next: LinkedListMapNode<K, V> | null = null
+  ) {
+    this.key = key;
+    this.value = value;
+    this.next = next;
+  }
+  toString() {
+    return `${JSON.stringify(this.key)} : ${JSON.stringify(this.value)}`;
+  }
+}
 
+export class LinkedListMap<K = string, V = any> {
+  dummyHead: LinkedListMapNode<K, V>;
+  size: number;
+  constructor() {
+    this.size = 0;
+    this.dummyHead = new LinkedListMapNode();
+  }
+  getSize() {
+    return this.size;
+  }
+  isEmpty() {
+    return this.size === 0;
+  }
+  getNode(key: K) {
+    let current = this.dummyHead.next;
+    while (current) {
+      if (current.key === key) {
+        return current;
+      }
+      current = current.next;
+    }
+    return null;
+  }
+  contains(key: K) {
+    return this.getNode(key) != null;
+  }
+  get(key: K) {
+    const node = this.getNode(key);
+    return node == null ? null : node.value;
+  }
+  add(key: K, value: V) {
+    const node = this.getNode(key);
+    if (node == null) {
+      this.dummyHead.next = new LinkedListMapNode(
+        key,
+        value,
+        this.dummyHead.next
+      );
+      this.size++;
+    } else {
+      node.value = value;
+    }
+  }
+  set(key: K, value: V) {
+    const node = this.getNode(key);
+    if (!node) throw new Error("error");
+    node.value = value;
+  }
+  remove(key: K) {
+    let prev = this.dummyHead;
+    while (prev.next) {
+      if (prev.next.key === key) {
+        break;
+      }
+      prev = prev.next;
+    }
+    if (prev.next) {
+      const node = prev.next;
+      this.size--;
+      prev.next = node.next;
+      return node.value;
+    }
+    return null;
+  }
+}
 
+export class BSTMapNode<K = string, V = any> {
+  key: K;
+  value: V;
+  left: BSTMapNode<K, V> | null;
+  right: BSTMapNode<K, V> | null;
+  constructor(key: K, value: V) {
+    this.key = key;
+    this.value = value;
+    this.left = null;
+    this.right = null;
+  }
+}
+
+export class BSTMap<K = string, V = any> {
+  root: BSTMapNode<K, V> | null;
+  size: number;
+  constructor(compare: (a: K, b: K) => boolean) {
+    this.root = null;
+    this.size = 0;
+    this.compare = compare || this.compare;
+  }
+  compare(a: K, b: K) {
+    return a < b;
+  }
+  add(key: K, value: V) {
+    this.root = this.addNode(key, value, this.root);
+  }
+  addNode(key: K, value: V, node: BSTMapNode<K, V> | null): BSTMapNode<K, V> {
+    if (!node) {
+      this.size++;
+      return new BSTMapNode(key, value);
+    }
+    if (this.compare(key, node.key)) {
+      node.left = this.addNode(key, value, node.left);
+    } else if (this.compare(node.key, key)) {
+      node.right = this.addNode(key, value, node.right);
+    } else {
+      node.value = value;
+    }
+    return node;
+  }
+  getNode(node: BSTMapNode<K, V> | null, key: K): BSTMapNode<K, V> | null {
+    if (!node) return null;
+    if (this.compare(node.key, key)) {
+      return this.getNode(node.right, key);
+    } else if (this.compare(key, node.key)) {
+      return this.getNode(node.left, key);
+    }
+    return node;
+  }
+  contains(key: K) {
+    return this.getNode(this.root, key) != null
+  }
+}
 
 // leetcode sliding-window 6-7
 
