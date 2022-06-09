@@ -176,56 +176,202 @@ export class BSTMap<K = string, V = any> {
     return node;
   }
   contains(key: K) {
-    return this.getNode(this.root, key) != null
+    return this.getNode(this.root, key) != null;
+  }
+  get(key: K) {
+    const node = this.getNode(this.root, key);
+    return node ? node.value : null;
+  }
+  set(key: K, value: V) {
+    const node = this.getNode(this.root, key);
+    if (!node) throw new Error("error");
+    node.value = value;
+  }
+  minimumNode(node: BSTMapNode<K, V>): BSTMapNode<K, V> {
+    if (!node.left) {
+      return node;
+    }
+    return this.minimumNode(node.left);
+  }
+  removeMinNode(node: BSTMapNode<K, V>): BSTMapNode<K, V> | null {
+    if (!node.left) {
+      this.size--;
+      return node.right;
+    }
+    node.left = this.removeMinNode(node.left);
+    return node;
+  }
+  remove(key: K) {
+    const node = this.getNode(this.root, key);
+    if (!node) return null;
+    this.root = this.removeNode(this.root, key);
+    return node.value;
+  }
+  removeNode(node: BSTMapNode<K, V> | null, key: K): BSTMapNode<K, V> | null {
+    if (!node) {
+      return null;
+    }
+    if (this.compare(node.key, key)) {
+      node.right = this.removeNode(node.right, key);
+      return node;
+    }
+    if (this.compare(key, node.key)) {
+      node.left = this.removeNode(node.left, key);
+      return node;
+    }
+    if (!node.left) {
+      this.size--;
+      return node.right;
+    } else if (!node.right) {
+      this.size--;
+      return node.left;
+    } else {
+      const successor = this.minimumNode(node.right);
+      successor.left = node.left;
+      successor.right = this.removeMinNode(node.right);
+      return successor;
+    }
   }
 }
 
-// leetcode sliding-window 6-7
-
-export function moveStones(nums: number[]) {
-  nums.sort((a, b) => a - b);
-  const n = nums.length;
-  const max =
-    nums[n - 1] -
-    nums[0] +
-    1 -
-    n -
-    Math.min(nums[n - 1] - nums[n - 2] - 1, nums[1] - nums[0] - 1);
-  let min = Infinity;
-  let r = 0;
-  for (let l = 0; l < n; l++) {
-    while (r + 1 < n && nums[r + 1] - nums[l] + 1 <= n) {
-      r++;
-    }
-    let res = n - r + l - 1;
-    if (r - l + 1 === n - 1 && nums[r] - nums[l] + 1 === n - 1) {
-      res = 2;
-    }
-    min = Math.min(res, min);
+export function intersection(nums1: number[], nums2: number[]) {
+  const map = new Map<number, boolean>();
+  const res: number[] = [];
+  for (let item of nums1) {
+    map.set(item, true);
   }
-  return [min, max];
+  for (let item of nums2) {
+    if (map.has(item)) {
+      res.push(item);
+      map.delete(item);
+    }
+  }
+  return res;
 }
 
-export function maxSatisfied(
-  customers: number[],
-  grumpy: number[],
-  minutes: number
-) {
-  let base = 0;
-  for (let i = 0; i < customers.length; i++) {
-    if (grumpy[i] === 0) base += customers[i];
+export function twoSum(nums: number[], target: number) {
+  const map = new Map<number, number>();
+  for (let i = 0; i < nums.length; i++) {
+    const current = nums[i];
+    const rest = target - current;
+    if (map.has(rest)) {
+      return [map.get(rest), i];
+    }
+    map.set(current, i);
   }
-  let increase = 0;
-  for (let i = 0; i < minutes; i++) {
-    increase += customers[i] * grumpy[i];
+}
+
+export function fn(s: string) {
+  let res = 0;
+  const map = new Map<string, number>();
+  let l = 0,
+    r = 0;
+  while (r < s.length) {
+    const currentr = s[r];
+    if (map.has(currentr) && map.get(currentr)! >= l) {
+      l = map.get(currentr)! + 1;
+    }
+    res = Math.max(res, r - l + 1);
+    map.set(currentr, r);
+    r++;
   }
-  let maxIncrease = increase;
-  for (let i = minutes; i < customers.length; i++) {
-    increase =
-      increase -
-      customers[i - minutes] * grumpy[i - minutes] +
-      customers[i] * grumpy[i];
-    maxIncrease = Math.max(maxIncrease, increase);
+  return res;
+}
+
+export function fn1(s: string, t: string) {
+  let res = "";
+  const need = new Map<string, number>();
+  for (let item of t) {
+    need.set(item, need.has(item) ? need.get(item)! + 1 : 1);
   }
-  return base + maxIncrease;
+  let needType = need.size;
+  let l = 0,
+    r = 0;
+  while (r < s.length) {
+    const currentr = s[r];
+    if (need.has(currentr)) {
+      need.set(currentr, need.get(currentr)! - 1);
+      if (need.get(currentr) === 0) {
+        needType--;
+      }
+    }
+    while (needType === 0) {
+      const newRes = s.slice(l, r + 1);
+      if (!res || res.length > newRes.length) res = newRes;
+      const currentl = s[l];
+      if (need.has(currentl)) {
+        need.set(currentl, need.get(currentl)! + 1);
+        if (need.get(currentl) === 1) needType++;
+      }
+      l++;
+    }
+    r++;
+  }
+  return res;
+}
+
+export function intersectionTwo(nums1: number[], nums2: number[]) {
+  const map = new Map<number, number>();
+  const res: number[] = [];
+  for (let item of nums1) {
+    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
+  }
+  for (let item of nums2) {
+    if (map.has(item)) {
+      res.push(item);
+      map.set(item, map.get(item)! - 1);
+      if (map.get(item) === 0) {
+        map.delete(item);
+      }
+    }
+  }
+  return res;
+}
+
+// leetcode sort 6-10
+
+export function largestNumber(nums: number[]) {
+  const res = nums
+    .map((item) => item.toString())
+    .sort((a, b) => parseInt(b + a) - parseInt(a + b))
+    .join("");
+  return res[0] === "0" ? "0" : res;
+}
+
+export function containsDuplicate(nums: number[], k: number, t: number) {
+  const getId = (num: number) => {
+    return num < 0
+      ? Math.floor((num + 1) / (t + 1)) - 1
+      : Math.floor(num / (t + 1));
+  };
+  const map = new Map<number, number>();
+  for (let i = 0; i < nums.length; i++) {
+    const current = nums[i];
+    const id = getId(current);
+    if (map.has(id)) return true;
+    if (map.has(id + 1) && Math.abs(nums[i] - map.get(id + 1)!) <= t)
+      return true;
+    if (map.has(id - 1) && Math.abs(nums[i] - map.get(id - 1)!) <= t)
+      return true;
+    map.set(id, nums[i]);
+    if (i >= k) {
+      map.delete(getId(nums[i - k]));
+    }
+  }
+  return false
+}
+
+export function isAnagram(s: string, t: string) {
+  const map = new Map<string, number>()
+  for(let item of s) {
+    map.set(item, map.has(item) ? map.get(item)! + 1 : 1)
+  }
+  for(let item of t) {
+    if(!map.has(item)) return false
+    map.set(item, map.get(item)! - 1)
+  }
+  for(let [key, value] of map) {
+    if(value !== 0) return false
+  }
+  return true
 }
