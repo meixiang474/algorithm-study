@@ -1,332 +1,157 @@
-import { BST } from "./11.BST";
-import { LinkedList } from "./7.LinkedList";
-
-// offer 33
-
-export function verifyPostorder(postorder: number[]): boolean {
-  if (postorder.length === 0 || postorder.length === 1) return true;
-  const upper = (data: number[], target: number) => {
-    let l = 0,
-      r = data.length;
-    while (l < r) {
-      const mid = Math.floor(l + (r - l) / 2);
-      if (data[mid] > target) {
-        r = mid;
-      } else {
-        l = mid + 1;
-      }
-    }
-    return l;
-  };
-  const isTree = (postorder: number[], rootVal: number, rightIndex: number) => {
-    const left = postorder.slice(0, rightIndex);
-    const right = postorder.slice(rightIndex, -1);
-    return (
-      left.every((item) => item < rootVal) &&
-      right.every((item) => item > rootVal)
-    );
-  };
-  const rightIndex = upper(
-    postorder.slice(0, -1),
-    postorder[postorder.length - 1]
-  );
-  const flag = isTree(postorder, postorder[postorder.length - 1], rightIndex);
-  if (flag) {
-    return (
-      verifyPostorder(postorder.slice(0, rightIndex)) &&
-      verifyPostorder(postorder.slice(rightIndex, -1))
-    );
-  }
-  return false;
-}
-
-// map
-export class LinkedListMapNode<K = string, V = any> {
-  key: K | null;
-  value: V | null;
-  next: LinkedListMapNode<K, V> | null;
-  constructor(
-    key: K | null = null,
-    value: V | null = null,
-    next: LinkedListMapNode<K, V> | null = null
-  ) {
-    this.key = key;
-    this.value = value;
-    this.next = next;
-  }
-  toString() {
-    return `${JSON.stringify(this.key)} : ${JSON.stringify(this.value)}`;
-  }
-}
-
-export class LinkedListMap<K = string, V = any> {
-  dummyHead: LinkedListMapNode<K, V>;
-  size: number;
-  constructor() {
-    this.size = 0;
-    this.dummyHead = new LinkedListMapNode();
-  }
-  getSize() {
-    return this.size;
-  }
-  isEmpty() {
-    return this.size === 0;
-  }
-  getNode(key: K) {
-    let current = this.dummyHead.next;
-    while (current) {
-      if (current.key === key) {
-        return current;
-      }
-      current = current.next;
-    }
-    return null;
-  }
-  contains(key: K) {
-    return this.getNode(key) != null;
-  }
-  get(key: K) {
-    const node = this.getNode(key);
-    return node == null ? null : node.value;
-  }
-  add(key: K, value: V) {
-    const node = this.getNode(key);
-    if (node == null) {
-      this.dummyHead.next = new LinkedListMapNode(
-        key,
-        value,
-        this.dummyHead.next
-      );
-      this.size++;
-    } else {
-      node.value = value;
-    }
-  }
-  set(key: K, value: V) {
-    const node = this.getNode(key);
-    if (!node) throw new Error("error");
-    node.value = value;
-  }
-  remove(key: K) {
-    let prev = this.dummyHead;
-    while (prev.next) {
-      if (prev.next.key === key) {
-        break;
-      }
-      prev = prev.next;
-    }
-    if (prev.next) {
-      const node = prev.next;
-      this.size--;
-      prev.next = node.next;
-      return node.value;
-    }
-    return null;
-  }
-}
-
-export class BSTMapNode<K = string, V = any> {
-  key: K;
-  value: V;
-  left: BSTMapNode<K, V> | null;
-  right: BSTMapNode<K, V> | null;
-  constructor(key: K, value: V) {
-    this.key = key;
-    this.value = value;
+// offer 34
+export class TreeNode {
+  val: number;
+  left: TreeNode | null;
+  right: TreeNode | null;
+  constructor(val: number) {
+    this.val = val;
     this.left = null;
     this.right = null;
   }
 }
 
-export class BSTMap<K = string, V = any> {
-  root: BSTMapNode<K, V> | null;
-  size: number;
-  constructor(compare: (a: K, b: K) => boolean) {
-    this.root = null;
-    this.size = 0;
-    this.compare = compare || this.compare;
-  }
-  compare(a: K, b: K) {
-    return a < b;
-  }
-  add(key: K, value: V) {
-    this.root = this.addNode(key, value, this.root);
-  }
-  addNode(key: K, value: V, node: BSTMapNode<K, V> | null): BSTMapNode<K, V> {
-    if (!node) {
-      this.size++;
-      return new BSTMapNode(key, value);
+export function pathSum(root: TreeNode | null, target: number) {
+  if (!root) return [];
+  const res: number[][] = [];
+  const dfs = (node: TreeNode, path: number[], sum: number) => {
+    if (sum === target && !node.left && !node.right) {
+      res.push(path);
+      return;
     }
-    if (this.compare(key, node.key)) {
-      node.left = this.addNode(key, value, node.left);
-    } else if (this.compare(node.key, key)) {
-      node.right = this.addNode(key, value, node.right);
-    } else {
-      node.value = value;
-    }
-    return node;
-  }
-  getNode(node: BSTMapNode<K, V> | null, key: K): BSTMapNode<K, V> | null {
-    if (!node) return null;
-    if (this.compare(node.key, key)) {
-      return this.getNode(node.right, key);
-    } else if (this.compare(key, node.key)) {
-      return this.getNode(node.left, key);
-    }
-    return node;
-  }
-  contains(key: K) {
-    return this.getNode(this.root, key) != null;
-  }
-  get(key: K) {
-    const node = this.getNode(this.root, key);
-    return node ? node.value : null;
-  }
-  set(key: K, value: V) {
-    const node = this.getNode(this.root, key);
-    if (!node) throw new Error("error");
-    node.value = value;
-  }
-  minimumNode(node: BSTMapNode<K, V>): BSTMapNode<K, V> {
-    if (!node.left) {
-      return node;
-    }
-    return this.minimumNode(node.left);
-  }
-  removeMinNode(node: BSTMapNode<K, V>): BSTMapNode<K, V> | null {
-    if (!node.left) {
-      this.size--;
-      return node.right;
-    }
-    node.left = this.removeMinNode(node.left);
-    return node;
-  }
-  remove(key: K) {
-    const node = this.getNode(this.root, key);
-    if (!node) return null;
-    this.root = this.removeNode(this.root, key);
-    return node.value;
-  }
-  removeNode(node: BSTMapNode<K, V> | null, key: K): BSTMapNode<K, V> | null {
-    if (!node) {
-      return null;
-    }
-    if (this.compare(node.key, key)) {
-      node.right = this.removeNode(node.right, key);
-      return node;
-    }
-    if (this.compare(key, node.key)) {
-      node.left = this.removeNode(node.left, key);
-      return node;
-    }
-    if (!node.left) {
-      this.size--;
-      return node.right;
-    } else if (!node.right) {
-      this.size--;
-      return node.left;
-    } else {
-      const successor = this.minimumNode(node.right);
-      successor.left = node.left;
-      successor.right = this.removeMinNode(node.right);
-      return successor;
-    }
-  }
-}
-
-export function intersection(nums1: number[], nums2: number[]) {
-  const map = new Map<number, boolean>();
-  const res: number[] = [];
-  for (let item of nums1) {
-    map.set(item, true);
-  }
-  for (let item of nums2) {
-    if (map.has(item)) {
-      res.push(item);
-      map.delete(item);
-    }
-  }
+    if (node.left)
+      dfs(node.left, path.concat(node.left.val), sum + node.left.val);
+    if (node.right)
+      dfs(node.right, path.concat(node.right.val), sum + node.right.val);
+  };
+  dfs(root, [root.val], root.val);
   return res;
 }
 
-export function twoSum(nums: number[], target: number) {
-  const map = new Map<number, number>();
-  for (let i = 0; i < nums.length; i++) {
-    const current = nums[i];
-    const rest = target - current;
-    if (map.has(rest)) {
-      return [map.get(rest), i];
+// graph
+export function dfs(
+  graph: Record<number, number[]>,
+  node: number,
+  visited: Set<number>
+) {
+  console.log(node);
+  visited.add(node);
+  graph[node].forEach((item) => {
+    if (!visited.has(item)) {
+      dfs(graph, item, visited);
     }
-    map.set(current, i);
-  }
+  });
 }
 
-export function fn(s: string) {
-  let res = 0;
-  const map = new Map<string, number>();
-  let l = 0,
-    r = 0;
-  while (r < s.length) {
-    const currentr = s[r];
-    if (map.has(currentr) && map.get(currentr)! >= l) {
-      l = map.get(currentr)! + 1;
-    }
-    res = Math.max(res, r - l + 1);
-    map.set(currentr, r);
-    r++;
-  }
-  return res;
-}
-
-export function fn1(s: string, t: string) {
-  let res = "";
-  const need = new Map<string, number>();
-  for (let item of t) {
-    need.set(item, need.has(item) ? need.get(item)! + 1 : 1);
-  }
-  let needType = need.size;
-  let l = 0,
-    r = 0;
-  while (r < s.length) {
-    const currentr = s[r];
-    if (need.has(currentr)) {
-      need.set(currentr, need.get(currentr)! - 1);
-      if (need.get(currentr) === 0) {
-        needType--;
+export function bfs(graph: Record<number, number[]>, node: number) {
+  const visited: Set<number> = new Set();
+  const queue: number[] = [node];
+  visited.add(node);
+  while (queue.length) {
+    const current = queue.shift()!;
+    console.log(current);
+    graph[current].forEach((item) => {
+      if (!visited.has(item)) {
+        visited.add(item);
+        queue.push(item);
       }
-    }
-    while (needType === 0) {
-      const newRes = s.slice(l, r + 1);
-      if (!res || res.length > newRes.length) res = newRes;
-      const currentl = s[l];
-      if (need.has(currentl)) {
-        need.set(currentl, need.get(currentl)! + 1);
-        if (need.get(currentl) === 1) needType++;
+    });
+  }
+}
+
+export function fn(matrix: number[][]) {
+  if (matrix.length === 0 || matrix[0].length === 0) return [];
+  const res: [number, number][] = [];
+  const m = matrix.length;
+  const n = matrix[0].length;
+  const flow1: boolean[][] = Array.from({ length: m }, () =>
+    new Array(n).fill(false)
+  );
+  const flow2: boolean[][] = Array.from({ length: m }, () =>
+    new Array(n).fill(false)
+  );
+  const dfs = (r: number, c: number, flow: boolean[][]) => {
+    flow[r][c] = true;
+    [
+      [r + 1, c],
+      [r - 1, c],
+      [r, c + 1],
+      [r, c - 1],
+    ].forEach(([nextR, nextC]) => {
+      if (
+        nextR >= 0 &&
+        nextR < m &&
+        nextC >= 0 &&
+        nextC < n &&
+        !flow[nextR][nextC] &&
+        matrix[nextR][nextC] >= matrix[r][c]
+      ) {
+        dfs(nextR, nextC, flow);
       }
-      l++;
+    });
+  };
+  for (let r = 0; r < m; r++) {
+    dfs(r, 0, flow1);
+    dfs(r, n - 1, flow2);
+  }
+  for (let c = 0; c < n; c++) {
+    dfs(0, c, flow1);
+    dfs(m - 1, c, flow2);
+  }
+  for (let r = 0; r < m; r++) {
+    for (let c = 0; c < n; c++) {
+      if (flow1[r][c] && flow2[r][c]) res.push([r, c]);
     }
-    r++;
   }
   return res;
 }
 
-export function intersectionTwo(nums1: number[], nums2: number[]) {
-  const map = new Map<number, number>();
-  const res: number[] = [];
-  for (let item of nums1) {
-    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
+export class GraphNode {
+  val: number;
+  neighbours: GraphNode[];
+  constructor(val: number) {
+    this.val = val;
+    this.neighbours = [];
   }
-  for (let item of nums2) {
-    if (map.has(item)) {
-      res.push(item);
-      map.set(item, map.get(item)! - 1);
-      if (map.get(item) === 0) {
-        map.delete(item);
-      }
-    }
-  }
-  return res;
 }
+
+export function cloneGraph(node: GraphNode | null) {
+  if (!node) return null;
+  const visited = new Map<GraphNode, GraphNode>();
+  const dfs = (node: GraphNode) => {
+    const newNode = new GraphNode(node.val);
+    visited.set(node, newNode);
+    node.neighbours.forEach((item) => {
+      if (!visited.has(item)) {
+        dfs(item);
+      }
+      newNode.neighbours.push(visited.get(item)!);
+    });
+  };
+  dfs(node);
+  return visited.get(node);
+}
+
+export function cloneGraph1(node: GraphNode | null) {
+  if (!node) return null;
+  const visited = new Map<GraphNode, GraphNode>();
+  const queue: GraphNode[] = [node];
+  visited.set(node, new GraphNode(node.val));
+  while (queue.length) {
+    const current = queue.shift()!;
+    current.neighbours.forEach((item) => {
+      if (!visited.has(item)) {
+        visited.set(item, new GraphNode(item.val));
+        queue.push(item);
+      }
+      visited.get(current)!.neighbours.push(visited.get(item)!);
+    });
+  }
+  return visited.get(node);
+}
+
+// hot 1 2
+
+
 
 // leetcode sort 6-10
 
@@ -358,20 +183,42 @@ export function containsDuplicate(nums: number[], k: number, t: number) {
       map.delete(getId(nums[i - k]));
     }
   }
-  return false
+  return false;
 }
 
 export function isAnagram(s: string, t: string) {
-  const map = new Map<string, number>()
-  for(let item of s) {
-    map.set(item, map.has(item) ? map.get(item)! + 1 : 1)
+  const map = new Map<string, number>();
+  for (let item of s) {
+    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
   }
-  for(let item of t) {
-    if(!map.has(item)) return false
-    map.set(item, map.get(item)! - 1)
+  for (let item of t) {
+    if (!map.has(item)) return false;
+    map.set(item, map.get(item)! - 1);
   }
-  for(let [key, value] of map) {
-    if(value !== 0) return false
+  for (let [key, value] of map) {
+    if (value !== 0) return false;
   }
-  return true
+  return true;
+}
+
+export function hIndex(nums: number[]) {
+  nums.sort((a, b) => a - b);
+  let h = 0;
+  let i = nums.length - 1;
+  while (i >= 0 && nums[i] > h) {
+    h++;
+    i--;
+  }
+  return h;
+}
+
+export function wiggleSort(nums: number[]) {
+  let l = Math.floor((nums.length - 1) / 2);
+  let r = nums.length - 1;
+  nums
+    .slice()
+    .sort((a, b) => a - b)
+    .forEach((item, index, arr) => {
+      nums[index] = index % 2 === 0 ? arr[l--] : arr[r--];
+    });
 }
