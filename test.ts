@@ -29,48 +29,133 @@ export function copyRandomList(head: RandomListNode | null) {
 }
 
 // heap
+export class MinHeap<T = number> {
+  heap: T[];
+  constructor(compare?: (a: T, b: T) => boolean) {
+    this.heap = [];
+    this.compare = compare || this.compare;
+  }
+  compare(a: T, b: T) {
+    return a < b;
+  }
+  swap(i: number, j: number) {
+    [this.heap[i], this.heap[j]] = [this.heap[j], this.heap[i]];
+  }
+  getParentIndex(index: number) {
+    return Math.floor((index - 1) / 2);
+  }
+  getLeftIndex(index: number) {
+    return 2 * index + 1;
+  }
+  getRightIndex(index: number) {
+    return 2 * index + 2;
+  }
+  insert(val: T) {
+    this.heap.push(val);
+    this.shiftUp(this.heap.length - 1);
+  }
+  shiftUp(index: number) {
+    if (index === 0) return;
+    const parentIndex = this.getParentIndex(index);
+    if (
+      this.heap[parentIndex] != null &&
+      this.compare(this.heap[index], this.heap[parentIndex])
+    ) {
+      this.swap(index, parentIndex);
+      this.shiftUp(parentIndex);
+    }
+  }
+  pop() {
+    if (this.heap.length === 0) throw new Error("error");
+    if (this.heap.length === 1) return this.heap.pop()!;
+    const res = this.heap[0];
+    this.heap[0] = this.heap.pop() as T;
+    this.shiftDown(0);
+    return res;
+  }
+  shiftDown(index: number) {
+    const leftIndex = this.getLeftIndex(index);
+    const rightIndex = this.getRightIndex(index);
+    if (
+      this.heap[leftIndex] != null &&
+      this.compare(this.heap[leftIndex], this.heap[index])
+    ) {
+      this.swap(leftIndex, index);
+      this.shiftDown(leftIndex);
+    }
+    if (
+      this.heap[rightIndex] != null &&
+      this.compare(this.heap[rightIndex], this.heap[index])
+    ) {
+      this.swap(rightIndex, index);
+      this.shiftDown(rightIndex);
+    }
+  }
+  peek() {
+    if (this.heap.length === 0) throw new Error("error");
+    return this.heap[0];
+  }
+  size() {
+    return this.heap.length;
+  }
+}
 
+export function findKthLargest(nums: number[], k: number) {
+  const heap = new MinHeap();
+  for (let item of nums) {
+    heap.insert(item);
+    if (heap.size() > k) heap.pop();
+  }
+  return heap.peek();
+}
 
-// hot 1 2
-export function twoSum(nums: number[], target: number) {
+export function topKFrequent(nums: number[], k: number) {
   const map = new Map<number, number>();
-  for (let i = 0; i < nums.length; i++) {
-    const current = nums[i];
-    const rest = target - current;
-    if (map.has(rest)) return [i, map.get(rest)];
-    map.set(current, i);
+  for (let item of nums) {
+    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
   }
+  const heap = new MinHeap<{ value: number; key: number }>(
+    (a, b) => a.value < b.value
+  );
+  for (let [key, value] of map) {
+    heap.insert({ key, value });
+    if (heap.size() > k) {
+      heap.pop();
+    }
+  }
+  return heap.heap.map((item) => item.key);
 }
 
-export class ListNode {
-  val: number;
-  next: ListNode | null;
-  constructor(val: number) {
-    this.val = val;
-    this.next = null;
+export function mergeKLists(lists: (ListNode | null)[]) {
+  const heap = new MinHeap<ListNode>((a, b) => a.val < b.val);
+  for (let item of lists) {
+    if (item) heap.insert(item);
   }
+  const res = new ListNode(-1);
+  let current = res;
+  while (heap.size()) {
+    const next = heap.pop();
+    current.next = next;
+    current = current.next;
+    if (next.next) heap.insert(next.next);
+  }
+  return res.next;
 }
 
-export function addTwoNumbers(l1: ListNode | null, l2: ListNode | null) {
-  const l3 = new ListNode(-1);
-  let p1 = l1,
-    p2 = l2,
-    p3 = l3;
-  let carry = 0;
-  while (p1 || p2) {
-    const n1 = p1 ? p1.val : 0;
-    const n2 = p2 ? p2.val : 0;
-    const sum = n1 + n2 + carry;
-    carry = Math.floor(sum / 10);
-    p3.next = new ListNode(sum % 10);
-    if (p1) p1 = p1.next;
-    if (p2) p2 = p2.next;
-    p3 = p3.next;
+// imooc 1.greedy
+export function machineFactory(nums: number[][], s: number) {
+  let res = 0;
+  let min = Infinity;
+  for (let [current, target] of nums) {
+    min = Math.min(min + s, current);
+    res += min * target;
   }
-  if (carry) {
-    p3.next = new ListNode(carry);
-  }
-  return l3.next;
+  return res;
+}
+
+// hot 3 4
+export function lengthOfLongestSubstring() {
+  
 }
 
 // leetcode stack 6-10

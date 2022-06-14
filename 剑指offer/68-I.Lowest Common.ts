@@ -44,10 +44,3 @@ export function lowestCommon(
   }
   return res;
 }
-
-1
-23
-456
-
-1 
-12
