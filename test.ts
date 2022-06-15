@@ -142,20 +142,9 @@ export function mergeKLists(lists: (ListNode | null)[]) {
   return res.next;
 }
 
-// imooc 1.greedy
-export function machineFactory(nums: number[][], s: number) {
-  let res = 0;
-  let min = Infinity;
-  for (let [current, target] of nums) {
-    min = Math.min(min + s, current);
-    res += min * target;
-  }
-  return res;
-}
-
 // hot 3 4
 export function lengthOfLongestSubstring() {
-  
+
 }
 
 // leetcode stack 6-10
