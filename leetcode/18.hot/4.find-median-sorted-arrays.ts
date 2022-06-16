@@ -34,6 +34,6 @@ export default function findMedianSortedArrays(
   } else {
     const mid1 = Math.floor((m + n) / 2) - 1;
     const mid2 = Math.floor((m + n) / 2);
-    return (find(nums1, nums2, mid1 + 1) + find(nums1, nums2, mid2 + 2)) / 2;
+    return (find(nums1, nums2, mid1 + 1) + find(nums1, nums2, mid2 + 1)) / 2;
   }
 }

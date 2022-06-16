@@ -143,114 +143,97 @@ export function mergeKLists(lists: (ListNode | null)[]) {
 }
 
 // hot 3 4
-export function lengthOfLongestSubstring() {
-
-}
-
-// leetcode stack 6-10
-export function postOrderTraversal(root: TreeNode | null) {
-  if (!root) return [];
-  const res: number[] = [];
-  const stack: TreeNode[] = [];
-  let p: TreeNode | null = root;
-  let prevRight: TreeNode | null = null;
-  while (stack.length || p) {
-    while (p) {
-      stack.push(p);
-      p = p.left;
+export function lengthOfLongestSubstring(s: string) {
+  let res = 0;
+  const map = new Map<string, number>();
+  let l = 0,
+    r = 0;
+  while (r < s.length) {
+    const currentr = s[r];
+    if (map.has(currentr) && map.get(currentr)! >= l) {
+      l = map.get(currentr)! + 1;
     }
-    const current = stack.pop()!;
-    if (!current.right || current.right === prevRight) {
-      res.push(current.val);
-      prevRight = current;
-    } else {
-      stack.push(current);
-      p = current.right;
-    }
+    res = Math.max(res, r - l + 1);
+    map.set(currentr, r);
+    r++;
   }
   return res;
 }
 
-export function evalRPN(tokens: string[]) {
-  const stack: string[] = [];
-  for (let item of tokens) {
-    if (isNaN(parseFloat(item))) {
-      const n1 = stack.pop()!;
-      const n2 = stack.pop()!;
-      let res: number = eval(`${n2} ${item} ${n1}`);
-      res = res > 0 ? Math.floor(res) : Math.ceil(res);
-      stack.push(res + "");
+export function findMedianSortedArray(nums1: number[], nums2: number[]) {
+  const m = nums1.length;
+  const n = nums2.length;
+  const find = (nums1: number[], nums2: number[], k: number) => {
+    let index1 = 0,
+      index2 = 0;
+    while (true) {
+      if (index1 >= m) return nums2[index2 + k - 1];
+      if (index2 >= n) return nums2[index1 + k - 1];
+      const half = Math.floor(k / 2);
+      const newIndex1 = Math.min(index1 + half, m) - 1;
+      const newIndex2 = Math.min(index2 + half, n) - 1;
+      if (nums1[newIndex1] <= nums2[newIndex2]) {
+        k -= newIndex1 - index1 + 1;
+        index1 = newIndex1 + 1;
+      } else {
+        k -= newIndex2 - index2 + 1;
+        index2 = newIndex2 + 1;
+      }
+    }
+  };
+  if ((m + n) % 2 !== 0) {
+    const k = Math.floor((m + n) / 2);
+    return find(nums1, nums2, k + 1);
+  } else {
+    const k = Math.floor((m + n) / 2);
+    return (find(nums1, nums2, k) + find(nums1, nums2, k + 1)) / 2;
+  }
+}
+
+// leetcode string 6-10
+export function groupAnagrams(string: string[]) {
+  const map = new Map<string, string[]>();
+  for (let item of string) {
+    const key = item.split("").sort().join("");
+    if (map.has(key)) {
+      map.get(key)?.push(item);
     } else {
-      stack.push(item);
+      map.set(key, [item]);
     }
   }
-  return parseFloat(stack[0]);
+  const res: string[][] = [];
+  for (let [key, value] of map) {
+    res.push(value);
+  }
+  return res;
 }
 
-export class MinStack {
-  stack: number[];
-  queue: number[];
-  constructor() {
-    this.stack = [];
-    this.queue = [];
-  }
-  push(item: number) {
-    this.stack.push(item);
-    if (!this.queue.length || this.queue[0] >= item) {
-      this.queue.unshift(item);
+export function simplifyPath(path: string) {
+  const stack: string[] = [];
+  const dirs = path.split("/");
+  for (let item of dirs) {
+    if (item === "." || item === "") continue;
+    if (item === "..") {
+      stack.pop();
+      continue;
     }
+    stack.push(item);
   }
-  pop() {
-    const res = this.stack.pop();
-    if (res === this.queue[0]) this.queue.shift();
-  }
-  top() {
-    return this.stack[this.stack.length - 1];
-  }
-  getMin() {
-    return this.queue[0];
-  }
+  return "/" + stack.join("/");
 }
 
-export class BSTIterator {
-  current: TreeNode | null;
-  stack: TreeNode[];
-  constructor(root: TreeNode | null) {
-    this.current = root;
-    this.stack = [];
+export function numDecoding(s: string) {
+  if (s.length === 0) return 0;
+  const dp: number[] = [];
+  dp[0] = s[0] === "0" ? 0 : 1;
+  for (let i = 1; i < s.length; i++) {
+    dp[i] =
+      (s[i] === "0" ? 0 : dp[i - 1]) +
+      (s[i - 1] === "0" || parseInt(s[i - 1] + s[i]) > 26
+        ? 0
+        : dp[i - 2] == null
+        ? 1
+        : dp[i - 2]);
   }
-  next() {
-    while (this.current) {
-      this.stack.push(this.current);
-      this.current = this.current.left;
-    }
-    const current = this.stack.pop();
-    this.current = current ? current.right : null;
-    return current ? current.val : null;
-  }
-  hasNext() {
-    return this.current != null || this.stack.length !== 0;
-  }
-}
-
-export class MyStack {
-  items: number[];
-  constructor() {
-    this.items = [];
-  }
-  push(item: number) {
-    this.items.push(item);
-    for (let i = 0; i < this.items.length - 1; i++) {
-      this.items.push(this.items.shift()!);
-    }
-  }
-  pop() {
-    return this.items.shift();
-  }
-  top() {
-    return this.items[0];
-  }
-  empty() {
-    return this.items.length === 0;
-  }
+  return dp[s.length - 1];
 }
