@@ -1,145 +1,119 @@
-// offer 35
-export class RandomListNode {
+// offer 36
+export class TreeNode {
   val: number;
-  next: RandomListNode | null;
-  random: RandomListNode | null;
+  left: TreeNode | null;
+  right: TreeNode | null;
   constructor(val: number) {
     this.val = val;
-    this.next = null;
-    this.random = null;
+    this.left = null;
+    this.right = null;
   }
 }
 
-export function copyRandomList(head: RandomListNode | null) {
-  if (!head) return null;
-  const map = new Map<RandomListNode, RandomListNode>();
-  const dfs = (node: RandomListNode) => {
-    const newNode = new RandomListNode(node.val);
-    if (node.next && !map.has(node.next)) {
-      dfs(node.next);
-    }
-    newNode.next = node.next ? map.get(node.next)! : null;
-    if (node.random && !map.has(node.random)) {
-      dfs(node.random);
-    }
-    newNode.random = node.random ? map.get(node.random)! : null;
+export function treeToDoublyList(root: TreeNode | null) {
+  if (!root) return root;
+  const res: TreeNode[] = [];
+  const dfs = (node: TreeNode) => {
+    if (node.left) dfs(node.left);
+    res.push(node);
+    if (node.right) dfs(node.right);
   };
-  dfs(head);
-  return map.get(head);
+  let head: TreeNode | null = null;
+  let tail: TreeNode | null = null;
+  for (let i = 0; i < res.length; i++) {
+    const current = res[i];
+    if (!tail) {
+      head = tail = current;
+      tail.right = head;
+      head.left = tail;
+    } else {
+      const prev = tail;
+      tail.right = current;
+      tail = tail.right;
+      tail.right = head;
+      tail.left = prev;
+      head!.left = tail;
+    }
+  }
+  return head;
 }
 
-// heap
-export class MinHeap<T = number> {
-  heap: T[];
-  constructor(compare?: (a: T, b: T) => boolean) {
-    this.heap = [];
-    this.compare = compare || this.compare;
-  }
-  compare(a: T, b: T) {
-    return a < b;
-  }
-  swap(i: number, j: number) {
-    [this.heap[i], this.heap[j]] = [this.heap[j], this.heap[i]];
-  }
-  getParentIndex(index: number) {
-    return Math.floor((index - 1) / 2);
-  }
-  getLeftIndex(index: number) {
-    return 2 * index + 1;
-  }
-  getRightIndex(index: number) {
-    return 2 * index + 2;
-  }
-  insert(val: T) {
-    this.heap.push(val);
-    this.shiftUp(this.heap.length - 1);
-  }
-  shiftUp(index: number) {
-    if (index === 0) return;
-    const parentIndex = this.getParentIndex(index);
+// fenzhi donggui tanxin huisu
+export function invertTree(root: TreeNode | null) {
+  if (!root) return null;
+  const dfs = (node: TreeNode) => {
+    const temp = node.left;
+    node.left = node.right;
+    node.right = temp;
+    if (node.left) dfs(node.left);
+    if (node.right) dfs(node.right);
+  };
+  dfs(root);
+  return root;
+}
+
+export function isSameTree(p1: TreeNode | null, p2: TreeNode | null) {
+  if (!p1 && !p2) return true;
+  if (
+    p1 &&
+    p2 &&
+    p1.val === p2.val &&
+    isSameTree(p1.left, p2.left) &&
+    isSameTree(p1.right, p2.right)
+  )
+    return true;
+  return false;
+}
+
+export function fn(root: TreeNode | null) {
+  if (!root) return true;
+  const isMirror = (p1: TreeNode | null, p2: TreeNode | null) => {
+    if (!p1 && !p2) return true;
     if (
-      this.heap[parentIndex] != null &&
-      this.compare(this.heap[index], this.heap[parentIndex])
-    ) {
-      this.swap(index, parentIndex);
-      this.shiftUp(parentIndex);
-    }
-  }
-  pop() {
-    if (this.heap.length === 0) throw new Error("error");
-    if (this.heap.length === 1) return this.heap.pop()!;
-    const res = this.heap[0];
-    this.heap[0] = this.heap.pop() as T;
-    this.shiftDown(0);
-    return res;
-  }
-  shiftDown(index: number) {
-    const leftIndex = this.getLeftIndex(index);
-    const rightIndex = this.getRightIndex(index);
-    if (
-      this.heap[leftIndex] != null &&
-      this.compare(this.heap[leftIndex], this.heap[index])
-    ) {
-      this.swap(leftIndex, index);
-      this.shiftDown(leftIndex);
-    }
-    if (
-      this.heap[rightIndex] != null &&
-      this.compare(this.heap[rightIndex], this.heap[index])
-    ) {
-      this.swap(rightIndex, index);
-      this.shiftDown(rightIndex);
-    }
-  }
-  peek() {
-    if (this.heap.length === 0) throw new Error("error");
-    return this.heap[0];
-  }
-  size() {
-    return this.heap.length;
-  }
+      p1 &&
+      p2 &&
+      p1.val === p2.val &&
+      isMirror(p1.left, p2.right) &&
+      isMirror(p1.right, p2.left)
+    )
+      return true;
+    return false;
+  };
+  return isMirror(root.left, root.right);
 }
 
-export function findKthLargest(nums: number[], k: number) {
-  const heap = new MinHeap();
-  for (let item of nums) {
-    heap.insert(item);
-    if (heap.size() > k) heap.pop();
+export function climbStairs(n: number) {
+  const dp = [1, 1];
+  for (let i = 2; i <= n; i++) {
+    dp[i] = dp[i - 1] + dp[i - 2];
   }
-  return heap.peek();
+  return dp[n];
 }
 
-export function topKFrequent(nums: number[], k: number) {
-  const map = new Map<number, number>();
-  for (let item of nums) {
-    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
+export function rob(nums: number[]) {
+  if (nums.length === 0) return 0;
+  const dp = [nums[0], Math.max(nums[0], nums[1])];
+  for (let i = 2; i < nums.length; i++) {
+    dp[i] = Math.max(dp[i - 1], dp[i - 2] + nums[i]);
   }
-  const heap = new MinHeap<{ value: number; key: number }>(
-    (a, b) => a.value < b.value
-  );
-  for (let [key, value] of map) {
-    heap.insert({ key, value });
-    if (heap.size() > k) {
-      heap.pop();
+  return dp[nums.length - 1];
+}
+
+export function rob1(nums: number[]) {
+  if (nums.length === 1) return nums[0];
+  const compute = (nums: number[]) => {
+    if (nums.length === 0) return 0;
+    const dp = [nums[0], Math.max(nums[0], nums[1])];
+    for (let i = 2; i < nums.length; i++) {
+      dp[i] = Math.max(dp[i - 1], dp[i - 2] + nums[i]);
     }
-  }
-  return heap.heap.map((item) => item.key);
+    return dp[nums.length - 1];
+  };
+  return Math.max(compute(nums.slice(1)), compute(nums.slice(0, -1)));
 }
 
-export function mergeKLists(lists: (ListNode | null)[]) {
-  const heap = new MinHeap<ListNode>((a, b) => a.val < b.val);
-  for (let item of lists) {
-    if (item) heap.insert(item);
-  }
-  const res = new ListNode(-1);
-  let current = res;
-  while (heap.size()) {
-    const next = heap.pop();
-    current.next = next;
-    current = current.next;
-    if (next.next) heap.insert(next.next);
-  }
-  return res.next;
+export function findContentChildren(g: number[], s: number[]) {
+  
 }
 
 // hot 3 4
@@ -236,4 +210,60 @@ export function numDecoding(s: string) {
         : dp[i - 2]);
   }
   return dp[s.length - 1];
+}
+
+export function restoreIpAddress(s: string) {
+  const res: string[] = [];
+  const dfs = (path: string[], index: number) => {
+    if (path.length === 4) {
+      if (index === s.length) {
+        res.push(path.join("."));
+      }
+      return;
+    }
+    if (index === s.length) return;
+    const current = s[index];
+    if (current === "0") {
+      dfs(path.concat(current), index + 1);
+      return;
+    }
+    let item = 0;
+    for (let i = index; i < s.length; i++) {
+      item = item * 10 + parseFloat(s[index]);
+      if (item > 0 && item <= 255) {
+        dfs(path.concat(item.toString()), i + 1);
+      } else {
+        break;
+      }
+    }
+  };
+  dfs([], 0);
+  return res;
+}
+
+export function isPalindrome(s: string) {
+  let l = 0,
+    r = s.length - 1;
+  while (l < r) {
+    const currentl = s[l];
+    const currentr = s[r];
+    if (
+      currentl.toLocaleLowerCase() === currentl.toLocaleUpperCase() &&
+      isNaN(parseInt(currentl))
+    ) {
+      l++;
+      continue;
+    }
+    if (
+      currentr.toLocaleLowerCase() === currentr.toLocaleUpperCase() &&
+      isNaN(parseInt(currentr))
+    ) {
+      r--;
+      continue;
+    }
+    if (currentl.toLowerCase() !== currentr.toLowerCase()) return false;
+    l++;
+    r--;
+  }
+  return true;
 }
