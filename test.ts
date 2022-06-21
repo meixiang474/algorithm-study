@@ -113,55 +113,55 @@ export function rob1(nums: number[]) {
 }
 
 export function findContentChildren(g: number[], s: number[]) {
-  
-}
-
-// hot 3 4
-export function lengthOfLongestSubstring(s: string) {
+  s.sort((a, b) => a - b);
+  g.sort((a, b) => a - b);
   let res = 0;
-  const map = new Map<string, number>();
-  let l = 0,
-    r = 0;
-  while (r < s.length) {
-    const currentr = s[r];
-    if (map.has(currentr) && map.get(currentr)! >= l) {
-      l = map.get(currentr)! + 1;
-    }
-    res = Math.max(res, r - l + 1);
-    map.set(currentr, r);
-    r++;
-  }
+  s.forEach((item) => {
+    if (item >= g[res]) res++;
+  });
   return res;
 }
 
-export function findMedianSortedArray(nums1: number[], nums2: number[]) {
-  const m = nums1.length;
-  const n = nums2.length;
-  const find = (nums1: number[], nums2: number[], k: number) => {
-    let index1 = 0,
-      index2 = 0;
-    while (true) {
-      if (index1 >= m) return nums2[index2 + k - 1];
-      if (index2 >= n) return nums2[index1 + k - 1];
-      const half = Math.floor(k / 2);
-      const newIndex1 = Math.min(index1 + half, m) - 1;
-      const newIndex2 = Math.min(index2 + half, n) - 1;
-      if (nums1[newIndex1] <= nums2[newIndex2]) {
-        k -= newIndex1 - index1 + 1;
-        index1 = newIndex1 + 1;
+export function maxProfit(prices: number[]) {
+  let profit = 0;
+  for (let i = 1; i < prices.length; i++) {
+    if (prices[i] > prices[i - 1]) {
+      profit += prices[i] - prices[i - 1];
+    }
+  }
+  return profit;
+}
+
+// hot 5 6
+export function longestPalindrome(s: string) {
+  if (s.length === 1) return s;
+  const dp: boolean[][] = Array.from({ length: s.length }, () =>
+    new Array(s.length).fill(false)
+  );
+  for (let i = 0; i < s.length; i++) {
+    dp[i][i] = true;
+  }
+  let maxLength = 1;
+  let startIndex = 0;
+  for (let l = 2; l <= s.length; l++) {
+    for (let left = 0; left < s.length - l + 1; left++) {
+      const right = left + l - 1;
+      if (s[left] !== s[right]) {
+        dp[left][right] = false;
       } else {
-        k -= newIndex2 - index2 + 1;
-        index2 = newIndex2 + 1;
+        if (right - left + 1 <= 3) {
+          dp[left][right] = true;
+        } else {
+          dp[left][right] = dp[left + 1][right - 1];
+        }
+      }
+      if (dp[left][right]) {
+        maxLength = l;
+        startIndex = left;
       }
     }
-  };
-  if ((m + n) % 2 !== 0) {
-    const k = Math.floor((m + n) / 2);
-    return find(nums1, nums2, k + 1);
-  } else {
-    const k = Math.floor((m + n) / 2);
-    return (find(nums1, nums2, k) + find(nums1, nums2, k + 1)) / 2;
   }
+  return s.slice(startIndex, startIndex + maxLength);
 }
 
 // leetcode string 6-10
