@@ -164,106 +164,47 @@ export function longestPalindrome(s: string) {
   return s.slice(startIndex, startIndex + maxLength);
 }
 
-// leetcode string 6-10
-export function groupAnagrams(string: string[]) {
-  const map = new Map<string, string[]>();
-  for (let item of string) {
-    const key = item.split("").sort().join("");
-    if (map.has(key)) {
-      map.get(key)?.push(item);
+export function isMatch(s: string, p: string): boolean {
+  if (p.length === 0) return s.length === 0;
+  let match = false;
+  if (s.length > 0 && (p[0] === s[0] || p[0] === ".")) {
+    match = true;
+  }
+  if (p.length > 1 && p[1] === "*") {
+    return isMatch(s, p.slice(2)) || (match && isMatch(s.slice(1), p));
+  }
+  return match && isMatch(s.slice(1), p.slice(1));
+}
+
+// leetcode tree 6-10
+export function levelOrder(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[][] = [];
+  const queue: [TreeNode, number][] = [[root, 0]];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    const arr = res[level] || (res[level] = []);
+    arr.push(current.val);
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
+  }
+  return res;
+}
+
+export function zigzagLevelOrder(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[][] = [];
+  const queue: [TreeNode, number][] = [];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    const arr = res[level] || (res[level] = []);
+    if (level % 2 === 0) {
+      arr.push(current.val);
     } else {
-      map.set(key, [item]);
+      arr.unshift(current.val);
     }
-  }
-  const res: string[][] = [];
-  for (let [key, value] of map) {
-    res.push(value);
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
   }
   return res;
-}
-
-export function simplifyPath(path: string) {
-  const stack: string[] = [];
-  const dirs = path.split("/");
-  for (let item of dirs) {
-    if (item === "." || item === "") continue;
-    if (item === "..") {
-      stack.pop();
-      continue;
-    }
-    stack.push(item);
-  }
-  return "/" + stack.join("/");
-}
-
-export function numDecoding(s: string) {
-  if (s.length === 0) return 0;
-  const dp: number[] = [];
-  dp[0] = s[0] === "0" ? 0 : 1;
-  for (let i = 1; i < s.length; i++) {
-    dp[i] =
-      (s[i] === "0" ? 0 : dp[i - 1]) +
-      (s[i - 1] === "0" || parseInt(s[i - 1] + s[i]) > 26
-        ? 0
-        : dp[i - 2] == null
-        ? 1
-        : dp[i - 2]);
-  }
-  return dp[s.length - 1];
-}
-
-export function restoreIpAddress(s: string) {
-  const res: string[] = [];
-  const dfs = (path: string[], index: number) => {
-    if (path.length === 4) {
-      if (index === s.length) {
-        res.push(path.join("."));
-      }
-      return;
-    }
-    if (index === s.length) return;
-    const current = s[index];
-    if (current === "0") {
-      dfs(path.concat(current), index + 1);
-      return;
-    }
-    let item = 0;
-    for (let i = index; i < s.length; i++) {
-      item = item * 10 + parseFloat(s[index]);
-      if (item > 0 && item <= 255) {
-        dfs(path.concat(item.toString()), i + 1);
-      } else {
-        break;
-      }
-    }
-  };
-  dfs([], 0);
-  return res;
-}
-
-export function isPalindrome(s: string) {
-  let l = 0,
-    r = s.length - 1;
-  while (l < r) {
-    const currentl = s[l];
-    const currentr = s[r];
-    if (
-      currentl.toLocaleLowerCase() === currentl.toLocaleUpperCase() &&
-      isNaN(parseInt(currentl))
-    ) {
-      l++;
-      continue;
-    }
-    if (
-      currentr.toLocaleLowerCase() === currentr.toLocaleUpperCase() &&
-      isNaN(parseInt(currentr))
-    ) {
-      r--;
-      continue;
-    }
-    if (currentl.toLowerCase() !== currentr.toLowerCase()) return false;
-    l++;
-    r--;
-  }
-  return true;
 }
