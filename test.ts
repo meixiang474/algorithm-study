@@ -1,135 +1,50 @@
+import { Heap } from "./practice/week5/1.heap";
+
 // offer 36
-export class TreeNode {
-  val: number;
-  left: TreeNode | null;
-  right: TreeNode | null;
-  constructor(val: number) {
-    this.val = val;
-    this.left = null;
-    this.right = null;
-  }
-}
-
-export function treeToDoublyList(root: TreeNode | null) {
-  if (!root) return root;
-  const res: TreeNode[] = [];
-  const dfs = (node: TreeNode) => {
-    if (node.left) dfs(node.left);
-    res.push(node);
-    if (node.right) dfs(node.right);
-  };
-  let head: TreeNode | null = null;
-  let tail: TreeNode | null = null;
-  for (let i = 0; i < res.length; i++) {
-    const current = res[i];
-    if (!tail) {
-      head = tail = current;
-      tail.right = head;
-      head.left = tail;
-    } else {
-      const prev = tail;
-      tail.right = current;
-      tail = tail.right;
-      tail.right = head;
-      tail.left = prev;
-      head!.left = tail;
+export function permutation(s: string) {
+  const arr = s.split("").sort();
+  const map = new Map<number, boolean>();
+  const res: string[] = [];
+  const dfs = (path: string) => {
+    if (path.length === s.length) {
+      res.push(path);
+      return;
     }
-  }
-  return head;
-}
-
-// fenzhi donggui tanxin huisu
-export function invertTree(root: TreeNode | null) {
-  if (!root) return null;
-  const dfs = (node: TreeNode) => {
-    const temp = node.left;
-    node.left = node.right;
-    node.right = temp;
-    if (node.left) dfs(node.left);
-    if (node.right) dfs(node.right);
-  };
-  dfs(root);
-  return root;
-}
-
-export function isSameTree(p1: TreeNode | null, p2: TreeNode | null) {
-  if (!p1 && !p2) return true;
-  if (
-    p1 &&
-    p2 &&
-    p1.val === p2.val &&
-    isSameTree(p1.left, p2.left) &&
-    isSameTree(p1.right, p2.right)
-  )
-    return true;
-  return false;
-}
-
-export function fn(root: TreeNode | null) {
-  if (!root) return true;
-  const isMirror = (p1: TreeNode | null, p2: TreeNode | null) => {
-    if (!p1 && !p2) return true;
-    if (
-      p1 &&
-      p2 &&
-      p1.val === p2.val &&
-      isMirror(p1.left, p2.right) &&
-      isMirror(p1.right, p2.left)
-    )
-      return true;
-    return false;
-  };
-  return isMirror(root.left, root.right);
-}
-
-export function climbStairs(n: number) {
-  const dp = [1, 1];
-  for (let i = 2; i <= n; i++) {
-    dp[i] = dp[i - 1] + dp[i - 2];
-  }
-  return dp[n];
-}
-
-export function rob(nums: number[]) {
-  if (nums.length === 0) return 0;
-  const dp = [nums[0], Math.max(nums[0], nums[1])];
-  for (let i = 2; i < nums.length; i++) {
-    dp[i] = Math.max(dp[i - 1], dp[i - 2] + nums[i]);
-  }
-  return dp[nums.length - 1];
-}
-
-export function rob1(nums: number[]) {
-  if (nums.length === 1) return nums[0];
-  const compute = (nums: number[]) => {
-    if (nums.length === 0) return 0;
-    const dp = [nums[0], Math.max(nums[0], nums[1])];
-    for (let i = 2; i < nums.length; i++) {
-      dp[i] = Math.max(dp[i - 1], dp[i - 2] + nums[i]);
+    for (let i = 0; i < arr.length; i++) {
+      if (i > 0 && arr[i] === arr[i - 1] && map.has(i - 1)) continue;
+      if (!map.has(i)) {
+        map.set(i, true);
+        dfs(path + arr[i]);
+        map.delete(i);
+      }
     }
-    return dp[nums.length - 1];
   };
-  return Math.max(compute(nums.slice(1)), compute(nums.slice(0, -1)));
-}
-
-export function findContentChildren(g: number[], s: number[]) {
-  s.sort((a, b) => a - b);
-  g.sort((a, b) => a - b);
-  let res = 0;
-  s.forEach((item) => {
-    if (item >= g[res]) res++;
-  });
+  dfs("");
   return res;
 }
 
-export function maxProfit(prices: number[]) {
-  let profit = 0;
-  for (let i = 1; i < prices.length; i++) {
-    if (prices[i] > prices[i - 1]) {
-      profit += prices[i] - prices[i - 1];
-    }
+// priority-queue shell-sort
+export class PriorityQueue<T = number> {
+  maxHeap: Heap<T>;
+  constructor(compare?: (a: T, b: T) => boolean) {
+    this.maxHeap = new Heap("max", compare);
   }
-  return profit;
+  getSize() {
+    return this.maxHeap.size();
+  }
+  isEmpty() {
+    return this.getSize() === 0;
+  }
+  getFront() {
+    return this.maxHeap.peek();
+  }
+  enqueue(item: T) {
+    this.maxHeap.insert(item);
+  }
+  dequeue() {
+    if (this.isEmpty()) throw new Error("error");
+    return this.maxHeap.pop();
+  }
 }
 
 // hot 5 6
@@ -207,4 +122,49 @@ export function zigzagLevelOrder(root: TreeNode | null) {
     if (current.right) queue.push([current.right, level + 1]);
   }
   return res;
+}
+
+export function maxDepth(root: TreeNode | null) {
+  if (!root) return 0;
+  let res = 0;
+  const dfs = (node: TreeNode, level: number) => {
+    if (!node.left && !node.right) {
+      res = Math.max(res, level);
+      return;
+    }
+    if (node.left) dfs(node.left, level + 1);
+    if (node.right) dfs(node.right, level + 1);
+  };
+  dfs(root, 1);
+  return res;
+}
+
+export function levelOrderBottom(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[][] = [];
+  const queue: [TreeNode, number][] = [[root, 0]];
+  let currentLevel = -1;
+  while (queue.length) {
+    const [node, level] = queue.shift()!;
+    if (currentLevel === level) {
+      res[0].push(node.val);
+    } else {
+      const arr: number[] = [];
+      arr.push(node.val);
+      res.unshift(arr);
+      currentLevel = level;
+    }
+    if (node.left) queue.push([node.left, level + 1]);
+    if (node.right) queue.push([node.right, level + 1]);
+  }
+  return res;
+}
+
+export function sortedArrayToBST(nums: number[]): TreeNode | null {
+  if (nums.length === 0) return null;
+  const mid = Math.floor((nums.length - 1) / 2);
+  const node = new TreeNode(nums[mid]);
+  node.left = sortedArrayToBST(nums.slice(0, mid));
+  node.right = sortedArrayToBST(nums.slice(mid + 1));
+  return node;
 }
