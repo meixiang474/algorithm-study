@@ -47,48 +47,45 @@ export class PriorityQueue<T = number> {
   }
 }
 
-// hot 5 6
-export function longestPalindrome(s: string) {
-  if (s.length === 1) return s;
-  const dp: boolean[][] = Array.from({ length: s.length }, () =>
-    new Array(s.length).fill(false)
-  );
-  for (let i = 0; i < s.length; i++) {
-    dp[i][i] = true;
+export function shellSort(nums: number[]) {
+  const res: number[] = [...nums];
+  let h = Math.floor(res.length / 2);
+  while (h < res.length) {
+    h = h * 3 + 1;
   }
-  let maxLength = 1;
-  let startIndex = 0;
-  for (let l = 2; l <= s.length; l++) {
-    for (let left = 0; left < s.length - l + 1; left++) {
-      const right = left + l - 1;
-      if (s[left] !== s[right]) {
-        dp[left][right] = false;
-      } else {
-        if (right - left + 1 <= 3) {
-          dp[left][right] = true;
+  while (h) {
+    for (let i = h; i < res.length; i++) {
+      let swapIndex = i;
+      const current = res[i];
+      for (let j = i - h; j >= 0; h -= h) {
+        if (res[j] > current) {
+          res[j + h] = res[j];
+          swapIndex = j;
         } else {
-          dp[left][right] = dp[left + 1][right - 1];
+          break;
         }
       }
-      if (dp[left][right]) {
-        maxLength = l;
-        startIndex = left;
-      }
+      if (swapIndex !== i) res[swapIndex] = current;
     }
+    h = Math.floor(h / 3);
   }
-  return s.slice(startIndex, startIndex + maxLength);
+  return res;
 }
 
-export function isMatch(s: string, p: string): boolean {
-  if (p.length === 0) return s.length === 0;
-  let match = false;
-  if (s.length > 0 && (p[0] === s[0] || p[0] === ".")) {
-    match = true;
+// hot 7 8
+export function maxArea(heights: number[]) {
+  let l = 0,
+    r = heights.length;
+  let res = 0;
+  while (l < r) {
+    res = Math.max(res, Math.min(heights[l], heights[r]) * (r - l));
+    if (heights[l] > heights[r]) {
+      r--;
+    } else {
+      l++;
+    }
   }
-  if (p.length > 1 && p[1] === "*") {
-    return isMatch(s, p.slice(2)) || (match && isMatch(s.slice(1), p));
-  }
-  return match && isMatch(s.slice(1), p.slice(1));
+  return res;
 }
 
 // leetcode tree 6-10
