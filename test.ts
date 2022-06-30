@@ -88,80 +88,147 @@ export function maxArea(heights: number[]) {
   return res;
 }
 
-// leetcode tree 6-10
-export function levelOrder(root: TreeNode | null) {
-  if (!root) return [];
+export function threeSum(nums: number[]) {
+  nums.sort((a, b) => a - b);
   const res: number[][] = [];
-  const queue: [TreeNode, number][] = [[root, 0]];
-  while (queue.length) {
-    const [current, level] = queue.shift()!;
-    const arr = res[level] || (res[level] = []);
-    arr.push(current.val);
-    if (current.left) queue.push([current.left, level + 1]);
-    if (current.right) queue.push([current.right, level + 1]);
+  for (let i = 0; i < nums.length - 2; i++) {
+    if (i > 0 && nums[i] === nums[i - 1]) continue;
+    if (nums[i] + nums[i + 1] + nums[i + 2] > 0) break;
+    if (nums[i] + nums[nums.length - 1] + nums[nums.length - 2] < 0) continue;
+    let l = i + 1,
+      r = nums.length - 1;
+    while (l < r) {
+      const currentl = nums[l];
+      const currentr = nums[r];
+      const sum = nums[i] + currentl + currentr;
+      if (sum === 0) {
+        res.push([nums[i], currentl, currentr]);
+        while (l < r) {
+          l++;
+          if (nums[l] !== currentl) break;
+        }
+        while (l < r) {
+          r--;
+          if (nums[r] !== currentr) break;
+        }
+      } else if (sum > 0) {
+        while (l < r) {
+          r--;
+          if (nums[r] !== currentr) break;
+        }
+      } else {
+        while (l < r) {
+          l++;
+          if (nums[l] !== currentl) break;
+        }
+      }
+    }
   }
   return res;
 }
 
-export function zigzagLevelOrder(root: TreeNode | null) {
-  if (!root) return [];
-  const res: number[][] = [];
-  const queue: [TreeNode, number][] = [];
-  while (queue.length) {
-    const [current, level] = queue.shift()!;
-    const arr = res[level] || (res[level] = []);
-    if (level % 2 === 0) {
-      arr.push(current.val);
+// leetcode two-pointers 6-10
+export class ListNode {
+  val: number;
+  next: ListNode | null;
+  constructor(val: number) {
+    this.val = val;
+    this.next = null;
+  }
+}
+
+export function removeNthFromEnd(head: ListNode | null, n: number) {
+  if (!head) return null;
+  const dummyHead = new ListNode(-1);
+  dummyHead.next = head;
+  const stack: ListNode[] = [];
+  let p: ListNode | null = dummyHead;
+  while (p) {
+    stack.push(p);
+    p = p.next;
+  }
+  for (let i = 0; i < n; i++) {
+    stack.pop();
+  }
+  const prev = stack[stack.length - 1];
+  if (prev.next) {
+    prev.next = prev.next.next;
+  }
+  return dummyHead.next;
+}
+
+export function removeDuplicates(nums: number[]) {
+  let res = nums.length;
+  let i = 0;
+  while (i < res) {
+    if (i > 0 && nums[i - 1] === nums[i]) {
+      res--;
+      for (let j = i; j < res; j++) {
+        nums[j] = nums[j + 1];
+      }
     } else {
-      arr.unshift(current.val);
+      i++;
     }
-    if (current.left) queue.push([current.left, level + 1]);
-    if (current.right) queue.push([current.right, level + 1]);
   }
   return res;
 }
 
-export function maxDepth(root: TreeNode | null) {
-  if (!root) return 0;
-  let res = 0;
-  const dfs = (node: TreeNode, level: number) => {
-    if (!node.left && !node.right) {
-      res = Math.max(res, level);
-      return;
-    }
-    if (node.left) dfs(node.left, level + 1);
-    if (node.right) dfs(node.right, level + 1);
-  };
-  dfs(root, 1);
-  return res;
-}
-
-export function levelOrderBottom(root: TreeNode | null) {
-  if (!root) return [];
-  const res: number[][] = [];
-  const queue: [TreeNode, number][] = [[root, 0]];
-  let currentLevel = -1;
-  while (queue.length) {
-    const [node, level] = queue.shift()!;
-    if (currentLevel === level) {
-      res[0].push(node.val);
+export function removeElement(nums: number[], val: number) {
+  let res = nums.length;
+  let i = 0;
+  while (i < res) {
+    if (nums[i] === val) {
+      res--;
+      for (let j = i; j < res; j++) {
+        nums[j] = nums[j + 1];
+      }
     } else {
-      const arr: number[] = [];
-      arr.push(node.val);
-      res.unshift(arr);
-      currentLevel = level;
+      i++;
     }
-    if (node.left) queue.push([node.left, level + 1]);
-    if (node.right) queue.push([node.right, level + 1]);
   }
   return res;
 }
 
-export function sortedArrayToBST(nums: number[]): TreeNode | null {
-  if (nums.length === 0) return null;
-  const mid = Math.floor((nums.length - 1) / 2);
-  const node = new TreeNode(nums[mid]);
-  node.left = sortedArrayToBST(nums.slice(0, mid));
-  node.right = sortedArrayToBST(nums.slice(mid + 1));
-  return node;
+export function strStr(hayStack: string, needle: string) {
+  if (hayStack.length === 0) return -1;
+  if (hayStack.length < needle.length) return -1;
+  let res = -1;
+  for (let i = 0; i < hayStack.length; i++) {
+    const current = hayStack[i];
+    if (current === needle[0]) {
+      let flag = true;
+      for (let index = i + 1; index < needle.length + i; index++) {
+        if (hayStack[index] !== needle[index - i]) {
+          flag = false;
+          break;
+        }
+      }
+      if (flag) {
+        res = i;
+        break;
+      }
+    }
+  }
+  return res;
+}
+
+export function rotateRight(head: ListNode | null, k: number) {
+  if (!head || !head.next || k === 0) return head;
+  let count = 0;
+  let p: ListNode | null = head;
+  let prev: ListNode | null = null;
+  while (p) {
+    count++;
+    prev = p;
+    p = p.next;
+  }
+  prev!.next = head;
+  k = count - (k % count);
+  prev = head;
+  for (let i = 0; i < k - 1; i++) {
+    prev = prev!.next;
+  }
+  const res = prev!.next;
+  prev!.next = null;
+  return res;
 }
