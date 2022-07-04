@@ -10,6 +10,7 @@ export default class SegmentTree<T = any> {
     this.buildSegmentTree(0, 0, this.data.length - 1);
   }
   buildSegmentTree(treeIndex: number, l: number, r: number) {
+    if(l > r) return
     // 区间只有一个元素
     if (l === r) {
       this.tree[treeIndex] = this.data[l];

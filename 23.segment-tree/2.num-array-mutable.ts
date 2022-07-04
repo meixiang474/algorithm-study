@@ -31,6 +31,7 @@ export class NumArray1 {
     this.buildSegmentTree(0, 0, this.data.length - 1);
   }
   buildSegmentTree(treeIndex: number, l: number, r: number) {
+    if(l > r) return
     if (l === r) {
       this.tree[treeIndex] = this.data[l];
       return;
