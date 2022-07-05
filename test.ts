@@ -1,4 +1,11 @@
-import { Heap } from "./practice/week5/1.heap";
+export class ListNode {
+  val: number;
+  next: ListNode | null;
+  constructor(val: number) {
+    this.val = val;
+    this.next = null;
+  }
+}
 
 // offer 39
 export function majorityElement(nums: number[]) {
@@ -299,163 +306,145 @@ export class NumArray3 {
   }
 }
 
-// hot 7 8
-export function maxArea(heights: number[]) {
-  let l = 0,
-    r = heights.length;
-  let res = 0;
-  while (l < r) {
-    res = Math.max(res, Math.min(heights[l], heights[r]) * (r - l));
-    if (heights[l] > heights[r]) {
-      r--;
-    } else {
-      l++;
+// hot 9 - 12
+export function letterCombinations(digit: string) {
+  if (digit.length === 0) return [];
+  const graph: Record<string, string[]> = {
+    "2": ["a", "b", "c"],
+    "3": ["d", "e", "f"],
+    "4": ["g", "h", "i"],
+    "5": ["j", "k", "l"],
+    "6": ["m", "n", "o"],
+    "7": ["p", "q", "r", "s"],
+    "8": ["t", "u", "v"],
+    "9": ["w", "x", "y", "z"],
+  };
+  const res: string[] = [];
+  const dfs = (path: string) => {
+    if (path.length === digit.length) {
+      res.push(path);
+      return;
     }
-  }
+    const current = digit[path.length];
+    const arr = graph[current];
+    for (let item of arr) {
+      dfs(path + item);
+    }
+  };
+  dfs("");
   return res;
 }
 
-export function threeSum(nums: number[]) {
-  nums.sort((a, b) => a - b);
-  const res: number[][] = [];
-  for (let i = 0; i < nums.length - 2; i++) {
-    if (i > 0 && nums[i] === nums[i - 1]) continue;
-    if (nums[i] + nums[i + 1] + nums[i + 2] > 0) break;
-    if (nums[i] + nums[nums.length - 1] + nums[nums.length - 2] < 0) continue;
-    let l = i + 1,
-      r = nums.length - 1;
-    while (l < r) {
-      const currentl = nums[l];
-      const currentr = nums[r];
-      const sum = nums[i] + currentl + currentr;
-      if (sum === 0) {
-        res.push([nums[i], currentl, currentr]);
-        while (l < r) {
-          l++;
-          if (nums[l] !== currentl) break;
-        }
-        while (l < r) {
-          r--;
-          if (nums[r] !== currentr) break;
-        }
-      } else if (sum > 0) {
-        while (l < r) {
-          r--;
-          if (nums[r] !== currentr) break;
-        }
-      } else {
-        while (l < r) {
-          l++;
-          if (nums[l] !== currentl) break;
-        }
-      }
-    }
-  }
-  return res;
-}
-
-// leetcode two-pointers 6-10
-export class ListNode {
-  val: number;
-  next: ListNode | null;
-  constructor(val: number) {
-    this.val = val;
-    this.next = null;
-  }
-}
-
-export function removeNthFromEnd(head: ListNode | null, n: number) {
+export function removeNthFromEnd1(head: ListNode | null, n: number) {
   if (!head) return null;
   const dummyHead = new ListNode(-1);
   dummyHead.next = head;
   const stack: ListNode[] = [];
-  let p: ListNode | null = dummyHead;
-  while (p) {
-    stack.push(p);
-    p = p.next;
+  let current: ListNode | null = dummyHead;
+  while (current) {
+    stack.push(current);
+    current = current.next;
   }
   for (let i = 0; i < n; i++) {
     stack.pop();
   }
   const prev = stack[stack.length - 1];
+  if (!prev) return null;
   if (prev.next) {
     prev.next = prev.next.next;
   }
   return dummyHead.next;
 }
 
-export function removeDuplicates(nums: number[]) {
-  let res = nums.length;
-  let i = 0;
-  while (i < res) {
-    if (i > 0 && nums[i - 1] === nums[i]) {
-      res--;
-      for (let j = i; j < res; j++) {
-        nums[j] = nums[j + 1];
-      }
+export function isValid(s: string) {
+  if (s.length % 2 !== 0) return false;
+  const map = new Map<string, string>();
+  map.set("(", ")");
+  map.set("[", "]");
+  map.set("{", "}");
+  const stack: string[] = [];
+  for (let item of s) {
+    if (map.has(item)) {
+      stack.push(item);
     } else {
-      i++;
+      const prev = stack.pop();
+      if (!prev || map.get(prev) !== item) return false;
     }
   }
-  return res;
+  return stack.length === 0;
 }
 
-export function removeElement(nums: number[], val: number) {
-  let res = nums.length;
-  let i = 0;
-  while (i < res) {
-    if (nums[i] === val) {
-      res--;
-      for (let j = i; j < res; j++) {
-        nums[j] = nums[j + 1];
-      }
+export function mergeTwoLists(l1: ListNode | null, l2: ListNode | null) {
+  const res = new ListNode(-1);
+  let p1 = l1,
+    p2 = l2,
+    p3 = res;
+  while (p1 && p2) {
+    if (p1.val > p2.val) {
+      p3.next = p2;
+      p2 = p2.next;
     } else {
-      i++;
+      p3.next = p1;
+      p1 = p1.next;
     }
+    p3 = p3.next;
   }
-  return res;
+  if (p1) {
+    p3.next = p1;
+  }
+  if (p2) {
+    p3.next = p2;
+  }
+  return res.next;
 }
 
-export function strStr(hayStack: string, needle: string) {
-  if (hayStack.length === 0) return -1;
-  if (hayStack.length < needle.length) return -1;
-  let res = -1;
-  for (let i = 0; i < hayStack.length; i++) {
-    const current = hayStack[i];
-    if (current === needle[0]) {
-      let flag = true;
-      for (let index = i + 1; index < needle.length + i; index++) {
-        if (hayStack[index] !== needle[index - i]) {
-          flag = false;
-          break;
-        }
+// leetcode union-find 1-5
+export function solve(board: string[][]) {
+  if (board.length === 0 || board[0].length === 0) return;
+  const m = board.length;
+  const n = board[0].length;
+  const dfs = (r: number, c: number) => {
+    board[r][c] = "A";
+    [
+      [r + 1, c],
+      [r - 1, c],
+      [r, c + 1],
+      [r, c - 1],
+    ].forEach(([nextR, nextC]) => {
+      if (
+        nextR >= 0 &&
+        nextR < m &&
+        nextC >= 0 &&
+        nextC < n &&
+        board[nextR][nextC] === "O"
+      ) {
+        dfs(nextR, nextC);
       }
-      if (flag) {
-        res = i;
-        break;
+    });
+  };
+  for (let r = 0; r < m; r++) {
+    if (board[r][0] === "O") {
+      dfs(r, 0);
+    }
+    if (board[r][n - 1] === "O") {
+      dfs(r, n - 1);
+    }
+  }
+  for (let c = 0; c < n; c++) {
+    if (board[0][c] === "O") {
+      dfs(0, c);
+    }
+    if (board[m - 1][c] === "O") {
+      dfs(m - 1, c);
+    }
+  }
+  for (let r = 0; r < m; r++) {
+    for (let c = 0; c < n; c++) {
+      if (board[r][c] === "A") {
+        board[r][c] = "O";
+      } else {
+        board[r][c] = "X";
       }
     }
   }
-  return res;
-}
-
-export function rotateRight(head: ListNode | null, k: number) {
-  if (!head || !head.next || k === 0) return head;
-  let count = 0;
-  let p: ListNode | null = head;
-  let prev: ListNode | null = null;
-  while (p) {
-    count++;
-    prev = p;
-    p = p.next;
-  }
-  prev!.next = head;
-  k = count - (k % count);
-  prev = head;
-  for (let i = 0; i < k - 1; i++) {
-    prev = prev!.next;
-  }
-  const res = prev!.next;
-  prev!.next = null;
-  return res;
 }
