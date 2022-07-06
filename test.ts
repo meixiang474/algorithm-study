@@ -448,3 +448,135 @@ export function solve(board: string[][]) {
     }
   }
 }
+
+export function numIslands(grid: string[][]) {
+  if (grid.length === 0 || grid[0].length === 0) return 0;
+  const m = grid.length;
+  const n = grid[0].length;
+  const dfs = (r: number, c: number) => {
+    grid[r][c] = "0";
+    [
+      [r + 1, c],
+      [r - 1, c],
+      [r, c + 1],
+      [r, c - 1],
+    ].forEach(([nextR, nextC]) => {
+      if (
+        nextR >= 0 &&
+        nextR < m &&
+        nextC >= 0 &&
+        nextC < n &&
+        grid[nextR][nextC] === "1"
+      ) {
+        dfs(nextR, nextC);
+      }
+    });
+  };
+  let res = 0;
+  for (let r = 0; r < m; r++) {
+    for (let c = 0; c < n; c++) {
+      if (grid[r][c] === "1") {
+        res++;
+        dfs(r, c);
+      }
+    }
+  }
+  return res;
+}
+
+export function calcEquation(
+  equations: string[][],
+  values: number[],
+  queries: string[][]
+) {
+  const map = new Map<string, number>();
+  let nodeCount = 0;
+  for (let i = 0; i < equations.length; i++) {
+    if (!map.has(equations[i][0])) {
+      map.set(equations[i][0], nodeCount++);
+    }
+    if (!map.has(equations[i][1])) {
+      map.set(equations[i][1], nodeCount++);
+    }
+  }
+  const graph: [number, number][][] = new Array(nodeCount).fill(null);
+  for (let i = 0; i < graph.length; i++) {
+    graph[i] = [];
+  }
+  for (let i = 0; i < equations.length; i++) {
+    const node1 = map.get(equations[i][0])!;
+    const node2 = map.get(equations[i][1])!;
+    graph[node1].push([node2, values[i]]);
+    graph[node2].push([node1, 1 / values[i]]);
+  }
+  const res: number[] = [];
+  for (let i = 0; i < queries.length; i++) {
+    const node1 = map.get(queries[i][0]);
+    const node2 = map.get(queries[i][1]);
+    if (node1 == null || node2 == null) {
+      res.push(-1);
+      continue;
+    }
+    if (node1 === node2) {
+      res.push(1);
+      continue;
+    }
+    const queue: number[] = [node1];
+    const ratios: number[] = new Array(nodeCount).fill(-1);
+    ratios[node1] = 1;
+    while (queue.length && ratios[node2] === -1) {
+      const current = queue.shift()!;
+      for (let i = 0; i < graph[current].length; i++) {
+        const [node, value] = graph[current][i];
+        if (ratios[node] === -1) {
+          ratios[node] = ratios[current] * value;
+          queue.push(node);
+        }
+      }
+    }
+    res.push(ratios[node2]);
+  }
+  return res;
+}
+
+export function isCircleNum(isConnected: number[][]) {
+  if (isCircleNum.length === 0) return 0;
+  const m = isCircleNum.length;
+  const visited = new Set<number>();
+  const dfs = (r: number) => {
+    for (let c = 0; c < m; c++) {
+      if (isConnected[r][c] === 1 && !visited.has(c)) {
+        visited.add(c);
+        dfs(c);
+      }
+    }
+  };
+  let res = 0;
+  for (let i = 0; i < m; i++) {
+    if (!visited.has(i)) {
+      res++;
+      dfs(i);
+    }
+  }
+  return res;
+}
+
+export function longestConsecutive(nums: number[]) {
+  const set = new Set<number>();
+  for (let item of nums) {
+    set.add(item);
+  }
+  let res = 0;
+  for (let item of nums) {
+    if (!set.has(item - 1)) {
+      let currentRes = 1;
+      let current = item + 1;
+      while (set.has(current)) {
+        currentRes++;
+        current++;
+      }
+      res = Math.max(res, currentRes);
+    }
+  }
+  return res;
+}
