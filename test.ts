@@ -7,16 +7,11 @@ export class ListNode {
   }
 }
 
-// offer 39
-export function majorityElement(nums: number[]) {
-  const map = new Map<number, number>();
-  for (let item of nums) {
-    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
-    if (map.get(item)! > nums.length / 2) {
-      return item;
-    }
-  }
-}
+// offer 40
+// export function getLeastNumbers(nums: number[], k: number) {
+//   if(k >= nums.length) return [...nums]
+//   const sortArr = (nums: number[], )
+// }
 
 // segment tree
 export class SegmentTree<T = any> {
