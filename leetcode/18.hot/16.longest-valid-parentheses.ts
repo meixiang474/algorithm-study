@@ -1,6 +1,6 @@
 // leetcode 32
 
-export default function longestValidParentheses(s: string[]) {
+export default function longestValidParentheses(s: string) {
   if (s.length === 0) return 0;
   const dp: number[] = new Array(s.length).fill(0);
   for (let i = 1; i < s.length; i++) {

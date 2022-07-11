@@ -48,7 +48,7 @@ export function getLeastNumbers(nums: number[], k: number) {
   return sortArr([...nums], 0, nums.length - 1);
 }
 
-export function masSubArray(nums: number[]) {
+export function maxSubArray(nums: number[]) {
   const dp = [nums[0]];
   for (let i = 1; i < nums.length; i++) {
     dp[i] = dp[i - 1] >= 0 ? dp[i - 1] + nums[i] : nums[i];
@@ -183,277 +183,102 @@ export class MapSum {
   }
 }
 
-// hot 9 - 12
-export function letterCombinations(digit: string) {
-  if (digit.length === 0) return [];
-  const graph: Record<string, string[]> = {
-    "2": ["a", "b", "c"],
-    "3": ["d", "e", "f"],
-    "4": ["g", "h", "i"],
-    "5": ["j", "k", "l"],
-    "6": ["m", "n", "o"],
-    "7": ["p", "q", "r", "s"],
-    "8": ["t", "u", "v"],
-    "9": ["w", "x", "y", "z"],
-  };
+// hot 13 - 16
+export function generateParenthesis(n: number) {
   const res: string[] = [];
-  const dfs = (path: string) => {
-    if (path.length === digit.length) {
+  const dfs = (path: string, open: number, close: number) => {
+    if (path.length >= 2 * n) {
       res.push(path);
       return;
     }
-    const current = digit[path.length];
-    const arr = graph[current];
-    for (let item of arr) {
-      dfs(path + item);
+    if (open < n) {
+      dfs(path + "(", open + 1, close);
+    }
+    if (close < open) {
+      dfs(path + ")", open, close + 1);
     }
   };
-  dfs("");
+  dfs("", 0, 0);
   return res;
 }
 
-export function removeNthFromEnd1(head: ListNode | null, n: number) {
-  if (!head) return null;
-  const dummyHead = new ListNode(-1);
-  dummyHead.next = head;
-  const stack: ListNode[] = [];
-  let current: ListNode | null = dummyHead;
-  while (current) {
-    stack.push(current);
-    current = current.next;
-  }
-  for (let i = 0; i < n; i++) {
-    stack.pop();
-  }
-  const prev = stack[stack.length - 1];
-  if (!prev) return null;
-  if (prev.next) {
-    prev.next = prev.next.next;
-  }
-  return dummyHead.next;
-}
-
-export function isValid(s: string) {
-  if (s.length % 2 !== 0) return false;
-  const map = new Map<string, string>();
-  map.set("(", ")");
-  map.set("[", "]");
-  map.set("{", "}");
-  const stack: string[] = [];
-  for (let item of s) {
-    if (map.has(item)) {
-      stack.push(item);
-    } else {
-      const prev = stack.pop();
-      if (!prev || map.get(prev) !== item) return false;
-    }
-  }
-  return stack.length === 0;
-}
-
-export function mergeTwoLists(l1: ListNode | null, l2: ListNode | null) {
-  const res = new ListNode(-1);
-  let p1 = l1,
-    p2 = l2,
-    p3 = res;
-  while (p1 && p2) {
-    if (p1.val > p2.val) {
-      p3.next = p2;
-      p2 = p2.next;
-    } else {
-      p3.next = p1;
-      p1 = p1.next;
-    }
-    p3 = p3.next;
-  }
-  if (p1) {
-    p3.next = p1;
-  }
-  if (p2) {
-    p3.next = p2;
-  }
-  return res.next;
-}
-
-// leetcode union-find 1-5
-export function solve(board: string[][]) {
-  if (board.length === 0 || board[0].length === 0) return;
-  const m = board.length;
-  const n = board[0].length;
-  const dfs = (r: number, c: number) => {
-    board[r][c] = "A";
-    [
-      [r + 1, c],
-      [r - 1, c],
-      [r, c + 1],
-      [r, c - 1],
-    ].forEach(([nextR, nextC]) => {
-      if (
-        nextR >= 0 &&
-        nextR < m &&
-        nextC >= 0 &&
-        nextC < n &&
-        board[nextR][nextC] === "O"
-      ) {
-        dfs(nextR, nextC);
-      }
-    });
+export function mergeKLists(lists: (ListNode | null)[]) {
+  const merge = (
+    lists: (ListNode | null)[],
+    l: number,
+    r: number
+  ): ListNode | null => {
+    if (l === r) return lists[l];
+    if (l > r) return null;
+    const mid = Math.floor(l + (r - l) / 2);
+    return mergeTwo(merge(lists, l, mid), merge(lists, mid + 1, r));
   };
-  for (let r = 0; r < m; r++) {
-    if (board[r][0] === "O") {
-      dfs(r, 0);
-    }
-    if (board[r][n - 1] === "O") {
-      dfs(r, n - 1);
-    }
-  }
-  for (let c = 0; c < n; c++) {
-    if (board[0][c] === "O") {
-      dfs(0, c);
-    }
-    if (board[m - 1][c] === "O") {
-      dfs(m - 1, c);
-    }
-  }
-  for (let r = 0; r < m; r++) {
-    for (let c = 0; c < n; c++) {
-      if (board[r][c] === "A") {
-        board[r][c] = "O";
+  const mergeTwo = (l1: ListNode | null, l2: ListNode | null) => {
+    const res = new ListNode(-1);
+    let p1 = l1,
+      p2 = l2,
+      p3 = res;
+    while (p1 && p2) {
+      if (p1.val > p2.val) {
+        p3.next = p2;
+        p2 = p2.next;
       } else {
-        board[r][c] = "X";
+        p3.next = p1;
+        p1 = p1.next;
       }
+      p3 = p3.next;
     }
-  }
-}
-
-export function numIslands(grid: string[][]) {
-  if (grid.length === 0 || grid[0].length === 0) return 0;
-  const m = grid.length;
-  const n = grid[0].length;
-  const dfs = (r: number, c: number) => {
-    grid[r][c] = "0";
-    [
-      [r + 1, c],
-      [r - 1, c],
-      [r, c + 1],
-      [r, c - 1],
-    ].forEach(([nextR, nextC]) => {
-      if (
-        nextR >= 0 &&
-        nextR < m &&
-        nextC >= 0 &&
-        nextC < n &&
-        grid[nextR][nextC] === "1"
-      ) {
-        dfs(nextR, nextC);
-      }
-    });
+    if (p1) p3.next = p1;
+    if (p2) p3.next = p2;
+    return res.next;
   };
-  let res = 0;
-  for (let r = 0; r < m; r++) {
-    for (let c = 0; c < n; c++) {
-      if (grid[r][c] === "1") {
-        res++;
-        dfs(r, c);
-      }
-    }
-  }
-  return res;
+  return merge(lists, 0, lists.length - 1);
 }
 
-export function calcEquation(
-  equations: string[][],
-  values: number[],
-  queries: string[][]
-) {
-  const map = new Map<string, number>();
-  let nodeCount = 0;
-  for (let i = 0; i < equations.length; i++) {
-    if (!map.has(equations[i][0])) {
-      map.set(equations[i][0], nodeCount++);
-    }
-    if (!map.has(equations[i][1])) {
-      map.set(equations[i][1], nodeCount++);
+export function nextPermutation(nums: number[]) {
+  let left = -1,
+    right = -1;
+  const swap = (nums: number[], i: number, j: number) =>
+    ([nums[i], nums[j]] = [nums[j], nums[i]]);
+  for (let i = nums.length - 2; i >= 0; i--) {
+    if (nums[i] < nums[i + 1]) {
+      left = i;
+      break;
     }
   }
-  const graph: [number, number][][] = new Array(nodeCount).fill(null);
-  for (let i = 0; i < graph.length; i++) {
-    graph[i] = [];
+  if (left === -1) {
+    nums.reverse();
+    return;
   }
-  for (let i = 0; i < equations.length; i++) {
-    const node1 = map.get(equations[i][0])!;
-    const node2 = map.get(equations[i][1])!;
-    graph[node1].push([node2, values[i]]);
-    graph[node2].push([node1, 1 / values[i]]);
+  for (let i = nums.length - 1; i >= 0; i--) {
+    if (nums[i] > nums[left]) {
+      right = i;
+      break;
+    }
   }
-  const res: number[] = [];
-  for (let i = 0; i < queries.length; i++) {
-    const node1 = map.get(queries[i][0]);
-    const node2 = map.get(queries[i][1]);
-    if (node1 == null || node2 == null) {
-      res.push(-1);
-      continue;
-    }
-    if (node1 === node2) {
-      res.push(1);
-      continue;
-    }
-    const queue: number[] = [node1];
-    const ratios: number[] = new Array(nodeCount).fill(-1);
-    ratios[node1] = 1;
-    while (queue.length && ratios[node2] === -1) {
-      const current = queue.shift()!;
-      for (let i = 0; i < graph[current].length; i++) {
-        const [node, value] = graph[current][i];
-        if (ratios[node] === -1) {
-          ratios[node] = ratios[current] * value;
-          queue.push(node);
+  swap(nums, left, right);
+  const newNums = nums.slice(left + 1).reverse();
+  for (let i = left + 1; i < nums.length; i++) {
+    nums[i] = newNums[i - left - 1];
+  }
+}
+
+export function longestValidParenthesis(s: string) {
+  if (s.length === 0) return 0;
+  const dp = new Array(s.length).fill(0);
+  for (let i = 1; i < s.length; i++) {
+    if (s[i] === ")") {
+      if (s[i - 1] === "(") {
+        dp[i] = (dp[i - 2] || 0) + 2;
+      } else {
+        if (s[i - dp[i - 1] - 1] === "(") {
+          dp[i] = dp[i - 1] + 2 + (dp[i - dp[i - 1] - 2] || 0);
         }
       }
     }
-    res.push(ratios[node2]);
   }
-  return res;
+  return Math.max(...dp);
 }
 
-export function isCircleNum(isConnected: number[][]) {
-  if (isCircleNum.length === 0) return 0;
-  const m = isCircleNum.length;
-  const visited = new Set<number>();
-  const dfs = (r: number) => {
-    for (let c = 0; c < m; c++) {
-      if (isConnected[r][c] === 1 && !visited.has(c)) {
-        visited.add(c);
-        dfs(c);
-      }
-    }
-  };
-  let res = 0;
-  for (let i = 0; i < m; i++) {
-    if (!visited.has(i)) {
-      res++;
-      dfs(i);
-    }
-  }
-  return res;
-}
+// leetcode daily 20 - 38
 
-export function longestConsecutive(nums: number[]) {
-  const set = new Set<number>();
-  for (let item of nums) {
-    set.add(item);
-  }
-  let res = 0;
-  for (let item of nums) {
-    if (!set.has(item - 1)) {
-      let currentRes = 1;
-      let current = item + 1;
-      while (set.has(current)) {
-        currentRes++;
-        current++;
-      }
-      res = Math.max(res, currentRes);
-    }
-  }
-  return res;
-}
