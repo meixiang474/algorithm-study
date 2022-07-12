@@ -281,5 +281,126 @@ export function longestValidParenthesis(s: string) {
 }
 
 // leetcode daily 1 - 5
+export class RandomizedSet {
+  nums: number[];
+  map: Map<number, number>;
+  constructor() {
+    this.nums = [];
+    this.map = new Map();
+  }
+  insert(item: number) {
+    if (this.map.has(item)) return false;
+    this.nums.push(item);
+    this.map.set(item, this.nums.length - 1);
+    return true;
+  }
+  remove(item: number) {
+    if (!this.map.has(item)) return false;
+    const index = this.map.get(item)!;
+    this.nums[index] = this.nums[this.nums.length - 1];
+    this.nums.pop();
+    this.map.set(this.nums[index], index);
+    this.map.delete(item);
+    return true;
+  }
+  getRandom() {
+    const index = Math.floor(Math.random() * this.nums.length);
+    return this.nums[index];
+  }
+}
+
+export function maximumWealth(account: number[][]) {
+  return account.reduce((memo, current) => {
+    return Math.max(
+      memo,
+      current.reduce((a, b) => a + b)
+    );
+  }, 0);
+}
+
+export class NestedInteger {
+  val?: number;
+  list: NestedInteger[];
+  constructor(val?: number) {
+    this.val = val;
+    this.list = [];
+  }
+  add(item: NestedInteger) {
+    this.list.push(item);
+  }
+}
+
+export function deserialize(s: string) {
+  let index = 0;
+  const dfs = (s: string): NestedInteger => {
+    if (s[index] === "[") {
+      const res = new NestedInteger();
+      index++;
+      while (s[index] !== "]") {
+        res.add(dfs(s));
+        if (s[index] === ",") {
+          index++;
+        }
+      }
+      index++;
+      return res;
+    } else {
+      let num = 0;
+      let negative = false;
+      if (s[index] === "-") {
+        negative = true;
+        index++;
+      }
+      while (index < s.length && !isNaN(parseInt(s[index]))) {
+        num = num * 10 + parseInt(s[index]);
+        index++;
+      }
+      if (negative) {
+        num *= -1;
+      }
+      const res = new NestedInteger(num);
+      return res;
+    }
+  };
+  return dfs(s);
+}
+
+export function mostCommonWord(paragraph: string, banned: string[]) {
+  const words = paragraph
+    .replace(/[!?',;.]/g, " ")
+    .split(/\s+/)
+    .filter((item) => !banned.includes(item.toLocaleLowerCase()))
+    .map((item) => item.toLocaleLowerCase());
+  const map = new Map<string, number>();
+  for (let item of words) {
+    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
+  }
+  let count = 0,
+    res = "";
+  for (let [item, value] of map) {
+    if (value > count) {
+      count = value;
+      res = item;
+    }
+  }
+  return res;
+}
+
+export function lexicalOrder(n: number) {
+  const res: number[] = [];
+  let num = 1;
+  for (let i = 0; i < n; i++) {
+    res.push(num);
+    if (num * 10 <= n) {
+      num *= 10;
+    } else {
+      while (num % 10 === 9 || num === n) {
+        num = Math.floor(num / 10);
+      }
+      num++;
+    }
+  }
+  return res;
+}
 
 // practice week1
