@@ -404,3 +404,7 @@ export function lexicalOrder(n: number) {
 }
 
 // practice week1
+
+export function removeDuplicates(head: ListNode | null) {
+  
+}
