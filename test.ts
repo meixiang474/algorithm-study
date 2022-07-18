@@ -7,56 +7,31 @@ export class ListNode {
   }
 }
 
-// offer 40 42
-export function getLeastNumbers(nums: number[], k: number) {
-  if (k >= nums.length) return [...nums];
-  const sortArr = (nums: number[], l: number, r: number): number[] => {
-    if (l >= r) return nums.slice(0, k);
-    const p = partition(nums, l, r);
-    if (p === k) {
-      return nums.slice(0, k);
-    } else if (p > k) {
-      return sortArr(nums, l, p - 1);
+// offer 45 46
+export function minNumber(nums: number[]) {
+  return nums
+    .map((v) => v + "")
+    .sort((a, b) => parseFloat(a + b) - parseFloat(b + 1))
+    .join("");
+}
+
+export function translateNum(num: number) {
+  const numStr = num.toString();
+  const dp = [1, 1];
+  for (let i = 2; i <= numStr.length; i++) {
+    if (
+      parseInt(numStr.slice(i - 2, i)) > 25 ||
+      parseInt(numStr.slice(i - 2, i)) < 10
+    ) {
+      dp[i] = dp[i - 1];
     } else {
-      return sortArr(nums, p + 1, r);
+      dp[i] = dp[i - 1] + dp[i - 2];
     }
-  };
-  const swap = (nums: number[], i: number, j: number) =>
-    ([nums[i], nums[j]] = [nums[j], nums[i]]);
-  const getRandom = (l: number, r: number) =>
-    Math.floor(Math.random() * (r - l + 1) + l);
-  const partition = (nums: number[], l: number, r: number) => {
-    const p = getRandom(l, r);
-    swap(nums, p, l);
-    let i = l + 1,
-      j = r;
-    while (true) {
-      while (i <= j && nums[i] < nums[l]) {
-        i++;
-      }
-      while (i <= j && nums[j] > nums[l]) {
-        j--;
-      }
-      if (i >= j) break;
-      swap(nums, i, j);
-      i++;
-      j--;
-    }
-    swap(nums, l, j);
-    return j;
-  };
-  return sortArr([...nums], 0, nums.length - 1);
-}
-
-export function maxSubArray(nums: number[]) {
-  const dp = [nums[0]];
-  for (let i = 1; i < nums.length; i++) {
-    dp[i] = dp[i - 1] >= 0 ? dp[i - 1] + nums[i] : nums[i];
   }
-  return Math.max(...dp);
+  return dp[numStr.length];
 }
 
-// trie
+// search sort
 export class TrieNode {
   isWord: boolean;
   next: Map<string, TrieNode>;
@@ -444,4 +419,81 @@ export function removeDuplicates2(head: ListNode | null): ListNode | null {
     head.next = res;
     return head;
   }
+}
+
+export function reverseBetween(
+  head: ListNode | null,
+  left: number,
+  right: number
+) {
+  const dummyHead = new ListNode(-1);
+  dummyHead.next = head;
+  let prevNode = dummyHead;
+  for (let i = 0; i < left - 1; i++) {
+    prevNode = prevNode.next!;
+  }
+  const leftNode = prevNode.next;
+  let rightNode = prevNode;
+  for (let i = 0; i < right - left + 1; i++) {
+    rightNode = rightNode.next!;
+  }
+  const nextNode = rightNode.next;
+  rightNode.next = null;
+  let prev = null;
+  let current = leftNode;
+  while (current) {
+    const next = current.next;
+    current.next = prev;
+    prev = current;
+    current = next;
+  }
+  prevNode.next = rightNode;
+  leftNode!.next = nextNode;
+  return dummyHead.next;
+}
+
+export function rotateRight(head: ListNode, k: number) {
+  if (!head || !head.next || k === 0) return head;
+  let current = head;
+  let count = 1;
+  while (current.next) {
+    count++;
+    current = current.next;
+  }
+  current.next = head;
+  let prev = head;
+  k = count - (k % count);
+  for (let i = 0; i < k - 1; i++) {
+    prev = prev.next!;
+  }
+  const res = prev.next;
+  prev.next = null;
+  return res;
+}
+
+export function swapPairs(head: ListNode | null): ListNode | null {
+  if (!head || !head.next) return head;
+  const nextHead = head.next;
+  const res = swapPairs(nextHead.next);
+  head.next = res;
+  nextHead.next = head;
+  return nextHead;
+}
+
+export function removeFromEnd(head: ListNode | null, k: number) {
+  if (!head) return head;
+  const dummyHead = new ListNode(-1);
+  dummyHead.next = head;
+  const stack: ListNode[] = [];
+  let current: ListNode | null = dummyHead;
+  while (current) {
+    stack.push(current);
+    current = current.next;
+  }
+  for (let i = 0; i < k; i++) {
+    stack.pop();
+  }
+  const prev = stack[stack.length - 1];
+  prev.next = prev.next?.next || null;
+  return dummyHead.next;
 }
