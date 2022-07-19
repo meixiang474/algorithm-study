@@ -32,227 +32,143 @@ export function translateNum(num: number) {
 }
 
 // search sort
-export class TrieNode {
-  isWord: boolean;
-  next: Map<string, TrieNode>;
-  constructor(isWord: boolean = false) {
-    this.isWord = isWord;
-    this.next = new Map();
-  }
+export function isObject(obj: any) {
+  return obj && typeof obj === "object";
 }
 
-export class Trie {
-  root: TrieNode;
-  size: number;
-  constructor() {
-    this.root = new TrieNode();
-    this.size = 0;
-  }
-  getSize() {
-    return this.size;
-  }
-  add(word: string) {
-    let current = this.root;
-    for (let item of word) {
-      if (!current.next.has(item)) {
-        current.next.set(item, new TrieNode());
-      }
-      current = current.next.get(item)!;
-    }
-    if (!current.isWord) {
-      current.isWord = true;
-      this.size++;
+export function isEqual(a: any, b: any) {
+  if (!isObject(a) || !isObject(b)) return a === b;
+  const lengthA = Object.keys(a).length;
+  const lengthB = Object.keys(b).length;
+  if (lengthA !== lengthB) return false;
+  for (let key in a) {
+    if (a.hasOwnProperty(key)) {
+      const flag = isEqual(a[key], b[key]);
+      if (!flag) return false;
     }
   }
-  contains(word: string) {
-    let current = this.root;
-    for (let item of word) {
-      if (!current.next.has(item)) return false;
-      current = current.next.get(item)!;
-    }
-    return current.isWord;
-  }
-  isPrefix(prefix: string) {
-    let current = this.root;
-    for (let item of prefix) {
-      if (!current.next.has(item)) return false;
-      current = current.next.get(item)!;
-    }
-    return true;
-  }
+  return true;
 }
 
-export class WordDictionary {
-  root: TrieNode;
-  constructor() {
-    this.root = new TrieNode();
+export function linearSearch<T>(arr: T[], data: T) {
+  for (let i = 0; i < arr.length; i++) {
+    if (isEqual(arr[i], data)) return i;
   }
-  addWord(word: string) {
-    let current = this.root;
-    for (let item of word) {
-      if (!current.next.has(item)) {
-        current.next.set(item, new TrieNode());
-      }
-      current = current.next.get(item)!;
-    }
-    current.isWord = true;
-  }
-  search(word: string) {
-    this.match(this.root, word, 0);
-  }
-  match(node: TrieNode, word: string, index: number): boolean {
-    if (index >= word.length) return node.isWord;
-    const current = word[index];
-    if (current !== ".") {
-      if (!node.next.has(current)) return false;
-      return this.match(node.next.get(current)!, word, index + 1);
-    } else {
-      let res = false;
-      for (let [, item] of node.next) {
-        res = this.match(item, word, index + 1);
-        if (res) return true;
-      }
-      return false;
-    }
-  }
+  return -1;
 }
 
-export class TrieNode1 {
-  value: number;
-  next: Map<string, TrieNode1>;
-  constructor(value: number = 0) {
-    this.value = value;
-    this.next = new Map();
+export function selectionSort(arr: number[]) {
+  const res = [...arr];
+  const swap = (arr: number[], i: number, j: number) =>
+    ([arr[i], arr[j]] = [arr[j], arr[i]]);
+  for (let i = 0; i < res.length; i++) {
+    let minIndex = i;
+    for (let j = i + 1; j < res.length; j++) {
+      minIndex = res[j] < res[minIndex] ? j : minIndex;
+    }
+    if (minIndex !== i) swap(res, minIndex, i);
   }
-}
-
-export class MapSum {
-  root: TrieNode1;
-  constructor() {
-    this.root = new TrieNode1();
-  }
-  insert(key: string, value: number) {
-    let current = this.root;
-    for (let item of key) {
-      if (!current.next.has(item)) {
-        current.next.set(item, new TrieNode1());
-      }
-      current = current.next.get(item)!;
-    }
-    current.value = value;
-  }
-  sum(prefix: string) {
-    let current = this.root;
-    for (let item of prefix) {
-      if (!current.next.has(item)) return 0;
-      current = current.next.get(item)!;
-    }
-    this.sumNode(current);
-  }
-  sumNode(node: TrieNode1) {
-    let res = node.value;
-    for (let [, item] of node.next) {
-      res += this.sumNode(item);
-    }
-    return res;
-  }
-}
-
-// hot 13 - 16
-export function generateParenthesis(n: number) {
-  const res: string[] = [];
-  const dfs = (path: string, open: number, close: number) => {
-    if (path.length >= 2 * n) {
-      res.push(path);
-      return;
-    }
-    if (open < n) {
-      dfs(path + "(", open + 1, close);
-    }
-    if (close < open) {
-      dfs(path + ")", open, close + 1);
-    }
-  };
-  dfs("", 0, 0);
   return res;
 }
 
-export function mergeKLists(lists: (ListNode | null)[]) {
-  const merge = (
-    lists: (ListNode | null)[],
-    l: number,
-    r: number
-  ): ListNode | null => {
-    if (l === r) return lists[l];
-    if (l > r) return null;
+export function insertionSort(arr: number[]) {
+  const res = [...arr];
+  for (let i = 0; i < res.length; i++) {
+    const current = res[i];
+    let swapIndex = i;
+    for (let j = i - 1; j >= 0; j--) {
+      if (res[j] > current) {
+        res[j + 1] = res[j];
+        swapIndex = j;
+      } else {
+        break;
+      }
+    }
+    if (swapIndex !== i) res[swapIndex] = current;
+  }
+  return res;
+}
+
+export function bubbleSort(arr: number[]) {
+  const res = [...arr];
+  const swap = (arr: number[], i: number, j: number) =>
+    ([arr[i], arr[j]] = [arr[j], arr[i]]);
+  for (let i = 0; i < res.length - 1; i++) {
+    let flag = false;
+    for (let j = 0; j < res.length - i - 1; j++) {
+      if (res[j] > res[j + 1]) {
+        swap(res, j, j + 1);
+        flag = true;
+      }
+    }
+    if (!flag) break;
+  }
+  return res;
+}
+
+// hot 17-20
+export function search(nums: number[], target: number) {
+  let l = 0,
+    r = nums.length - 1;
+  while (l <= r) {
     const mid = Math.floor(l + (r - l) / 2);
-    return mergeTwo(merge(lists, l, mid), merge(lists, mid + 1, r));
-  };
-  const mergeTwo = (l1: ListNode | null, l2: ListNode | null) => {
-    const res = new ListNode(-1);
-    let p1 = l1,
-      p2 = l2,
-      p3 = res;
-    while (p1 && p2) {
-      if (p1.val > p2.val) {
-        p3.next = p2;
-        p2 = p2.next;
+    if (nums[mid] === target) {
+      return mid;
+    } else if (nums[mid] >= nums[l]) {
+      if (target === nums[l]) return l;
+      if (target > nums[l] && target < nums[mid]) {
+        r = mid - 1;
       } else {
-        p3.next = p1;
-        p1 = p1.next;
+        l = mid + 1;
       }
-      p3 = p3.next;
-    }
-    if (p1) p3.next = p1;
-    if (p2) p3.next = p2;
-    return res.next;
-  };
-  return merge(lists, 0, lists.length - 1);
-}
-
-export function nextPermutation(nums: number[]) {
-  let left = -1,
-    right = -1;
-  const swap = (nums: number[], i: number, j: number) =>
-    ([nums[i], nums[j]] = [nums[j], nums[i]]);
-  for (let i = nums.length - 2; i >= 0; i--) {
-    if (nums[i] < nums[i + 1]) {
-      left = i;
-      break;
-    }
-  }
-  if (left === -1) {
-    nums.reverse();
-    return;
-  }
-  for (let i = nums.length - 1; i >= 0; i--) {
-    if (nums[i] > nums[left]) {
-      right = i;
-      break;
-    }
-  }
-  swap(nums, left, right);
-  const newNums = nums.slice(left + 1).reverse();
-  for (let i = left + 1; i < nums.length; i++) {
-    nums[i] = newNums[i - left - 1];
-  }
-}
-
-export function longestValidParenthesis(s: string) {
-  if (s.length === 0) return 0;
-  const dp = new Array(s.length).fill(0);
-  for (let i = 1; i < s.length; i++) {
-    if (s[i] === ")") {
-      if (s[i - 1] === "(") {
-        dp[i] = (dp[i - 2] || 0) + 2;
+    } else {
+      if (target === nums[r]) return r;
+      if (target > nums[mid] && target < nums[r]) {
+        l = mid + 1;
       } else {
-        if (s[i - dp[i - 1] - 1] === "(") {
-          dp[i] = dp[i - 1] + 2 + (dp[i - dp[i - 1] - 2] || 0);
-        }
+        r = mid - 1;
       }
     }
   }
-  return Math.max(...dp);
+  return -1;
+}
+
+export function searchRange(nums: number[], target: number) {
+  let l = 0,
+    r = nums.length - 1;
+  const res = [-1, -1];
+  while (l <= r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    if (nums[mid] > target) {
+      r = mid - 1;
+    } else if (nums[mid] < target) {
+      l = mid + 1;
+    } else {
+      if (nums[mid - 1] === target) {
+        r = mid - 1;
+      } else {
+        res[0] = mid;
+        break;
+      }
+    }
+  }
+  (l = 0), (r = nums.length - 1);
+  while (l <= r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    if (nums[mid] > target) {
+      r = mid - 1;
+    } else if (nums[mid] < target) {
+      l = mid + 1;
+    } else {
+      if (nums[mid + 1] === target) {
+        l = mid + 1;
+      } else {
+        res[1] = mid;
+        break;
+      }
+    }
+  }
+  return res;
 }
 
 // leetcode daily 1 - 5
