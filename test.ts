@@ -171,125 +171,51 @@ export function searchRange(nums: number[], target: number) {
   return res;
 }
 
-// leetcode daily 1 - 5
-export class RandomizedSet {
-  nums: number[];
-  map: Map<number, number>;
-  constructor() {
-    this.nums = [];
-    this.map = new Map();
-  }
-  insert(item: number) {
-    if (this.map.has(item)) return false;
-    this.nums.push(item);
-    this.map.set(item, this.nums.length - 1);
-    return true;
-  }
-  remove(item: number) {
-    if (!this.map.has(item)) return false;
-    const index = this.map.get(item)!;
-    this.nums[index] = this.nums[this.nums.length - 1];
-    this.nums.pop();
-    this.map.set(this.nums[index], index);
-    this.map.delete(item);
-    return true;
-  }
-  getRandom() {
-    const index = Math.floor(Math.random() * this.nums.length);
-    return this.nums[index];
-  }
-}
-
-export function maximumWealth(account: number[][]) {
-  return account.reduce((memo, current) => {
-    return Math.max(
-      memo,
-      current.reduce((a, b) => a + b)
-    );
-  }, 0);
-}
-
-export class NestedInteger {
-  val?: number;
-  list: NestedInteger[];
-  constructor(val?: number) {
-    this.val = val;
-    this.list = [];
-  }
-  add(item: NestedInteger) {
-    this.list.push(item);
-  }
-}
-
-export function deserialize(s: string) {
-  let index = 0;
-  const dfs = (s: string): NestedInteger => {
-    if (s[index] === "[") {
-      const res = new NestedInteger();
-      index++;
-      while (s[index] !== "]") {
-        res.add(dfs(s));
-        if (s[index] === ",") {
-          index++;
-        }
-      }
-      index++;
-      return res;
-    } else {
-      let num = 0;
-      let negative = false;
-      if (s[index] === "-") {
-        negative = true;
-        index++;
-      }
-      while (index < s.length && !isNaN(parseInt(s[index]))) {
-        num = num * 10 + parseInt(s[index]);
-        index++;
-      }
-      if (negative) {
-        num *= -1;
-      }
-      const res = new NestedInteger(num);
-      return res;
+export function combinationSum(candidates: number[], target: number) {
+  if (candidates.length === 0) return [];
+  const res: number[][] = [];
+  const dfs = (path: number[], index: number, sum: number) => {
+    if (sum === target) {
+      res.push(path);
+      return;
     }
+    dfs(path.concat(candidates[index]), index, sum + candidates[index]);
+    dfs(path, index + 1, sum);
   };
-  return dfs(s);
+  dfs([], 0, 0);
+  return res;
 }
 
-export function mostCommonWord(paragraph: string, banned: string[]) {
-  const words = paragraph
-    .replace(/[!?',;.]/g, " ")
-    .split(/\s+/)
-    .filter((item) => !banned.includes(item.toLocaleLowerCase()))
-    .map((item) => item.toLocaleLowerCase());
-  const map = new Map<string, number>();
-  for (let item of words) {
-    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
+export function trap(nums: number[]) {
+  const left: number[] = [nums[0]];
+  for (let i = 1; i < nums.length; i++) {
+    left[i] = Math.max(left[i - 1], nums[i]);
   }
-  let count = 0,
-    res = "";
-  for (let [item, value] of map) {
-    if (value > count) {
-      count = value;
-      res = item;
-    }
+  const right: number[] = [];
+  right[nums.length - 1] = nums[nums.length - 1];
+  for (let i = nums.length - 2; i >= 0; i--) {
+    right[i] = Math.max(right[i + 1], nums[i]);
+  }
+  let res = 0;
+  for (let i = 0; i < nums.length; i++) {
+    res += Math.min(left[i], right[i]) - nums[i];
   }
   return res;
 }
 
-export function lexicalOrder(n: number) {
+// leetcode daily 6-10ss
+export function shortestToChar(s: string, c: string) {
+  if (s.length === 0 || c.length === 0) return [];
   const res: number[] = [];
-  let num = 1;
-  for (let i = 0; i < n; i++) {
-    res.push(num);
-    if (num * 10 <= n) {
-      num *= 10;
-    } else {
-      while (num % 10 === 9 || num === n) {
-        num = Math.floor(num / 10);
-      }
-      num++;
-    }
+  let cIndex = -Infinity;
+  for (let i = 0; i < s.length; i++) {
+    if (s[i] === c) cIndex = i;
+    res[i] = i - cIndex;
+  }
+  cIndex = Infinity;
+  for (let i = s.length - 1; i >= 0; i--) {
+    if (s[i] === c) cIndex = i;
+    res[i] = Math.min(res[i], cIndex - i);
   }
   return res;
 }
