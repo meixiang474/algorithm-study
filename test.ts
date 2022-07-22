@@ -203,7 +203,7 @@ export function trap(nums: number[]) {
   return res;
 }
 
-// leetcode daily 6-10ss
+// leetcode daily 6-10
 export function shortestToChar(s: string, c: string) {
   if (s.length === 0 || c.length === 0) return [];
   const res: number[] = [];
@@ -220,122 +220,103 @@ export function shortestToChar(s: string, c: string) {
   return res;
 }
 
-// practice week1
-
-export function removeDuplicates(head: ListNode | null) {
-  const dummyHead = new ListNode(-1);
-  dummyHead.next = head;
-  let prev = dummyHead;
-  while (prev.next && prev.next.next) {
-    if (prev.next.val === prev.next.next.val) {
-      prev.next = prev.next.next;
+export function lengthLongestPath(input: string) {
+  if (input.length === 0) return 0;
+  let res = 0;
+  const stack: number[] = [];
+  let index = 0;
+  while (index < input.length) {
+    let depth = 0;
+    while (index < input.length && input[index] === "\t") {
+      depth++;
+      index++;
+    }
+    let len = 0;
+    let isFile = false;
+    while (index < input.length && input[index] !== "\n") {
+      if (input[index] === ".") isFile = true;
+      len++;
+      index++;
+    }
+    index++;
+    len += stack[depth - 1] != null ? stack[depth - 1] + 1 : 0;
+    if (isFile) {
+      res = Math.max(res, len);
     } else {
-      prev = prev.next;
+      stack[depth] = len;
     }
   }
-  return dummyHead.next;
-}
-
-export function removeDuplicates1(head: ListNode | null) {
-  while (head && head.next && head.val === head.next.val) {
-    head = head.next;
-  }
-  if (!head) return head;
-  let prev = head;
-  while (prev.next && prev.next.next) {
-    if (prev.next.val === prev.next.next.val) {
-      prev.next = prev.next.next;
-    } else {
-      prev = prev.next;
-    }
-  }
-  return head;
-}
-
-export function removeDuplicates2(head: ListNode | null): ListNode | null {
-  if (!head || !head.next) return head;
-  const res = removeDuplicates2(head.next);
-  if (res && head.val === res.val) {
-    return res;
-  } else {
-    head.next = res;
-    return head;
-  }
-}
-
-export function reverseBetween(
-  head: ListNode | null,
-  left: number,
-  right: number
-) {
-  const dummyHead = new ListNode(-1);
-  dummyHead.next = head;
-  let prevNode = dummyHead;
-  for (let i = 0; i < left - 1; i++) {
-    prevNode = prevNode.next!;
-  }
-  const leftNode = prevNode.next;
-  let rightNode = prevNode;
-  for (let i = 0; i < right - left + 1; i++) {
-    rightNode = rightNode.next!;
-  }
-  const nextNode = rightNode.next;
-  rightNode.next = null;
-  let prev = null;
-  let current = leftNode;
-  while (current) {
-    const next = current.next;
-    current.next = prev;
-    prev = current;
-    current = next;
-  }
-  prevNode.next = rightNode;
-  leftNode!.next = nextNode;
-  return dummyHead.next;
-}
-
-export function rotateRight(head: ListNode, k: number) {
-  if (!head || !head.next || k === 0) return head;
-  let current = head;
-  let count = 1;
-  while (current.next) {
-    count++;
-    current = current.next;
-  }
-  current.next = head;
-  let prev = head;
-  k = count - (k % count);
-  for (let i = 0; i < k - 1; i++) {
-    prev = prev.next!;
-  }
-  const res = prev.next;
-  prev.next = null;
   return res;
 }
 
-export function swapPairs(head: ListNode | null): ListNode | null {
-  if (!head || !head.next) return head;
-  const nextHead = head.next;
-  const res = swapPairs(nextHead.next);
-  head.next = res;
-  nextHead.next = head;
-  return nextHead;
+export function toGoatLatin(sentence: string) {
+  const arr = ["a", "e", "i", "o", "u"];
+  return sentence
+    .split(" ")
+    .map((item, index) => {
+      if (arr.includes(item[0].toLocaleLowerCase())) {
+        return item + "ma" + "a".repeat(index + 1);
+      } else {
+        return item.slice(1) + item[0] + "ma" + "a".repeat(index + 1);
+      }
+    })
+    .join(" ");
 }
 
-export function removeFromEnd(head: ListNode | null, k: number) {
-  if (!head) return head;
-  const dummyHead = new ListNode(-1);
-  dummyHead.next = head;
-  const stack: ListNode[] = [];
-  let current: ListNode | null = dummyHead;
-  while (current) {
-    stack.push(current);
-    current = current.next;
+export function maxRotateFunction(nums: number[]) {
+  const f0 = nums.reduce((memo, current, index) => {
+    return (memo += current * index);
+  }, 0);
+  const sum = nums.reduce((a, b) => a + b);
+  let res = f0;
+  let f = f0;
+  for (let i = 1; i < nums.length; i++) {
+    f += sum - nums.length * nums[nums.length - i];
+    res = Math.max(res, f);
   }
-  for (let i = 0; i < k; i++) {
-    stack.pop();
+  return res;
+}
+
+export function binaryGap(n: number) {
+  const str = n.toString(2);
+  let prevIndex = -1;
+  let res = 0;
+  for (let i = 0; i < str.length; i++) {
+    const current = str[i];
+    if (current === "1") {
+      if (prevIndex === -1) {
+        prevIndex = i;
+        continue;
+      }
+      res = Math.max(res, i - prevIndex);
+      prevIndex = i;
+    }
   }
-  const prev = stack[stack.length - 1];
-  prev.next = prev.next?.next || null;
-  return dummyHead.next;
+  return res;
+}
+
+// practice week2
+export class MyCircularQueue {
+  data: (number | null)[]
+  front: number;
+  tail: number;
+  size: number;
+  constructor(capacity = 10) {
+    this.data = new Array(capacity).fill(null)
+    this.front = this.tail = this.size = 0
+  }
+  isEmpty() {
+    return this.size === 0
+  }
+  isFull() {
+    return this.size === this.data.length
+  }
+  Front() {
+    if(this.isEmpty()) return -1
+    return this.data[this.front]
+  }
+  Rear() {
+    if(this.isEmpty()) return -1
+    
+  }
 }

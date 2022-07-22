@@ -1,6 +1,6 @@
 // leetcode 388
 
-export default function lengthLogestPath(input: string) {
+export default function lengthLongestPath(input: string) {
   let res = 0;
   let index = 0;
   const stack: number[] = [];
