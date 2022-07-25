@@ -81,357 +81,301 @@ export class MyArray<T = number> {
     this.data[index] = item;
     this.size++;
   }
-}
-
-// hot 17-20
-export function search(nums: number[], target: number) {
-  let l = 0,
-    r = nums.length - 1;
-  while (l <= r) {
-    const mid = Math.floor(l + (r - l) / 2);
-    if (nums[mid] === target) {
-      return mid;
-    } else if (nums[mid] >= nums[l]) {
-      if (target === nums[l]) return l;
-      if (target > nums[l] && target < nums[mid]) {
-        r = mid - 1;
-      } else {
-        l = mid + 1;
-      }
-    } else {
-      if (target === nums[r]) return r;
-      if (target > nums[mid] && target < nums[r]) {
-        l = mid + 1;
-      } else {
-        r = mid - 1;
-      }
-    }
+  addFirst(item: T) {
+    this.add(0, item);
   }
-  return -1;
-}
-
-export function searchRange(nums: number[], target: number) {
-  let l = 0,
-    r = nums.length - 1;
-  const res = [-1, -1];
-  while (l <= r) {
-    const mid = Math.floor(l + (r - l) / 2);
-    if (nums[mid] > target) {
-      r = mid - 1;
-    } else if (nums[mid] < target) {
-      l = mid + 1;
-    } else {
-      if (nums[mid - 1] === target) {
-        r = mid - 1;
-      } else {
-        res[0] = mid;
-        break;
-      }
-    }
+  addLast(item: T) {
+    this.add(this.size, item);
   }
-  (l = 0), (r = nums.length - 1);
-  while (l <= r) {
-    const mid = Math.floor(l + (r - l) / 2);
-    if (nums[mid] > target) {
-      r = mid - 1;
-    } else if (nums[mid] < target) {
-      l = mid + 1;
-    } else {
-      if (nums[mid + 1] === target) {
-        l = mid + 1;
-      } else {
-        res[1] = mid;
-        break;
-      }
-    }
-  }
-  return res;
-}
-
-export function combinationSum(candidates: number[], target: number) {
-  if (candidates.length === 0) return [];
-  const res: number[][] = [];
-  const dfs = (path: number[], index: number, sum: number) => {
-    if (sum === target) {
-      res.push(path);
-      return;
-    }
-    dfs(path.concat(candidates[index]), index, sum + candidates[index]);
-    dfs(path, index + 1, sum);
-  };
-  dfs([], 0, 0);
-  return res;
-}
-
-export function trap(nums: number[]) {
-  const left: number[] = [nums[0]];
-  for (let i = 1; i < nums.length; i++) {
-    left[i] = Math.max(left[i - 1], nums[i]);
-  }
-  const right: number[] = [];
-  right[nums.length - 1] = nums[nums.length - 1];
-  for (let i = nums.length - 2; i >= 0; i--) {
-    right[i] = Math.max(right[i + 1], nums[i]);
-  }
-  let res = 0;
-  for (let i = 0; i < nums.length; i++) {
-    res += Math.min(left[i], right[i]) - nums[i];
-  }
-  return res;
-}
-
-// leetcode daily 6-10
-export function shortestToChar(s: string, c: string) {
-  if (s.length === 0 || c.length === 0) return [];
-  const res: number[] = [];
-  let cIndex = -Infinity;
-  for (let i = 0; i < s.length; i++) {
-    if (s[i] === c) cIndex = i;
-    res[i] = i - cIndex;
-  }
-  cIndex = Infinity;
-  for (let i = s.length - 1; i >= 0; i--) {
-    if (s[i] === c) cIndex = i;
-    res[i] = Math.min(res[i], cIndex - i);
-  }
-  return res;
-}
-
-export function lengthLongestPath(input: string) {
-  if (input.length === 0) return 0;
-  let res = 0;
-  const stack: number[] = [];
-  let index = 0;
-  while (index < input.length) {
-    let depth = 0;
-    while (index < input.length && input[index] === "\t") {
-      depth++;
-      index++;
-    }
-    let len = 0;
-    let isFile = false;
-    while (index < input.length && input[index] !== "\n") {
-      if (input[index] === ".") isFile = true;
-      len++;
-      index++;
-    }
-    index++;
-    len += stack[depth - 1] != null ? stack[depth - 1] + 1 : 0;
-    if (isFile) {
-      res = Math.max(res, len);
-    } else {
-      stack[depth] = len;
-    }
-  }
-  return res;
-}
-
-export function toGoatLatin(sentence: string) {
-  const arr = ["a", "e", "i", "o", "u"];
-  return sentence
-    .split(" ")
-    .map((item, index) => {
-      if (arr.includes(item[0].toLocaleLowerCase())) {
-        return item + "ma" + "a".repeat(index + 1);
-      } else {
-        return item.slice(1) + item[0] + "ma" + "a".repeat(index + 1);
-      }
-    })
-    .join(" ");
-}
-
-export function maxRotateFunction(nums: number[]) {
-  const f0 = nums.reduce((memo, current, index) => {
-    return (memo += current * index);
-  }, 0);
-  const sum = nums.reduce((a, b) => a + b);
-  let res = f0;
-  let f = f0;
-  for (let i = 1; i < nums.length; i++) {
-    f += sum - nums.length * nums[nums.length - i];
-    res = Math.max(res, f);
-  }
-  return res;
-}
-
-export function binaryGap(n: number) {
-  const str = n.toString(2);
-  let prevIndex = -1;
-  let res = 0;
-  for (let i = 0; i < str.length; i++) {
-    const current = str[i];
-    if (current === "1") {
-      if (prevIndex === -1) {
-        prevIndex = i;
-        continue;
-      }
-      res = Math.max(res, i - prevIndex);
-      prevIndex = i;
-    }
-  }
-  return res;
-}
-
-// practice week2
-export class MyCircularQueue {
-  data: (number | null)[];
-  front: number;
-  tail: number;
-  size: number;
-  constructor(capacity = 10) {
-    this.data = new Array(capacity).fill(null);
-    this.front = this.tail = this.size = 0;
-  }
-  isEmpty() {
-    return this.size === 0;
-  }
-  isFull() {
-    return this.size === this.data.length;
-  }
-  Front() {
-    if (this.isEmpty()) return -1;
-    return this.data[this.front];
-  }
-  Rear() {
-    if (this.isEmpty()) return -1;
-    const index = this.tail > 0 ? this.tail - 1 : this.data.length - 1;
+  get(index: number) {
+    if (index < 0 || index >= this.size) throw new Error("error");
     return this.data[index];
   }
-  enQueue(item: number) {
-    if (this.isFull()) return false;
-    this.data[this.tail] = item;
-    this.tail = (this.tail + 1) % this.data.length;
-    this.size++;
-    return true;
+  getFirst() {
+    return this.get(0);
   }
-  deQueue() {
-    if (this.isEmpty()) return false;
-    this.data[this.front] = null;
-    this.front = (this.front + 1) % this.data.length;
-    this.size--;
-    return true;
+  getLast() {
+    return this.get(this.size - 1);
   }
-}
-
-export function partition(head: ListNode | null, x: number) {
-  if (!head || !head.next) return head;
-  const minHead = new ListNode(-1);
-  const maxHead = new ListNode(-1);
-  let p1 = minHead,
-    p2 = maxHead;
-  let current: ListNode | null = head;
-  while (current) {
-    if (current.val < x) {
-      p1.next = current;
-      p1 = p1.next;
-    } else {
-      p2.next = current;
-      p2 = p2.next;
-    }
-    current = current.next;
-  }
-  p2.next = null;
-  p1.next = maxHead.next;
-  return minHead.next;
-}
-
-export class MyCircularDeque {
-  data: (number | null)[];
-  size: number;
-  front: number;
-  tail: number;
-  constructor(capacity: number) {
-    this.data = new Array(capacity).fill(null);
-    this.front = this.tail = this.size = 0;
-  }
-  isEmpty() {
-    return this.size === 0;
-  }
-  isFull() {
-    return this.size === this.data.length;
-  }
-  insertFront(item: number) {
-    if (this.isFull()) return false;
-    const index = this.front > 0 ? this.front - 1 : this.data.length - 1;
-    this.data[index] = item;
-    this.size++;
-    return true;
-  }
-  insertLast(item: number) {
-    if (this.isFull()) return false;
-    this.data[this.tail] = item;
-    this.tail = (this.tail + 1) % this.data.length;
-    this.size++;
-    return true;
-  }
-  deleteFront() {
-    if (this.isEmpty()) return false;
-    this.data[this.front] = null;
-    this.front = (this.front + 1) % this.data.length;
-    this.size--;
-    return true;
-  }
-  deleteLast() {
-    if (this.isEmpty()) return false;
-    this.tail = this.tail > 0 ? this.tail - 1 : this.data.length - 1;
-    this.data[this.tail] = null;
-    this.size--;
-    return true;
-  }
-  getFront() {
-    if (this.isEmpty()) return -1;
-    return this.data[this.front];
-  }
-  getRear() {
-    if (this.isEmpty()) return -1;
-    const index = this.tail > 0 ? this.tail - 1 : this.data.length - 1;
-    return this.data[index];
-  }
-}
-
-export class RecentCounter {
-  queue: number[];
-  constructor() {
-    this.queue = [];
-  }
-  ping(t: number) {
-    this.queue.push(t);
-    while (this.queue.length) {
-      const first = this.queue[0];
-      if (t - first > 3000) {
-        this.queue.shift();
-      } else {
-        break;
-      }
-    }
-    return this.queue.length;
-  }
-}
-
-export function buddyStrings(s: string, goal: string) {
-  if (s.length !== goal.length) return false;
-  if (s === goal) {
-    const map = new Map<string, number>();
-    for (let item of s) {
-      map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
-      if (map.get(item)! > 1) {
-        return true;
-      }
+  contains(item: T) {
+    for (let i = 0; i < this.size; i++) {
+      if (this.data[i] === item) return true;
     }
     return false;
   }
-  let first = -1;
-  let second = -1;
-  for (let i = 0; i < s.length; i++) {
-    if (s[i] !== goal[i]) {
-      if (first === -1) {
-        first = i;
-      } else if (second === -1) {
-        second = i;
-      } else {
-        return false;
-      }
+  find(item: T) {
+    for (let i = 0; i < this.size; i++) {
+      if (this.data[i] === item) return i;
+    }
+    return -1;
+  }
+  remove(index: number) {
+    if (index < 0 || index >= this.size) throw new Error("error");
+    const res = this.data[index];
+    for (let i = index; i < this.size; i++) {
+      this.data[i] = this.data[i + 1];
+    }
+    this.size--;
+    if (
+      this.size <= Math.floor(this.data.length / 4) &&
+      Math.floor(this.data.length / 2) !== 0
+    ) {
+      this.resize(Math.floor(this.data.length / 2));
+    }
+    return res;
+  }
+  removeFirst() {
+    return this.remove(0);
+  }
+  removeLast() {
+    return this.remove(this.size - 1);
+  }
+  removeElement(item: T) {
+    const index = this.find(item);
+    if (index === -1) return false;
+    this.remove(index);
+    return true;
+  }
+  set(index: number, item: T) {
+    if (index < 0 || index >= this.size) throw new Error("error");
+    this.data[index] = item;
+  }
+  toString() {
+    let res = `MyArray: size=${this.size}, capacity=${this.getCapacity()}\r\n`;
+    res += "[";
+    for (let i = 0; i < this.size; i++) {
+      res += JSON.stringify(this.data[i]) + ",";
+    }
+    res = res.slice(0, -1) + "]";
+    return res;
+  }
+}
+
+// hot 21-24
+export function permute(nums: number[]) {
+  const res: number[][] = [];
+  const dfs = (path: number[]) => {
+    if (path.length === nums.length) {
+      res.push(path);
+      return;
+    }
+    for (let i = 0; i < nums.length; i++) {
+      if (!path.includes(nums[i])) dfs(path.concat(nums[i]));
+    }
+  };
+  dfs([]);
+  return res;
+}
+
+export function rotate(matrix: number[][]) {
+  const n = matrix.length;
+  for (let i = 0; i < Math.floor(n / 2); i++) {
+    for (let j = 0; j < Math.floor((n + 1) / 2); j++) {
+      const temp = matrix[i][j];
+      matrix[i][j] = matrix[n - j - 1][i];
+      matrix[n - j - 1][i] = matrix[n - i - 1][n - j - 1];
+      matrix[n - i - 1][n - j - 1] = matrix[j][n - i - 1];
+      matrix[j][n - i - 1] = temp;
     }
   }
-  return s[first] === goal[second] && s[second] === goal[first];
 }
+
+export function groupAnagrams(nums: string[]) {
+  const map = new Map<string, string[]>();
+  for (let item of nums) {
+    const key = item.split("").sort().join("");
+    if (map.has(key)) {
+      map.get(key)!.push(item);
+    } else {
+      map.set(key, [item]);
+    }
+  }
+  const res: string[][] = [];
+  for (let [key, value] of map) {
+    res.push(value);
+  }
+  return res;
+}
+
+export function maxSubarray(nums: number[]) {
+  const dp: number[] = [nums[0]];
+  for (let i = 1; i < nums.length; i++) {
+    dp[i] = dp[i - 1] >= 0 ? dp[i - 1] + nums[i] : nums[i];
+  }
+  return Math.max(...dp);
+}
+
+// leetcode daily 11-15
+export class Solution {
+  nums: number[];
+  constructor(nums: number[]) {
+    this.nums = nums;
+  }
+  pick(target: number) {
+    let count = 0;
+    let res = -1;
+    for (let i = 0; i < this.nums.length; i++) {
+      if (this.nums[i] === target) {
+        count++;
+        if (Math.floor(Math.random() * count) === 0) res = i;
+      }
+    }
+    return res;
+  }
+}
+
+export function projectionArea(grid: number[][]) {
+  if (grid.length === 0) return 0;
+  const n = grid.length;
+  const rowMax: number[] = new Array(n).fill(0);
+  const colMax: number[] = new Array(n).fill(0);
+  let topArea = 0;
+  for (let r = 0; r < n; r++) {
+    for (let c = 0; c < n; c++) {
+      const current = grid[r][c];
+      if (current !== 0) topArea++;
+      rowMax[r] = Math.max(rowMax[r], current);
+      colMax[c] = Math.max(colMax[c], current);
+    }
+  }
+  return (
+    topArea + rowMax.reduce((a, b) => a + b) + colMax.reduce((a, b) => a + b)
+  );
+}
+
+export function percificAtlantic(grid: number[][]) {
+  if (grid.length === 0 || grid[0].length === 0) return [];
+  const m = grid.length;
+  const n = grid[0].length;
+  const flow1: boolean[][] = Array.from({ length: m }, () =>
+    new Array(n).fill(false)
+  );
+  const flow2: boolean[][] = Array.from({ length: m }, () =>
+    new Array(n).fill(false)
+  );
+  const dfs = (r: number, c: number, flow: boolean[][]) => {
+    flow[r][c] = true;
+    [
+      [r + 1, c],
+      [r - 1, c],
+      [r, c + 1],
+      [r, c - 1],
+    ].forEach(([nextR, nextC]) => {
+      if (
+        nextR >= 0 &&
+        nextR < m &&
+        nextC >= 0 &&
+        nextC < n &&
+        grid[r][c] <= grid[nextR][nextC] &&
+        !flow[nextR][nextC]
+      ) {
+        dfs(nextR, nextC, flow);
+      }
+    });
+  };
+  for (let r = 0; r < m; r++) {
+    dfs(r, 0, flow1);
+    dfs(r, n - 1, flow2);
+  }
+  for (let c = 0; c < n; c++) {
+    dfs(0, c, flow1);
+    dfs(m - 1, c, flow2);
+  }
+  const res: number[][] = [];
+  for (let r = 0; r < m; r++) {
+    for (let c = 0; c < n; c++) {
+      if (flow1[r][c] && flow2[r][c]) res.push([r, c]);
+    }
+  }
+  return res;
+}
+
+export function sortArrayByParity(nums: number[]) {
+  return nums.sort((a, b) => {
+    if (a % 2 === b % 2) return 0;
+    if (a % 2 === 0) return -1;
+    return 0;
+  });
+}
+
+export class TreeNode1 {
+  val: boolean;
+  isLeaf: boolean;
+  topLeft: TreeNode1 | null;
+  topRight: TreeNode1 | null;
+  bottomLeft: TreeNode1 | null;
+  bottomRight: TreeNode1 | null;
+  constructor(
+    val: boolean,
+    isLeaf: boolean,
+    topLeft: TreeNode1 | null = null,
+    topRight: TreeNode1 | null = null,
+    bottomLeft: TreeNode1 | null = null,
+    bottomRight: TreeNode1 | null = null
+  ) {
+    this.val = val;
+    this.isLeaf = isLeaf;
+    this.topLeft = topLeft;
+    this.topRight = topRight;
+    this.bottomLeft = bottomLeft;
+    this.bottomRight = bottomRight;
+  }
+}
+
+export function fourTree(grid: number[][]) {
+  const dfs = (
+    grid: number[][],
+    r0: number,
+    c0: number,
+    r1: number,
+    c1: number
+  ): TreeNode1 => {
+    let same = true;
+    for (let r = r0; r <= r1; r++) {
+      for (let c = c0; c <= c1; c++) {
+        if (grid[r][c] !== grid[r0][c0]) {
+          same = false;
+          break;
+        }
+      }
+    }
+    if (same) {
+      return new TreeNode1(grid[r0][c0] === 1, true);
+    }
+    return new TreeNode1(
+      true,
+      false,
+      dfs(
+        grid,
+        r0,
+        c0,
+        Math.floor(r0 + (r1 - r0) / 2),
+        Math.floor(c0 + (c1 - c0) / 2)
+      ),
+      dfs(
+        grid,
+        r0,
+        Math.floor(c0 + (c1 - c0) / 2) + 1,
+        Math.floor(r0 + (r1 - r0) / 2),
+        c1
+      ),
+      dfs(
+        grid,
+        Math.floor(r0 + (r1 - r0) / 2) + 1,
+        c0,
+        r1,
+        Math.floor(c0 + (c1 - c0) / 2)
+      ),
+      dfs(
+        grid,
+        Math.floor(r0 + (r1 - r0) / 2) + 1,
+        Math.floor(c0 + (c1 - c0) / 2) + 1,
+        r1,
+        c1
+      )
+    );
+  };
+  return dfs(grid, 0, 0, grid.length - 1, grid.length - 1);
+}
+
+// practice week3
