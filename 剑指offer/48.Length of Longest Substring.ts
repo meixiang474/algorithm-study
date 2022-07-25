@@ -14,6 +14,7 @@ export default function lengthOfLongestSubstring(s: string) {
     }
     res = Math.max(res, r - l + 1);
     map.set(current, r);
+    r++
   }
   return res;
 }
