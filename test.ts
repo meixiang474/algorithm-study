@@ -178,6 +178,39 @@ export function decToBi(num: number) {
 }
 
 // hot 25-28
+export function canJump(nums: number[]) {
+  let max = 0;
+  for (let i = 0; i < nums.length; i++) {
+    if (i <= max) {
+      max = Math.max(max, nums[i] + i);
+      if (max >= nums.length - 1) return true;
+    }
+  }
+  return false;
+}
+
+export function mergeField(intervals: number[][]) {
+  intervals.sort((a, b) => a[0] - b[0]);
+  const res: number[][] = [];
+  let prevEnd = -Infinity;
+  for (let i = 0; i < intervals.length; i++) {
+    const current = intervals[i];
+    if (prevEnd >= current[0]) {
+      res.splice(res.length - 1, 1, [
+        res[res.length - 1][0],
+        Math.max(prevEnd, current[1]),
+      ]);
+    } else {
+      res.push(current);
+    }
+    prevEnd = Math.max(prevEnd, current[1]);
+  }
+  return res;
+}
+
+export function uniquePaths(m: number, n: number) {
+
+}
 
 // leetcode daily 11-15
 export class Solution {
