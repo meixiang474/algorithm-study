@@ -226,22 +226,110 @@ export function uniquePaths(m: number, n: number) {
 }
 
 export function minPathSum(grid: number[][]) {
-  if(grid.length === 0 || grid[0].length === 0) return 0
-  const m = grid.length
-  const n = grid[0].length
-  const dp: number[][] = Array.from({length: m}, () => new Array(n).fill(0))
-  for(let r = 1; r < m; r++) {
-    dp[r][0] = dp[r - 1][0] + grid[r][0]
+  if (grid.length === 0 || grid[0].length === 0) return 0;
+  const m = grid.length;
+  const n = grid[0].length;
+  const dp: number[][] = Array.from({ length: m }, () => new Array(n).fill(0));
+  for (let r = 1; r < m; r++) {
+    dp[r][0] = dp[r - 1][0] + grid[r][0];
   }
-  for(let c = 1; c < n; c++) {
-    dp[0][c] = dp[0][c - 1] + grid[0][c]
+  for (let c = 1; c < n; c++) {
+    dp[0][c] = dp[0][c - 1] + grid[0][c];
   }
-  for(let r = 1; r < m; r++) {
-    for(let c = 1; c < n; c++) {
-      dp[r][c] = Math.min(dp[r - 1][c], dp[r][c - 1]) + grid[r][c]
+  for (let r = 1; r < m; r++) {
+    for (let c = 1; c < n; c++) {
+      dp[r][c] = Math.min(dp[r - 1][c], dp[r][c - 1]) + grid[r][c];
     }
   }
-  return dp[m - 1][n - 1]
+  return dp[m - 1][n - 1];
 }
 
 // practice week4
+export class GraphNode {
+  val: number;
+  children: GraphNode[];
+  constructor(val: number) {
+    this.val = val;
+    this.children = [];
+  }
+}
+
+export function preorder(root: GraphNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  const dfs = (node: GraphNode) => {
+    res.push(node.val);
+    node.children.forEach((item) => {
+      dfs(item);
+    });
+  };
+  dfs(root);
+  return res;
+}
+
+export function invertTree(root: TreeNode | null) {
+  if (!root) return root;
+  const dfs = (node: TreeNode) => {
+    const temp = node.left;
+    node.left = node.right;
+    node.right = temp;
+    if (node.left) dfs(node.left);
+    if (node.right) dfs(node.right);
+  };
+  dfs(root);
+  return root;
+}
+
+export function levelOrder(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[][] = [];
+  const queue: [TreeNode, number][] = [[root, 0]];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    const arr = res[level] || (res[level] = []);
+    arr.push(current.val);
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
+  }
+  return res;
+}
+
+export function levelOrderBottom(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[][] = [];
+  const queue: [TreeNode, number][] = [[root, 0]];
+  let currentLevel = -1;
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    if (currentLevel === level) {
+      const arr = res[0];
+      arr.push(current.val);
+    } else {
+      const arr = [];
+      arr.push(current.val);
+      res.unshift(arr);
+      currentLevel = level;
+    }
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
+  }
+  return res;
+}
+
+export function zigzagLevelOrder(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[][] = [];
+  const queue: [TreeNode, number][] = [[root, 0]];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    const arr = res[level] || (res[level] = []);
+    if (level % 2 === 0) {
+      arr.push(current.val);
+    } else {
+      arr.unshift(current.val);
+    }
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
+  }
+  return res;
+}
