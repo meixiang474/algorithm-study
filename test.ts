@@ -18,89 +18,78 @@ export class TreeNode {
   }
 }
 
-// offer 49 50
-export function nthUglyNumber(n: number) {
-  const dp: number[] = new Array(n).fill(0);
-  dp[0] = 1;
-  let a = 0;
-  let b = 0;
-  let c = 0;
-  for (let i = 1; i < n; i++) {
-    const n1 = dp[a] * 2;
-    const n2 = dp[b] * 3;
-    const n3 = dp[c] * 5;
-    dp[i] = Math.min(n1, n2, n3);
-    if (dp[i] === n1) a++;
-    if (dp[i] === n2) b++;
-    if (dp[i] === n3) c++;
-  }
-  return dp[n - 1];
+// offer 51 52
+export function reversePairs(nums: number[]) {
+  const sortArr = (arr: number[], l: number, r: number, temp: number[]) => {
+    if (l >= r) return;
+    const mid = Math.floor(l + (r - l) / 2);
+    sortArr(arr, l, mid, temp);
+    sortArr(arr, mid + 1, r, temp);
+    if (arr[mid] > arr[mid + 1]) {
+      merge(arr, l, mid, r, temp);
+    }
+  };
+  const merge = (
+    arr: number[],
+    l: number,
+    mid: number,
+    r: number,
+    temp: number[]
+  ) => {
+    for (let i = l; i <= r; i++) {
+      temp[i] = arr[i];
+    }
+    let i = l,
+      j = mid + 1;
+    for (let k = l; k <= r; k++) {
+      if (i > mid) {
+        arr[k] = temp[j];
+        j++;
+      } else if (j > r) {
+        arr[k] = temp[i];
+        i++;
+      } else if (temp[i] > temp[j]) {
+        res += mid - i + 1;
+        arr[k] = temp[j];
+        j++;
+      } else {
+        arr[k] = temp[i];
+        i++;
+      }
+    }
+  };
+  let res = 0;
+  sortArr([...nums], 0, nums.length - 1, [...nums]);
+  return res;
 }
 
-export function firstUniqueChar(s: string) {
-  const map = new Map<string, number>();
-  for (let item of s) {
-    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
+export function getIntersectionNode(l1: ListNode | null, l2: ListNode | null) {
+  if (!l1 || !l2) return null;
+  let p1: ListNode | null = l1;
+  let p2: ListNode | null = l2;
+  while (p1 !== p2) {
+    p1 = p1 ? p1.next : l2;
+    p2 = p2 ? p2.next : l1;
   }
-  for (let item of s) {
-    if (map.get(item) === 1) return item;
-  }
-  return " ";
+  return p1;
 }
 
-// stack
-export class Stack<T> {
+// queue
+export class Queue<T> {
   items: T[];
   constructor() {
     this.items = [];
   }
-  getSize() {
-    return this.items.length;
-  }
-  isEmpty() {
-    return this.items.length === 0;
-  }
-  push(item: T) {
+  enqueue(item: T) {
     this.items.push(item);
   }
-  pop() {
-    if (this.isEmpty()) throw new Error("error");
-    return this.items.pop()!;
+  dequeue() {
+    if (this.items.length === 0) throw new Error("error");
+    return this.items.shift()!;
   }
-  peek() {
-    if (this.isEmpty()) throw new Error("error");
-    return this.items[this.items.length - 1];
-  }
-  toString() {
-    return this.items.toString();
-  }
-}
-
-export function isValid(s: string) {
-  if (s.length % 2 !== 0) return false;
-  const stack: string[] = [];
-  const map = new Map<string, string>();
-  map.set("(", ")");
-  map.set("{", "}");
-  map.set("[", "]");
-  for (let i = 0; i < s.length; i++) {
-    const item = s[i];
-    if (map.has(item)) {
-      stack.push(item);
-    } else {
-      const prev = stack.pop();
-      if (!prev || map.get(prev) !== item) return false;
-    }
-  }
-  return stack.length === 0;
-}
-
-export class MinStack {
-  items: number[];
-  queue: number[];
-  constructor() {
-    this.items = [];
-    this.queue = [];
+  getFront() {
+    if (this.items.length === 0) throw new Error("error");
+    return this.items[0];
   }
   getSize() {
     return this.items.length;
@@ -108,73 +97,19 @@ export class MinStack {
   isEmpty() {
     return this.getSize() === 0;
   }
-  push(item: number) {
-    this.items.push(item);
-    if (this.queue.length === 0 || item <= this.queue[0]) {
-      this.queue.unshift(item);
-    }
-  }
-  pop() {
-    if (this.isEmpty()) throw new Error("error");
-    const res = this.items.pop();
-    if (res === this.queue[0]) this.queue.shift();
-    return res;
-  }
-  peek() {
-    if (this.isEmpty()) throw new Error("error");
-    return this.items[this.items.length - 1];
-  }
-  getMin() {
-    return this.queue[0];
+  toString() {
+    return this.items.toString();
   }
 }
 
-export class CustomStack {
-  items: number[];
-  maxSize: number;
-  constructor(maxSize: number) {
-    this.items = [];
-    this.maxSize = maxSize;
+export class LoopQueue<T> {
+  data: (T | null)[];
+  front: number;
+  tail: number;
+  constructor(capacity = 10) {
+    this.data = new Array(capacity + 1).fill(null)
+    this.front = this.tail = 0
   }
-  push(item: number) {
-    if (this.items.length >= this.maxSize) return;
-    this.items.push(item);
-  }
-  pop() {
-    if (this.items.length === 0) return -1;
-    return this.items.pop()!;
-  }
-  inc(k: number, val: number) {
-    if (this.items.length <= k) {
-      this.items = this.items.map((v) => v + k);
-    } else {
-      for (let i = 0; i < k; i++) {
-        this.items[i] += val;
-      }
-    }
-  }
-}
-
-export function preOrderTraversal(root: TreeNode | null) {
-  if (!root) return [];
-  const stack: TreeNode[] = [root];
-  const res: number[] = [];
-  while (stack.length) {
-    const current = stack.pop()!;
-    res.push(current.val);
-    if (current.right) stack.push(current.right);
-    if (current.left) stack.push(current.left);
-  }
-  return res;
-}
-
-export function decToBi(num: number) {
-  const queue: number[] = [];
-  while (num) {
-    queue.unshift(num % 2);
-    num = Math.floor(num / 2);
-  }
-  return parseFloat(queue.join(""));
 }
 
 // hot 25-28
