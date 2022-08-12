@@ -6,7 +6,7 @@ export default function findAnagrams(s: string, p: string) {
   const sMap: number[] = new Array(26).fill(0)
   const pMap: number[] = new Array(26).fill(0)
   for(let i = 0; i < p.length; i++) {
-    sMap[p[i].charCodeAt(0) - 'a'.charCodeAt(0)]++
+    sMap[s[i].charCodeAt(0) - 'a'.charCodeAt(0)]++
     pMap[p[i].charCodeAt(0) - 'a'.charCodeAt(0)]++
   }
   if(sMap.toString() === pMap.toString()) {
