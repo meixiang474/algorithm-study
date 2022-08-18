@@ -257,6 +257,76 @@ export class Deque<T> {
   }
 }
 
+export class StackBasedOnQueue<T = number> {
+  queue: T[];
+  constructor() {
+    this.queue = [];
+  }
+  getSize() {
+    return this.queue.length;
+  }
+  isEmpty() {
+    return this.getSize() === 0;
+  }
+  push(item: T) {
+    this.queue.push(item);
+  }
+  pop() {
+    if (this.isEmpty()) throw new Error("error");
+    for (let i = 0; i < this.getSize() - 1; i++) {
+      this.queue.push(this.queue.shift()!);
+    }
+    return this.queue.shift()!;
+  }
+  peek() {
+    if (this.isEmpty()) throw new Error("error");
+    const res = this.pop();
+    this.push(res);
+    return res;
+  }
+}
+
+export class QueueBasedOnStack<T = number> {
+  stack1: T[];
+  stack2: T[];
+  constructor() {
+    this.stack1 = [];
+    this.stack2 = [];
+  }
+  getSize() {
+    return this.stack1.length;
+  }
+  isEmpty() {
+    return this.stack1.length === 0;
+  }
+  enqueue(item: T) {
+    this.stack1.push(item);
+  }
+  dequeue() {
+    if (this.isEmpty()) throw new Error("error");
+    while (this.stack1.length) {
+      this.stack2.push(this.stack1.pop()!);
+    }
+    const res = this.stack2.pop()!;
+    while (this.stack2.length) {
+      this.stack1.push(this.stack2.pop()!);
+    }
+    return res;
+  }
+  getFront() {
+    if (this.isEmpty()) throw new Error("error");
+    const res = this.dequeue();
+    while (this.stack1.length) {
+      this.stack2.push(this.stack1.pop()!);
+    }
+    this.stack1.push(res);
+    while (this.stack2.length) {
+      this.stack1.push(this.stack2.pop()!);
+    }
+    return res;
+  }
+}
+
 // hot 25-28
 export function canJump(nums: number[]) {
   let max = 0;
