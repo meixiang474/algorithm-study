@@ -327,71 +327,93 @@ export class QueueBasedOnStack<T = number> {
   }
 }
 
-// hot 25-28
-export function canJump(nums: number[]) {
-  let max = 0;
-  for (let i = 0; i < nums.length; i++) {
-    if (i <= max) {
-      max = Math.max(max, nums[i] + i);
-      if (max >= nums.length - 1) return true;
-    }
+// hot 29-32
+export function climbStairs(n: number) {
+  const dp = [1, 1];
+  for (let i = 2; i <= n; i++) {
+    dp[i] = dp[i - 2] + dp[i - 1];
   }
-  return false;
+  return dp[n];
 }
 
-export function mergeField(intervals: number[][]) {
-  intervals.sort((a, b) => a[0] - b[0]);
-  const res: number[][] = [];
-  let prevEnd = -Infinity;
-  for (let i = 0; i < intervals.length; i++) {
-    const current = intervals[i];
-    if (prevEnd >= current[0]) {
-      res.splice(res.length - 1, 1, [
-        res[res.length - 1][0],
-        Math.max(prevEnd, current[1]),
-      ]);
-    } else {
-      res.push(current);
+export function minDistance(word1: string, word2: string) {
+  const m = word1.length;
+  const n = word2.length;
+  if (m * n === 0) return m + n;
+  const dp: number[][] = Array.from({ length: m + 1 }, () =>
+    new Array(n + 1).fill(0)
+  );
+  for (let i = 0; i <= m; i++) {
+    dp[i][0] = i;
+  }
+  for (let i = 0; i <= n; i++) {
+    dp[0][i] = i;
+  }
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      const leftAdd = dp[i][j - 1] + 1;
+      const rightAdd = dp[i - 1][j] + 1;
+      let leftChange = dp[i - 1][j - 1];
+      if (word1[i - 1] !== word2[j - 1]) leftChange += 1;
+      dp[i][j] = Math.min(leftAdd, rightAdd, leftChange);
     }
-    prevEnd = Math.max(prevEnd, current[1]);
+  }
+  return dp[m][n];
+}
+
+export function sortColors(nums: number[]) {
+  const swap = (nums: number[], i: number, j: number) =>
+    ([nums[i], nums[j]] = [nums[j], nums[i]]);
+  let l = -1,
+    r = nums.length;
+  let i = 0;
+  while (i < r) {
+    if (nums[i] === 0) {
+      l++;
+      swap(nums, i, l);
+      i++;
+    } else if (nums[i] === 2) {
+      r--;
+      swap(nums, i, r);
+    } else {
+      i++;
+    }
+  }
+}
+
+export function minWindow(s: string, t: string) {
+  const map = new Map<string, number>();
+  for (let item of t) {
+    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
+  }
+  let needType = map.size;
+  let res = "";
+  let l = 0,
+    r = 0;
+  while (r < s.length) {
+    const currentr = s[r];
+    if (map.has(currentr)) {
+      map.set(currentr, map.get(currentr)! - 1);
+      if (map.get(currentr) === 0) {
+        needType -= 1;
+      }
+    }
+
+    while (needType === 0) {
+      const newRes = s.slice(l, r + 1);
+      if (!res || res.length > newRes.length) res = newRes;
+      const currentl = s[l];
+      if (map.has(currentl)) {
+        map.set(currentl, map.get(currentl)! + 1);
+        if (map.get(currentl) === 1) {
+          needType += 1;
+        }
+      }
+      l++;
+    }
+    r++;
   }
   return res;
-}
-
-export function uniquePaths(m: number, n: number) {
-  if (m === 0 || n === 0) return 0;
-  const dp: number[][] = Array.from({ length: m }, () => new Array(n).fill(0));
-  for (let r = 0; r < m; r++) {
-    dp[r][0] = 1;
-  }
-  for (let c = 0; c < n; c++) {
-    dp[0][c] = 1;
-  }
-  for (let r = 1; r < m; r++) {
-    for (let c = 1; c < n; c++) {
-      dp[r][c] = dp[r - 1][c] + dp[r][c - 1];
-    }
-  }
-  return dp[m - 1][n - 1];
-}
-
-export function minPathSum(grid: number[][]) {
-  if (grid.length === 0 || grid[0].length === 0) return 0;
-  const m = grid.length;
-  const n = grid[0].length;
-  const dp: number[][] = Array.from({ length: m }, () => new Array(n).fill(0));
-  for (let r = 1; r < m; r++) {
-    dp[r][0] = dp[r - 1][0] + grid[r][0];
-  }
-  for (let c = 1; c < n; c++) {
-    dp[0][c] = dp[0][c - 1] + grid[0][c];
-  }
-  for (let r = 1; r < m; r++) {
-    for (let c = 1; c < n; c++) {
-      dp[r][c] = Math.min(dp[r - 1][c], dp[r][c - 1]) + grid[r][c];
-    }
-  }
-  return dp[m - 1][n - 1];
 }
 
 // practice week4

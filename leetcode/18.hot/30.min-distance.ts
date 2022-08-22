@@ -1,6 +1,6 @@
 // leetcode 72
 
-export default function minDistabce(word1: string, word2: string) {
+export default function minDistance(word1: string, word2: string) {
   const m = word1.length;
   const n = word2.length;
   if (m * n === 0) return n + m;
