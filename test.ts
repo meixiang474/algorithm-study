@@ -416,92 +416,105 @@ export function minWindow(s: string, t: string) {
   return res;
 }
 
-// practice week4
-export class GraphNode {
-  val: number;
-  children: GraphNode[];
-  constructor(val: number) {
-    this.val = val;
-    this.children = [];
+// practice week5
+export type HeapType = "min" | "max";
+
+export class Heap<T = number> {
+  type: HeapType;
+  heap: T[];
+  constructor(type: HeapType = "min", compare?: (a: T, b: T) => boolean) {
+    this.type = type;
+    this.compare = compare || this.compare;
+    this.heap = [];
   }
-}
-
-export function preorder(root: GraphNode | null) {
-  if (!root) return [];
-  const res: number[] = [];
-  const dfs = (node: GraphNode) => {
-    res.push(node.val);
-    node.children.forEach((item) => {
-      dfs(item);
-    });
-  };
-  dfs(root);
-  return res;
-}
-
-export function invertTree(root: TreeNode | null) {
-  if (!root) return root;
-  const dfs = (node: TreeNode) => {
-    const temp = node.left;
-    node.left = node.right;
-    node.right = temp;
-    if (node.left) dfs(node.left);
-    if (node.right) dfs(node.right);
-  };
-  dfs(root);
-  return root;
-}
-
-export function levelOrder(root: TreeNode | null) {
-  if (!root) return [];
-  const res: number[][] = [];
-  const queue: [TreeNode, number][] = [[root, 0]];
-  while (queue.length) {
-    const [current, level] = queue.shift()!;
-    const arr = res[level] || (res[level] = []);
-    arr.push(current.val);
-    if (current.left) queue.push([current.left, level + 1]);
-    if (current.right) queue.push([current.right, level + 1]);
+  compare(a: T, b: T) {
+    return this.type === "min" ? a < b : a > b;
   }
-  return res;
-}
-
-export function levelOrderBottom(root: TreeNode | null) {
-  if (!root) return [];
-  const res: number[][] = [];
-  const queue: [TreeNode, number][] = [[root, 0]];
-  let currentLevel = -1;
-  while (queue.length) {
-    const [current, level] = queue.shift()!;
-    if (currentLevel === level) {
-      const arr = res[0];
-      arr.push(current.val);
-    } else {
-      const arr = [];
-      arr.push(current.val);
-      res.unshift(arr);
-      currentLevel = level;
+  swap(i: number, j: number) {
+    [this.heap[i], this.heap[j]] = [this.heap[j], this.heap[i]];
+  }
+  insert(val: T) {
+    this.heap.push(val);
+    this.shiftUp(this.heap.length - 1);
+  }
+  getParentIndex(index: number) {
+    return Math.floor((index - 1) / 2);
+  }
+  getLeftIndex(index: number) {
+    return 2 * index + 1;
+  }
+  getRightIndex(index: number) {
+    return 2 * index + 2;
+  }
+  shiftUp(index: number) {
+    if (index <= 0) return;
+    const parentIndex = this.getParentIndex(index);
+    if (
+      this.heap[parentIndex] != null &&
+      this.compare(this.heap[index], this.heap[parentIndex])
+    ) {
+      this.swap(parentIndex, index);
+      this.shiftUp(parentIndex);
     }
-    if (current.left) queue.push([current.left, level + 1]);
-    if (current.right) queue.push([current.right, level + 1]);
   }
-  return res;
+  pop() {
+    if (this.heap.length === 0) throw new Error("error");
+    if (this.heap.length === 1) return this.heap.pop()!;
+    const res = this.heap[0];
+    this.heap[0] = this.heap.pop()!;
+    this.shiftDown(0);
+    return res;
+  }
+  shiftDown(index: number) {
+    const leftIndex = this.getLeftIndex(index);
+    const rightIndex = this.getRightIndex(index);
+    if (
+      this.heap[leftIndex] != null &&
+      this.compare(this.heap[leftIndex], this.heap[index])
+    ) {
+      this.swap(leftIndex, index);
+      this.shiftDown(leftIndex);
+    }
+    if (
+      this.heap[rightIndex] != null &&
+      this.compare(this.heap[rightIndex], this.heap[index])
+    ) {
+      this.swap(rightIndex, index);
+      this.shiftDown(rightIndex);
+    }
+  }
+  peek() {
+    if (this.heap.length === 0) throw new Error("error");
+    return this.heap[0];
+  }
+  size() {
+    return this.heap.length;
+  }
 }
 
-export function zigzagLevelOrder(root: TreeNode | null) {
-  if (!root) return [];
-  const res: number[][] = [];
-  const queue: [TreeNode, number][] = [[root, 0]];
-  while (queue.length) {
-    const [current, level] = queue.shift()!;
-    const arr = res[level] || (res[level] = []);
-    if (level % 2 === 0) {
-      arr.push(current.val);
-    } else {
-      arr.unshift(current.val);
+export function getLeastNumbers(arr: number[], k: number) {
+  const heap = new Heap("max");
+  for (let item of arr) {
+    heap.insert(item);
+    if (heap.size() > k) {
+      heap.pop();
     }
-    if (current.left) queue.push([current.left, level + 1]);
-    if (current.right) queue.push([current.right, level + 1]);
   }
-  return res;
+  return heap.heap;
+}
+
+export function lastStoneWeight(stones: number[]) {
+  const heap = new Heap("max");
+  for (let item of stones) {
+    heap.insert(item);
+  }
+  while (heap.size() > 1) {
+    const first = heap.pop()!;
+    const second = heap.pop()!;
+    if (first > second) {
+      heap.insert(first - second);
+    }
+  }
+  if (heap.size() === 0) return 0;
+  return heap.peek();
 }
