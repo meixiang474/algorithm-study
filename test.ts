@@ -1,12 +1,3 @@
-export class ListNode {
-  val: number;
-  next: ListNode | null;
-  constructor(val: number) {
-    this.val = val;
-    this.next = null;
-  }
-}
-
 export class TreeNode {
   val: number;
   left: TreeNode | null;
@@ -70,6 +61,133 @@ export function missingNumber(nums: number[]) {
 }
 
 // linked list
+export class ListNode<T = number> {
+  val: T;
+  next: ListNode<T> | null;
+  constructor(val: T) {
+    this.val = val;
+    this.next = null;
+  }
+}
+
+export class LinkedList<T = number> {
+  dummyHead: ListNode<T>;
+  size: number;
+  constructor() {
+    this.dummyHead = new ListNode(-1 as any);
+    this.size = 0;
+  }
+  getSize() {
+    return this.size;
+  }
+  isEmpty() {
+    return this.getSize() === 0;
+  }
+  add(index: number, val: T) {
+    if (index < 0 || index > this.size) throw new Error("error");
+    let prev = this.dummyHead;
+    for (let i = 0; i < index; i++) {
+      prev = prev.next!;
+    }
+    const next = prev.next;
+    prev.next = new ListNode(val);
+    prev.next = next;
+    this.size++;
+  }
+  addFirst(val: T) {
+    return this.add(0, val);
+  }
+  addLast(val: T) {
+    return this.add(this.size, val);
+  }
+  get(index: number) {
+    if (index < 0 || index >= this.size) throw new Error("error");
+    let current = this.dummyHead.next!;
+    for (let i = 0; i < index; i++) {
+      current = current.next!;
+    }
+    return current.val;
+  }
+  getFirst() {
+    return this.get(0);
+  }
+  getLast() {
+    return this.get(this.size - 1);
+  }
+  set(index: number, val: T) {
+    if (index < 0 || index >= this.size) throw new Error("error");
+    let current = this.dummyHead.next!;
+    for (let i = 0; i < index; i++) {
+      current = current.next!;
+    }
+    current.val = val;
+  }
+  contains(val: T) {
+    let current = this.dummyHead.next;
+    while (current) {
+      if (current.val === val) return true;
+      current = current.next;
+    }
+    return false;
+  }
+  remove(index: number) {
+    if (index < 0 || index >= this.size) throw new Error("error");
+    let prev = this.dummyHead;
+    for (let i = 0; i < index; i++) {
+      prev = prev.next!;
+    }
+    const res = prev.next!.val;
+    prev.next = prev.next!.next;
+    this.size--;
+    return res;
+  }
+  removeFirst() {
+    return this.remove(0);
+  }
+  removeLast() {
+    return this.remove(this.size - 1);
+  }
+  removeElement(val: T) {
+    let prev = this.dummyHead;
+    while (prev.next) {
+      if (prev.next.val === val) {
+        break;
+      }
+      prev = prev.next;
+    }
+    if (prev.next) {
+      prev.next = prev.next.next;
+      this.size--;
+    }
+  }
+  toString() {
+    let res = "";
+    let current = this.dummyHead.next;
+    while (current) {
+      res += JSON.stringify(current.val) + "->";
+      current = current.next;
+    }
+    return res + "NULL";
+  }
+}
+
+export function removeElements(head: ListNode | null, val: number) {
+  while (head && head.val === val) {
+    head = head.next;
+  }
+  if (!head) return head;
+  let prev = head;
+  while (prev.next) {
+    if (prev.next.val === val) {
+      prev.next = prev.next.next;
+    } else {
+      prev = prev.next;
+    }
+  }
+  return head;
+}
+
+export function removeElements1(head: ListNode | null, val: number) {}
 
 // hot 29-32
 export function climbStairs(n: number) {
