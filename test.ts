@@ -187,7 +187,115 @@ export function removeElements(head: ListNode | null, val: number) {
   return head;
 }
 
-export function removeElements1(head: ListNode | null, val: number) {}
+export function removeElements1(head: ListNode | null, val: number) {
+  const dummyHead = new ListNode(-1);
+  dummyHead.next = head;
+  let prev = dummyHead;
+  while (prev.next) {
+    if (prev.next.val === val) {
+      prev.next = prev.next.next;
+    } else {
+      prev = prev.next;
+    }
+  }
+  return dummyHead.next;
+}
+
+export function removeElements2(
+  head: ListNode | null,
+  val: number
+): ListNode | null {
+  if (!head) return head;
+  const res = removeElements2(head.next, val);
+  if (head && head.val === val) {
+    return res;
+  } else {
+    head.next = res;
+    return head;
+  }
+}
+
+export function reverse(head: ListNode | null) {
+  let prev = null,
+    current = head;
+  while (current) {
+    const next = current.next;
+    current.next = prev;
+    prev = current;
+    current = next;
+  }
+  return prev;
+}
+
+export function reverse1(head: ListNode | null): ListNode | null {
+  if (!head || !head.next) return head;
+  const res = reverse1(head.next);
+  head.next.next = head;
+  head.next = null;
+  return res;
+}
+
+export function addTwoNumbers(l1: ListNode | null, l2: ListNode | null) {
+  const res = new ListNode(-1);
+  let p1 = l1,
+    p2 = l2,
+    p3 = res;
+  let carry = 0;
+  while (p1 || p2) {
+    const n1 = p1 ? p1.val : 0;
+    const n2 = p2 ? p2.val : 0;
+    const sum = n1 + n2 + carry;
+    carry = Math.floor(sum / 10);
+    p3.next = new ListNode(sum % 10);
+    if (p1) p1 = p1.next;
+    if (p2) p2 = p2.next;
+    p3 = p3.next;
+  }
+  if (carry) {
+    p3.next = new ListNode(carry);
+  }
+  return res.next;
+}
+
+export function fn(head: ListNode | null): ListNode | null {
+  if (!head || !head.next) return head;
+  const res = fn(head.next);
+  if (res && head.val === res.val) {
+    return res;
+  } else {
+    head.next = res;
+    return head;
+  }
+}
+
+export function fn1(head: ListNode | null) {
+  const dummyHead = new ListNode(-1);
+  dummyHead.next = head;
+  let prev = dummyHead;
+  while (prev.next && prev.next.next) {
+    if (prev.next.val === prev.next.next.val) {
+      prev.next = prev.next.next;
+    } else {
+      prev = prev.next;
+    }
+  }
+  return dummyHead.next;
+}
+
+export function fn2(head: ListNode | null) {
+  if (!head || !head.next) return false;
+  let slow: ListNode | null = head,
+    fast: ListNode | null = head;
+  while (slow && fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
+    if (slow === fast) return true;
+  }
+  return false;
+}
+
+// 回文链表 todo
+export function fn3(head: ListNode | null) {}
 
 // hot 29-32
 export function climbStairs(n: number) {
