@@ -294,97 +294,118 @@ export function fn2(head: ListNode | null) {
   return false;
 }
 
-// 回文链表 todo
-export function fn3(head: ListNode | null) {}
-
-// hot 29-32
-export function climbStairs(n: number) {
-  const dp = [1, 1];
-  for (let i = 2; i <= n; i++) {
-    dp[i] = dp[i - 2] + dp[i - 1];
+export function fn3(head: ListNode | null) {
+  if (!head || !head.next) return true;
+  let slow: ListNode | null = head,
+    fast: ListNode | null = head;
+  while (slow && fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
   }
-  return dp[n];
+  if (fast) slow = slow!.next;
+  let prev = null;
+  let current = slow;
+  while (current) {
+    const next = current.next;
+    current.next = prev;
+    prev = current;
+    current = next;
+  }
+  let p1: ListNode | null = head;
+  let p2 = prev;
+  while (p1 && p2) {
+    if (p1.val !== p2.val) return false;
+    p1 = p1.next;
+    p2 = p2.next;
+  }
+  return true;
 }
 
-export function minDistance(word1: string, word2: string) {
-  const m = word1.length;
-  const n = word2.length;
-  if (m * n === 0) return m + n;
-  const dp: number[][] = Array.from({ length: m + 1 }, () =>
-    new Array(n + 1).fill(0)
-  );
-  for (let i = 0; i <= m; i++) {
-    dp[i][0] = i;
-  }
-  for (let i = 0; i <= n; i++) {
-    dp[0][i] = i;
-  }
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      const leftAdd = dp[i][j - 1] + 1;
-      const rightAdd = dp[i - 1][j] + 1;
-      let leftChange = dp[i - 1][j - 1];
-      if (word1[i - 1] !== word2[j - 1]) leftChange += 1;
-      dp[i][j] = Math.min(leftAdd, rightAdd, leftChange);
+// hot 33-36
+export function subsets(nums: number[]) {
+  const res: number[][] = [];
+  const dfs = (path: number[], index: number, length: number) => {
+    if (path.length === length) {
+      res.push(path);
+      return;
     }
-  }
-  return dp[m][n];
-}
-
-export function sortColors(nums: number[]) {
-  const swap = (nums: number[], i: number, j: number) =>
-    ([nums[i], nums[j]] = [nums[j], nums[i]]);
-  let l = -1,
-    r = nums.length;
-  let i = 0;
-  while (i < r) {
-    if (nums[i] === 0) {
-      l++;
-      swap(nums, i, l);
-      i++;
-    } else if (nums[i] === 2) {
-      r--;
-      swap(nums, i, r);
-    } else {
-      i++;
+    if (path.length + nums.length - index < length) return;
+    for (let i = index; i < nums.length; i++) {
+      dfs(path.concat(nums[i]), i + 1, length);
     }
-  }
-}
-
-export function minWindow(s: string, t: string) {
-  const map = new Map<string, number>();
-  for (let item of t) {
-    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
-  }
-  let needType = map.size;
-  let res = "";
-  let l = 0,
-    r = 0;
-  while (r < s.length) {
-    const currentr = s[r];
-    if (map.has(currentr)) {
-      map.set(currentr, map.get(currentr)! - 1);
-      if (map.get(currentr) === 0) {
-        needType -= 1;
-      }
-    }
-
-    while (needType === 0) {
-      const newRes = s.slice(l, r + 1);
-      if (!res || res.length > newRes.length) res = newRes;
-      const currentl = s[l];
-      if (map.has(currentl)) {
-        map.set(currentl, map.get(currentl)! + 1);
-        if (map.get(currentl) === 1) {
-          needType += 1;
-        }
-      }
-      l++;
-    }
-    r++;
+  };
+  for (let i = 0; i <= nums.length; i++) {
+    dfs([], 0, i);
   }
   return res;
 }
+
+export function exist(board: string[][], word: string) {
+  if (board.length === 0 || board[0].length === 0) return false;
+  const m = board.length;
+  const n = board[0].length;
+  const dfs = (r: number, c: number, index: number) => {
+    if (index >= word.length) return true;
+    const temp = board[r][c];
+    board[r][c] = "";
+    const res = [
+      [r + 1, c],
+      [r - 1, c],
+      [r, c + 1],
+      [r, c - 1],
+    ].some(([nextR, nextC]) => {
+      if (
+        nextR >= 0 &&
+        nextR < m &&
+        nextC >= 0 &&
+        nextC < n &&
+        board[nextR][nextC] === word[index]
+      ) {
+        return dfs(nextR, nextC, index + 1);
+      }
+      return false;
+    });
+    board[r][c] = temp;
+    return res;
+  };
+  for (let r = 0; r < m; r++) {
+    for (let c = 0; c < n; c++) {
+      if (board[r][c] === word[0]) {
+        const res = dfs(r, c, 1);
+        if (res) return res;
+      }
+    }
+  }
+  return false;
+}
+
+export function largestRectangleArea(heights: number[]) {
+  const stack: number[] = [];
+  const left: number[] = [];
+  const right: number[] = [];
+  for (let i = 0; i < heights.length; i++) {
+    while (stack.length > 0 && heights[stack[stack.length - 1]] >= heights[i]) {
+      stack.pop();
+    }
+    left[i] = stack.length > 0 ? stack[stack.length - 1] : -1;
+    stack.push(i);
+  }
+  stack.length = 0;
+  for (let i = heights.length - 1; i >= 0; i--) {
+    while (stack.length > 0 && heights[stack[0]] >= heights[i]) {
+      stack.shift();
+    }
+    right[i] = stack.length > 0 ? stack[0] : heights.length;
+    stack.unshift(i);
+  }
+  let res = 0;
+  for (let i = 0; i < heights.length; i++) {
+    res = Math.max(res, (right[i] - left[i] - 1) * heights[i]);
+  }
+  return res;
+}
+
+// todo leetcode hot 36
 
 // practice week5 1 - 6
 export type HeapType = "min" | "max";
