@@ -9,317 +9,39 @@ export class TreeNode {
   }
 }
 
-// offer 53-I 53-II
-export function search(nums: number[], target: number) {
-  const floor = (nums: number[], target: number) => {
-    let l = -1,
-      r = nums.length - 1;
-    while (l < r) {
-      const mid = Math.floor(l + (r - l + 1) / 2);
-      if (nums[mid] < target) {
-        l = mid;
-      } else {
-        r = mid - 1;
-      }
+// offer 54 55-I
+export function kthLargest(root: TreeNode | null, k: number) {
+  if (!root) return -Infinity;
+  let res = -Infinity;
+  let level = 0;
+  const dfs = (node: TreeNode) => {
+    if (node.right) dfs(node.right);
+    level++;
+    if (level === k) {
+      res = node.val;
+      return;
     }
-    return l;
+    if (node.left) dfs(node.left);
   };
-  const ceil = (nums: number[], target: number) => {
-    let l = 0,
-      r = nums.length;
-    while (l < r) {
-      const mid = Math.floor(l + (r - l) / 2);
-      if (nums[mid] > target) {
-        r = mid;
-      } else {
-        l = mid + 1;
-      }
-    }
-    return l;
-  };
-  const left = floor(nums, target);
-  const right = ceil(nums, target);
-  if (nums[target + 1] === target) {
-    return right - left - 1;
-  } else {
-    return 0;
-  }
-}
-
-export function missingNumber(nums: number[]) {
-  let l = 0,
-    r = nums.length;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l) / 2);
-    if (nums[mid] === mid) {
-      l = mid + 1;
-    } else {
-      r = mid;
-    }
-  }
-  return l;
-}
-
-// linked list
-export class ListNode<T = number> {
-  val: T;
-  next: ListNode<T> | null;
-  constructor(val: T) {
-    this.val = val;
-    this.next = null;
-  }
-}
-
-export class LinkedList<T = number> {
-  dummyHead: ListNode<T>;
-  size: number;
-  constructor() {
-    this.dummyHead = new ListNode(-1 as any);
-    this.size = 0;
-  }
-  getSize() {
-    return this.size;
-  }
-  isEmpty() {
-    return this.getSize() === 0;
-  }
-  add(index: number, val: T) {
-    if (index < 0 || index > this.size) throw new Error("error");
-    let prev = this.dummyHead;
-    for (let i = 0; i < index; i++) {
-      prev = prev.next!;
-    }
-    const next = prev.next;
-    prev.next = new ListNode(val);
-    prev.next = next;
-    this.size++;
-  }
-  addFirst(val: T) {
-    return this.add(0, val);
-  }
-  addLast(val: T) {
-    return this.add(this.size, val);
-  }
-  get(index: number) {
-    if (index < 0 || index >= this.size) throw new Error("error");
-    let current = this.dummyHead.next!;
-    for (let i = 0; i < index; i++) {
-      current = current.next!;
-    }
-    return current.val;
-  }
-  getFirst() {
-    return this.get(0);
-  }
-  getLast() {
-    return this.get(this.size - 1);
-  }
-  set(index: number, val: T) {
-    if (index < 0 || index >= this.size) throw new Error("error");
-    let current = this.dummyHead.next!;
-    for (let i = 0; i < index; i++) {
-      current = current.next!;
-    }
-    current.val = val;
-  }
-  contains(val: T) {
-    let current = this.dummyHead.next;
-    while (current) {
-      if (current.val === val) return true;
-      current = current.next;
-    }
-    return false;
-  }
-  remove(index: number) {
-    if (index < 0 || index >= this.size) throw new Error("error");
-    let prev = this.dummyHead;
-    for (let i = 0; i < index; i++) {
-      prev = prev.next!;
-    }
-    const res = prev.next!.val;
-    prev.next = prev.next!.next;
-    this.size--;
-    return res;
-  }
-  removeFirst() {
-    return this.remove(0);
-  }
-  removeLast() {
-    return this.remove(this.size - 1);
-  }
-  removeElement(val: T) {
-    let prev = this.dummyHead;
-    while (prev.next) {
-      if (prev.next.val === val) {
-        break;
-      }
-      prev = prev.next;
-    }
-    if (prev.next) {
-      prev.next = prev.next.next;
-      this.size--;
-    }
-  }
-  toString() {
-    let res = "";
-    let current = this.dummyHead.next;
-    while (current) {
-      res += JSON.stringify(current.val) + "->";
-      current = current.next;
-    }
-    return res + "NULL";
-  }
-}
-
-export function removeElements(head: ListNode | null, val: number) {
-  while (head && head.val === val) {
-    head = head.next;
-  }
-  if (!head) return head;
-  let prev = head;
-  while (prev.next) {
-    if (prev.next.val === val) {
-      prev.next = prev.next.next;
-    } else {
-      prev = prev.next;
-    }
-  }
-  return head;
-}
-
-export function removeElements1(head: ListNode | null, val: number) {
-  const dummyHead = new ListNode(-1);
-  dummyHead.next = head;
-  let prev = dummyHead;
-  while (prev.next) {
-    if (prev.next.val === val) {
-      prev.next = prev.next.next;
-    } else {
-      prev = prev.next;
-    }
-  }
-  return dummyHead.next;
-}
-
-export function removeElements2(
-  head: ListNode | null,
-  val: number
-): ListNode | null {
-  if (!head) return head;
-  const res = removeElements2(head.next, val);
-  if (head && head.val === val) {
-    return res;
-  } else {
-    head.next = res;
-    return head;
-  }
-}
-
-export function reverse(head: ListNode | null) {
-  let prev = null,
-    current = head;
-  while (current) {
-    const next = current.next;
-    current.next = prev;
-    prev = current;
-    current = next;
-  }
-  return prev;
-}
-
-export function reverse1(head: ListNode | null): ListNode | null {
-  if (!head || !head.next) return head;
-  const res = reverse1(head.next);
-  head.next.next = head;
-  head.next = null;
   return res;
 }
 
-export function addTwoNumbers(l1: ListNode | null, l2: ListNode | null) {
-  const res = new ListNode(-1);
-  let p1 = l1,
-    p2 = l2,
-    p3 = res;
-  let carry = 0;
-  while (p1 || p2) {
-    const n1 = p1 ? p1.val : 0;
-    const n2 = p2 ? p2.val : 0;
-    const sum = n1 + n2 + carry;
-    carry = Math.floor(sum / 10);
-    p3.next = new ListNode(sum % 10);
-    if (p1) p1 = p1.next;
-    if (p2) p2 = p2.next;
-    p3 = p3.next;
-  }
-  if (carry) {
-    p3.next = new ListNode(carry);
-  }
-  return res.next;
-}
-
-export function fn(head: ListNode | null): ListNode | null {
-  if (!head || !head.next) return head;
-  const res = fn(head.next);
-  if (res && head.val === res.val) {
-    return res;
-  } else {
-    head.next = res;
-    return head;
-  }
-}
-
-export function fn1(head: ListNode | null) {
-  const dummyHead = new ListNode(-1);
-  dummyHead.next = head;
-  let prev = dummyHead;
-  while (prev.next && prev.next.next) {
-    if (prev.next.val === prev.next.next.val) {
-      prev.next = prev.next.next;
-    } else {
-      prev = prev.next;
+export function maxDepth(root: TreeNode | null) {
+  if (!root) return 0;
+  let res = 0;
+  const dfs = (node: TreeNode, level: number) => {
+    if (!node.left && !node.right) {
+      res = Math.max(res, level);
     }
-  }
-  return dummyHead.next;
+    if (node.left) dfs(node.left, level + 1);
+    if (node.right) dfs(node.right, level + 1);
+  };
+  dfs(root, 1);
+  return res;
 }
 
-export function fn2(head: ListNode | null) {
-  if (!head || !head.next) return false;
-  let slow: ListNode | null = head,
-    fast: ListNode | null = head;
-  while (slow && fast && fast.next) {
-    slow = slow.next;
-    fast = fast.next.next;
-    if (slow === fast) return true;
-  }
-  return false;
-}
-
-export function fn3(head: ListNode | null) {
-  if (!head || !head.next) return true;
-  let slow: ListNode | null = head,
-    fast: ListNode | null = head;
-  while (slow && fast && fast.next) {
-    slow = slow.next;
-    fast = fast.next.next;
-  }
-  if (fast) slow = slow!.next;
-  let prev = null;
-  let current = slow;
-  while (current) {
-    const next = current.next;
-    current.next = prev;
-    prev = current;
-    current = next;
-  }
-  let p1: ListNode | null = head;
-  let p2 = prev;
-  while (p1 && p2) {
-    if (p1.val !== p2.val) return false;
-    p1 = p1.next;
-    p2 = p2.next;
-  }
-  return true;
-}
+// merge sort
+// todo
 
 // hot 33-36
 export function subsets(nums: number[]) {
@@ -405,153 +127,130 @@ export function largestRectangleArea(heights: number[]) {
   return res;
 }
 
-// todo leetcode hot 36
-
-// practice week5 1 - 6
-export type HeapType = "min" | "max";
-
-export class Heap<T = number> {
-  type: HeapType;
-  heap: T[];
-  constructor(type: HeapType = "min", compare?: (a: T, b: T) => boolean) {
-    this.type = type;
-    this.compare = compare || this.compare;
-    this.heap = [];
-  }
-  compare(a: T, b: T) {
-    return this.type === "min" ? a < b : a > b;
-  }
-  swap(i: number, j: number) {
-    [this.heap[i], this.heap[j]] = [this.heap[j], this.heap[i]];
-  }
-  insert(val: T) {
-    this.heap.push(val);
-    this.shiftUp(this.heap.length - 1);
-  }
-  getParentIndex(index: number) {
-    return Math.floor((index - 1) / 2);
-  }
-  getLeftIndex(index: number) {
-    return 2 * index + 1;
-  }
-  getRightIndex(index: number) {
-    return 2 * index + 2;
-  }
-  shiftUp(index: number) {
-    if (index <= 0) return;
-    const parentIndex = this.getParentIndex(index);
-    if (
-      this.heap[parentIndex] != null &&
-      this.compare(this.heap[index], this.heap[parentIndex])
-    ) {
-      this.swap(parentIndex, index);
-      this.shiftUp(parentIndex);
-    }
-  }
-  pop() {
-    if (this.heap.length === 0) throw new Error("error");
-    if (this.heap.length === 1) return this.heap.pop()!;
-    const res = this.heap[0];
-    this.heap[0] = this.heap.pop()!;
-    this.shiftDown(0);
-    return res;
-  }
-  shiftDown(index: number) {
-    const leftIndex = this.getLeftIndex(index);
-    const rightIndex = this.getRightIndex(index);
-    if (
-      this.heap[leftIndex] != null &&
-      this.compare(this.heap[leftIndex], this.heap[index])
-    ) {
-      this.swap(leftIndex, index);
-      this.shiftDown(leftIndex);
-    }
-    if (
-      this.heap[rightIndex] != null &&
-      this.compare(this.heap[rightIndex], this.heap[index])
-    ) {
-      this.swap(rightIndex, index);
-      this.shiftDown(rightIndex);
-    }
-  }
-  peek() {
-    if (this.heap.length === 0) throw new Error("error");
-    return this.heap[0];
-  }
-  size() {
-    return this.heap.length;
-  }
-}
-
-export function getLeastNumbers(arr: number[], k: number) {
-  const heap = new Heap("max");
-  for (let item of arr) {
-    heap.insert(item);
-    if (heap.size() > k) {
-      heap.pop();
-    }
-  }
-  return heap.heap;
-}
-
-export function lastStoneWeight(stones: number[]) {
-  const heap = new Heap("max");
-  for (let item of stones) {
-    heap.insert(item);
-  }
-  while (heap.size() > 1) {
-    const first = heap.pop()!;
-    const second = heap.pop()!;
-    if (first > second) {
-      heap.insert(first - second);
-    }
-  }
-  if (heap.size() === 0) return 0;
-  return heap.peek();
-}
-
-export class KthLargest {
-  k: number;
-  heap: Heap;
-  constructor(nums: number[], k: number) {
-    this.k = k;
-    this.heap = new Heap();
-    for (let item of nums) {
-      this.heap.insert(item);
-      if (this.heap.size() > k) this.heap.pop();
-    }
-  }
-  add(val: number) {
-    this.heap.insert(val);
-    if (this.heap.size() > this.k) this.heap.pop();
-    return this.heap.peek();
-  }
-}
-
-export function kSmallestPairs(nums1: number[], nums2: number[], k: number) {
-  const heap = new Heap<[number, number]>(
-    "min",
-    (a, b) => nums1[a[0]] + nums2[a[1]] < nums1[b[0]] + nums2[b[1]]
+export function maximalRectangle(matrix: string[][]) {
+  if (matrix.length === 0 || matrix[0].length) return 0;
+  const m = matrix.length;
+  const n = matrix[0].length;
+  const left: number[][] = Array.from({ length: m }, () =>
+    new Array(n).fill(0)
   );
-  const res: number[][] = [];
-  const set = new Set<string>();
-  heap.insert([0, 0]);
-  while (heap.size() > 0 && res.length < k) {
-    const arr = heap.pop();
-    if (set.has(arr.join("."))) continue;
-    res.push([nums1[arr[0]], nums2[arr[1]]]);
-    set.add(arr.join("."));
-    if (arr[0] + 1 < nums1.length) heap.insert([arr[0] + 1, arr[1]]);
-    if (arr[1] + 1 < nums2.length) heap.insert([arr[0], arr[1] + 1]);
+  for (let r = 0; r < m; r++) {
+    for (let c = 0; c < n; c++) {
+      if (matrix[r][c] === "1") {
+        left[r][c] = (c > 0 ? left[r][c - 1] : 0) + 1;
+      }
+    }
+  }
+  let res = 0;
+  for (let r = 0; r < m; r++) {
+    for (let c = 0; c < n; c++) {
+      if (matrix[r][c] === "0") continue;
+      let width = left[r][c];
+      let area = width;
+      for (let i = r - 1; i >= 0; i--) {
+        width = Math.min(width, left[r - 1][c]);
+        area = Math.max(area, width * (r - i + 1));
+      }
+      res = Math.max(res, area);
+    }
   }
   return res;
 }
 
-export function findKthLargest(nums: number[], k: number) {
-  const heap = new Heap();
-  for (let item of nums) {
-    heap.insert(item);
-    if (heap.size() > k) heap.pop();
+// practice array 42 - 56
+export function trap(heights: number[]) {
+  const left: number[] = [heights[0]];
+  for (let i = 1; i < heights.length; i++) {
+    left[i] = Math.max(left[i - 1], heights[i]);
   }
-  return heap.peek();
+  const right: number[] = [];
+  right[heights.length - 1] = heights[heights.length - 1];
+  for (let i = heights.length - 2; i >= 0; i--) {
+    right[i] = Math.max(right[i + 1], heights[i]);
+  }
+  let res = 0;
+  for (let i = 0; i < heights.length; i++) {
+    res += Math.min(left[i], right[i]) - heights[i];
+  }
+  return res;
+}
+
+export function rotate(matrix: number[][]) {
+  const n = matrix.length;
+  for (let i = 0; i < Math.floor(n / 2); i++) {
+    for (let j = 0; j < Math.floor((n + 1) / 2); j++) {
+      const temp = matrix[i][j];
+      matrix[i][j] = matrix[n - j - 1][i];
+      matrix[n - j - 1][i] = matrix[n - i - 1][n - j - 1];
+      matrix[n - i - 1][n - j - 1] = matrix[j][n - i - 1];
+      matrix[j][n - i - 1] = temp;
+    }
+  }
+}
+
+export function maxSubArray(nums: number[]) {
+  const dp: number[] = [nums[0]];
+  for (let i = 1; i < nums.length; i++) {
+    dp[i] = Math.max(dp[i - 1] + nums[i], nums[i]);
+  }
+  return Math.max(...dp);
+}
+
+export function spiralOrder(matrix: number[][]) {
+  if (matrix.length === 0 || matrix[0].length === 0) return [];
+  const m = matrix.length;
+  const n = matrix[0].length;
+  const visited: boolean[][] = Array.from({ length: m }, () =>
+    new Array(n).fill(false)
+  );
+  const res: number[] = [];
+  const directions = [
+    [0, 1],
+    [1, 0],
+    [0, -1],
+    [-1, 0],
+  ];
+  let dIndex = 0,
+    r = 0,
+    c = 0;
+  const total = m * n;
+  for (let i = 0; i < total; i++) {
+    res[i] = matrix[r][c];
+    visited[r][c] = true;
+    const nextR = r + directions[dIndex][0];
+    const nextC = c + directions[dIndex][1];
+    if (
+      !(
+        nextR >= 0 &&
+        nextR < m &&
+        nextC >= 0 &&
+        nextC < n &&
+        !visited[nextR][nextC]
+      )
+    ) {
+      dIndex = (dIndex + 1) % 4;
+    }
+    r += directions[dIndex][0];
+    c += directions[dIndex][1];
+  }
+  return res;
+}
+
+export function merge(intervals: number[][]) {
+  intervals.sort((a, b) => a[0] - b[0]);
+  const res: number[][] = [];
+  let prevEnd = -Infinity;
+  for (let i = 0; i < intervals.length; i++) {
+    const [start, end] = intervals[i];
+    if (i > 0 && prevEnd >= start) {
+      res.splice(res.length - 1, 1, [
+        res[res.length - 1][0],
+        Math.max(prevEnd, end),
+      ]);
+    } else {
+      res.push([start, end]);
+    }
+    prevEnd = Math.max(prevEnd, end);
+  }
+  return res;
 }
