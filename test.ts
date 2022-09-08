@@ -9,6 +9,15 @@ export class TreeNode {
   }
 }
 
+export class ListNode {
+  val: number;
+  next: ListNode | null;
+  constructor(val: number) {
+    this.val = val;
+    this.next = null;
+  }
+}
+
 // offer 54 55-I
 export function kthLargest(root: TreeNode | null, k: number) {
   if (!root) return -Infinity;
@@ -42,120 +51,124 @@ export function maxDepth(root: TreeNode | null) {
 
 // merge sort
 // todo
-
-// hot 33-36
-export function subsets(nums: number[]) {
-  const res: number[][] = [];
-  const dfs = (path: number[], index: number, length: number) => {
-    if (path.length === length) {
-      res.push(path);
-      return;
-    }
-    if (path.length + nums.length - index < length) return;
-    for (let i = index; i < nums.length; i++) {
-      dfs(path.concat(nums[i]), i + 1, length);
+export function mergeSort(nums: number[]) {
+  const sortArr = (nums: number[], l: number, r: number, temp: number[]) => {
+    if (l >= r) return;
+    const mid = Math.floor(l + (r - l) / 2);
+    sortArr(nums, l, mid, temp);
+    sortArr(nums, mid + 1, r, temp);
+    if (nums[mid] > nums[mid + 1]) {
+      merge(nums, l, mid, r, temp);
     }
   };
-  for (let i = 0; i <= nums.length; i++) {
-    dfs([], 0, i);
-  }
-  return res;
-}
-
-export function exist(board: string[][], word: string) {
-  if (board.length === 0 || board[0].length === 0) return false;
-  const m = board.length;
-  const n = board[0].length;
-  const dfs = (r: number, c: number, index: number) => {
-    if (index >= word.length) return true;
-    const temp = board[r][c];
-    board[r][c] = "";
-    const res = [
-      [r + 1, c],
-      [r - 1, c],
-      [r, c + 1],
-      [r, c - 1],
-    ].some(([nextR, nextC]) => {
-      if (
-        nextR >= 0 &&
-        nextR < m &&
-        nextC >= 0 &&
-        nextC < n &&
-        board[nextR][nextC] === word[index]
-      ) {
-        return dfs(nextR, nextC, index + 1);
+  const merge = (
+    nums: number[],
+    l: number,
+    mid: number,
+    r: number,
+    temp: number[]
+  ) => {
+    for (let i = l; i <= r; i++) {
+      temp[i] = nums[i];
+    }
+    let i = l,
+      j = mid + 1;
+    for (let k = l; k <= r; k++) {
+      if (i > mid) {
+        nums[k] = temp[j];
+        j++;
+      } else if (j > r) {
+        nums[k] = temp[i];
+        i++;
+      } else if (temp[i] <= temp[j]) {
+        nums[k] = temp[i];
+        i++;
+      } else {
+        nums[k] = temp[j];
+        j++;
       }
-      return false;
-    });
-    board[r][c] = temp;
-    return res;
+    }
   };
-  for (let r = 0; r < m; r++) {
-    for (let c = 0; c < n; c++) {
-      if (board[r][c] === word[0]) {
-        const res = dfs(r, c, 1);
-        if (res) return res;
-      }
-    }
-  }
-  return false;
+  const res = [...nums];
+  sortArr(res, 0, res.length - 1, [...res]);
+  return res;
 }
 
-export function largestRectangleArea(heights: number[]) {
-  const stack: number[] = [];
-  const left: number[] = [];
-  const right: number[] = [];
-  for (let i = 0; i < heights.length; i++) {
-    while (stack.length > 0 && heights[stack[stack.length - 1]] >= heights[i]) {
-      stack.pop();
-    }
-    left[i] = stack.length > 0 ? stack[stack.length - 1] : -1;
-    stack.push(i);
-  }
-  stack.length = 0;
-  for (let i = heights.length - 1; i >= 0; i--) {
-    while (stack.length > 0 && heights[stack[0]] >= heights[i]) {
-      stack.shift();
-    }
-    right[i] = stack.length > 0 ? stack[0] : heights.length;
-    stack.unshift(i);
-  }
+export function reversePairs(nums: number[][]) {
   let res = 0;
-  for (let i = 0; i < heights.length; i++) {
-    res = Math.max(res, (right[i] - left[i] - 1) * heights[i]);
+  for (let i = 0; i < nums.length; i++) {
+    for (let j = i + 1; j < nums.length; j++) {
+      if (nums[i] > nums[j]) res++;
+    }
   }
   return res;
 }
 
-export function maximalRectangle(matrix: string[][]) {
-  if (matrix.length === 0 || matrix[0].length) return 0;
-  const m = matrix.length;
-  const n = matrix[0].length;
-  const left: number[][] = Array.from({ length: m }, () =>
-    new Array(n).fill(0)
-  );
-  for (let r = 0; r < m; r++) {
-    for (let c = 0; c < n; c++) {
-      if (matrix[r][c] === "1") {
-        left[r][c] = (c > 0 ? left[r][c - 1] : 0) + 1;
-      }
-    }
-  }
+export function reversePairs1(nums: number[]) {
   let res = 0;
-  for (let r = 0; r < m; r++) {
-    for (let c = 0; c < n; c++) {
-      if (matrix[r][c] === "0") continue;
-      let width = left[r][c];
-      let area = width;
-      for (let i = r - 1; i >= 0; i--) {
-        width = Math.min(width, left[r - 1][c]);
-        area = Math.max(area, width * (r - i + 1));
-      }
-      res = Math.max(res, area);
+  const sortArr = (nums: number[], l: number, r: number, temp: number[]) => {
+    if (l >= r) return;
+    const mid = Math.floor(l + (r - l) / 2);
+    sortArr(nums, l, mid, temp);
+    sortArr(nums, mid + 1, r, temp);
+    if (nums[mid] > nums[mid + 1]) {
+      merge(nums, l, mid, r, temp);
     }
-  }
+  };
+  const merge = (
+    nums: number[],
+    l: number,
+    mid: number,
+    r: number,
+    temp: number[]
+  ) => {
+    for (let i = l; i <= r; i++) {
+      temp[i] = nums[i];
+    }
+    let i = l,
+      j = mid + 1;
+    for (let k = l; k <= r; k++) {
+      if (i > mid) {
+        nums[k] = temp[j];
+        j++;
+      } else if (j > r) {
+        nums[k] = temp[i];
+        i++;
+      } else if (temp[i] <= temp[j]) {
+        nums[k] = temp[i];
+        i++;
+      } else {
+        res += mid - i + 1;
+        nums[k] = temp[j];
+        j++;
+      }
+    }
+  };
+  sortArr([...nums], 0, nums.length, [...nums]);
   return res;
 }
+
+export function mergeLists(l1: ListNode | null, l2: ListNode | null) {
+  const res = new ListNode(-1);
+  let p1 = l1,
+    p2 = l2,
+    p3 = res;
+  while (p1 && p2) {
+    if (p1.val <= p2.val) {
+      p3.next = p1;
+      p1 = p1.next;
+    } else {
+      p3.next = p2;
+      p2 = p2.next;
+    }
+    p3 = p3.next;
+  }
+  if (p1) p3.next = p1;
+  if (p2) p3.next = p2;
+  return res.next;
+}
+
+// hot 37 - 40
 
 // practice array 42 - 56
 export function trap(heights: number[]) {
