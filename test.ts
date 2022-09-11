@@ -169,101 +169,63 @@ export function mergeLists(l1: ListNode | null, l2: ListNode | null) {
 }
 
 // hot 37 - 40
-
-// practice array 42 - 56
-export function trap(heights: number[]) {
-  const left: number[] = [heights[0]];
-  for (let i = 1; i < heights.length; i++) {
-    left[i] = Math.max(left[i - 1], heights[i]);
-  }
-  const right: number[] = [];
-  right[heights.length - 1] = heights[heights.length - 1];
-  for (let i = heights.length - 2; i >= 0; i--) {
-    right[i] = Math.max(right[i + 1], heights[i]);
-  }
-  let res = 0;
-  for (let i = 0; i < heights.length; i++) {
-    res += Math.min(left[i], right[i]) - heights[i];
-  }
-  return res;
-}
-
-export function rotate(matrix: number[][]) {
-  const n = matrix.length;
-  for (let i = 0; i < Math.floor(n / 2); i++) {
-    for (let j = 0; j < Math.floor((n + 1) / 2); j++) {
-      const temp = matrix[i][j];
-      matrix[i][j] = matrix[n - j - 1][i];
-      matrix[n - j - 1][i] = matrix[n - i - 1][n - j - 1];
-      matrix[n - i - 1][n - j - 1] = matrix[j][n - i - 1];
-      matrix[j][n - i - 1] = temp;
-    }
-  }
-}
-
-export function maxSubArray(nums: number[]) {
-  const dp: number[] = [nums[0]];
-  for (let i = 1; i < nums.length; i++) {
-    dp[i] = Math.max(dp[i - 1] + nums[i], nums[i]);
-  }
-  return Math.max(...dp);
-}
-
-export function spiralOrder(matrix: number[][]) {
-  if (matrix.length === 0 || matrix[0].length === 0) return [];
-  const m = matrix.length;
-  const n = matrix[0].length;
-  const visited: boolean[][] = Array.from({ length: m }, () =>
-    new Array(n).fill(false)
-  );
+export function inorderTraversal(root: TreeNode | null) {
+  if (!root) return [];
   const res: number[] = [];
-  const directions = [
-    [0, 1],
-    [1, 0],
-    [0, -1],
-    [-1, 0],
-  ];
-  let dIndex = 0,
-    r = 0,
-    c = 0;
-  const total = m * n;
-  for (let i = 0; i < total; i++) {
-    res[i] = matrix[r][c];
-    visited[r][c] = true;
-    const nextR = r + directions[dIndex][0];
-    const nextC = c + directions[dIndex][1];
-    if (
-      !(
-        nextR >= 0 &&
-        nextR < m &&
-        nextC >= 0 &&
-        nextC < n &&
-        !visited[nextR][nextC]
-      )
-    ) {
-      dIndex = (dIndex + 1) % 4;
+  const stack: TreeNode[] = [];
+  let p: TreeNode | null = root;
+  while (p || stack.length) {
+    while (p) {
+      stack.push(p);
+      p = p.left;
     }
-    r += directions[dIndex][0];
-    c += directions[dIndex][1];
+    const current = stack.pop()!;
+    res.push(current.val);
+    p = current.right;
   }
   return res;
 }
 
-export function merge(intervals: number[][]) {
-  intervals.sort((a, b) => a[0] - b[0]);
-  const res: number[][] = [];
-  let prevEnd = -Infinity;
-  for (let i = 0; i < intervals.length; i++) {
-    const [start, end] = intervals[i];
-    if (i > 0 && prevEnd >= start) {
-      res.splice(res.length - 1, 1, [
-        res[res.length - 1][0],
-        Math.max(prevEnd, end),
-      ]);
-    } else {
-      res.push([start, end]);
+export function numsTree(n: number) {
+  const dp = [1, 1];
+  for (let i = 2; i <= n; i++) {
+    if (dp[i] == null) dp[i] = 0;
+    for (let j = 1; j <= i; j++) {
+      dp[i] += dp[j - 1] * dp[i - j];
     }
-    prevEnd = Math.max(prevEnd, end);
   }
-  return res;
+  return dp[n];
 }
+
+export function isValidBST(root: TreeNode | null) {
+  if (!root) return true;
+  const dfs = (node: TreeNode, floor: number, ceil: number): boolean => {
+    if (node.val <= floor || node.val >= ceil) return false;
+    return (
+      (!node.left || dfs(node.left, floor, node.val)) &&
+      (!node.right || dfs(node.right, node.val, ceil))
+    );
+  };
+  return dfs(root, -Infinity, Infinity);
+}
+
+export function isSymmetric(root: TreeNode | null) {
+  if (!root) return true;
+  const dfs = (p: TreeNode | null, q: TreeNode | null) => {
+    if (!p && !q) return true;
+    if (
+      p &&
+      q &&
+      p.val === q.val &&
+      dfs(p.left, q.right) &&
+      dfs(p.right, q.left)
+    )
+      return true;
+    return false;
+  };
+  return dfs(root.left, root.right);
+}
+
+// practice array 57 - 64
+// todo  leetcode array 57
+export function insertIntervals(intervals: number[][], newInterval: number[]) {}
