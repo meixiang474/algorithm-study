@@ -18,36 +18,8 @@ export class ListNode {
   }
 }
 
-// offer 54 55-I
-export function kthLargest(root: TreeNode | null, k: number) {
-  if (!root) return -Infinity;
-  let res = -Infinity;
-  let level = 0;
-  const dfs = (node: TreeNode) => {
-    if (node.right) dfs(node.right);
-    level++;
-    if (level === k) {
-      res = node.val;
-      return;
-    }
-    if (node.left) dfs(node.left);
-  };
-  return res;
-}
-
-export function maxDepth(root: TreeNode | null) {
-  if (!root) return 0;
-  let res = 0;
-  const dfs = (node: TreeNode, level: number) => {
-    if (!node.left && !node.right) {
-      res = Math.max(res, level);
-    }
-    if (node.left) dfs(node.left, level + 1);
-    if (node.right) dfs(node.right, level + 1);
-  };
-  dfs(root, 1);
-  return res;
-}
+// offer 55-II 56-I
+// todo
 
 // merge sort
 // todo
@@ -227,5 +199,116 @@ export function isSymmetric(root: TreeNode | null) {
 }
 
 // practice array 57 - 64
-// todo  leetcode array 57
-export function insertIntervals(intervals: number[][], newInterval: number[]) {}
+export function insertIntervals(intervals: number[][], newInterval: number[]) {
+  intervals.push(newInterval);
+  intervals.sort((a, b) => a[0] - b[0]);
+  const res: number[][] = [];
+  let prevEnd = -Infinity;
+  for (let i = 0; i < intervals.length; i++) {
+    const [start, end] = intervals[i];
+    if (i > 0 && prevEnd >= start) {
+      res.splice(res.length - 1, 1, [
+        res[res.length - 1][0],
+        Math.max(prevEnd, end),
+      ]);
+    } else {
+      res.push(intervals[i]);
+    }
+    prevEnd = Math.max(prevEnd, end);
+  }
+  return res;
+}
+
+export function generateMatrix(n: number) {
+  const res: number[][] = Array.from({ length: n }, () => new Array(n).fill(0));
+  const map: boolean[][] = Array.from({ length: n }, () =>
+    new Array(n).fill(false)
+  );
+  const directions = [
+    [0, 1],
+    [1, 0],
+    [0, -1],
+    [-1, 0],
+  ];
+  let dIndex = 0,
+    r = 0,
+    c = 0;
+  for (let i = 1; i <= n ** 2; i++) {
+    res[r][c] = i;
+    map[r][c] = true;
+    const nextR = r + directions[dIndex][0];
+    const nextC = c + directions[dIndex][1];
+    if (
+      !(
+        nextR >= 0 &&
+        nextR < n &&
+        nextC >= 0 &&
+        nextC < n &&
+        !map[nextR][nextC]
+      )
+    ) {
+      dIndex++;
+    }
+    r += directions[dIndex][0];
+    c += directions[dIndex][1];
+  }
+  return res;
+}
+
+export function uniquePaths(m: number, n: number) {
+  const dp: number[][] = Array.from({ length: m }, () => new Array(n).fill(0));
+  for (let r = 0; r < m; r++) {
+    dp[r][0] = 1;
+  }
+  for (let c = 0; c < n; c++) {
+    dp[0][c] = 1;
+  }
+  for (let r = 1; r < m; r++) {
+    for (let c = 1; c < n; c++) {
+      dp[r][c] = dp[r][c - 1] + dp[r - 1][c];
+    }
+  }
+  return dp[m - 1][n - 1];
+}
+
+export function uniquePaths1(obstacleGrid: number[][]) {
+  if (obstacleGrid.length === 0 || obstacleGrid[0].length === 0) return 0;
+  const m = obstacleGrid.length;
+  const n = obstacleGrid[0].length;
+  const dp: number[][] = Array.from({ length: m }, () => new Array(n).fill(0));
+  for (let r = 0; r < m; r++) {
+    if (obstacleGrid[r][0] === 1) break;
+    dp[r][0] = 1;
+  }
+  for (let c = 0; c < n; c++) {
+    if (obstacleGrid[0][c] === 1) break;
+    dp[0][c] = 1;
+  }
+  for (let r = 1; r < m; r++) {
+    for (let c = 1; c < n; c++) {
+      if (obstacleGrid[r][c] === 1) continue;
+      dp[r][c] = dp[r - 1][c] + dp[r][c - 1];
+    }
+  }
+  return dp[m - 1][n - 1];
+}
+
+export function minPathSum(grid: number[][]) {
+  if (grid.length === 0 || grid[0].length === 0) return 0;
+  const m = grid.length;
+  const n = grid[0].length;
+  const dp: number[][] = Array.from({ length: m }, () => new Array(n).fill(0));
+  dp[0][0] = grid[0][0];
+  for (let r = 1; r < m; r++) {
+    dp[r][0] = dp[r - 1][0] + grid[r][0];
+  }
+  for (let c = 1; c < n; c++) {
+    dp[0][c] = dp[0][c - 1] + grid[0][c];
+  }
+  for (let r = 1; r < m; r++) {
+    for (let c = 1; c < n; c++) {
+      dp[r][c] = grid[r][c] + Math.min(dp[r - 1][c], dp[r][c - 1]);
+    }
+  }
+  return dp[m - 1][n - 1];
+}
