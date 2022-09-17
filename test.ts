@@ -219,5 +219,84 @@ export function findKMin(nums: number[], k: number) {
   return sortArr([...nums], 0, nums.length - 1);
 }
 
-// hot 37 - 40
+// hot 41 - 44
+export function levelOrder(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[][] = [];
+  const queue: [TreeNode, number][] = [[root, 0]];
+  while (queue.length > 0) {
+    const [current, level] = queue.shift()!;
+    const arr = res[level] || (res[level] = []);
+    arr.push(current.val);
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
+  }
+  return res;
+}
+
+export function maxDepth(root: TreeNode | null) {
+  if (!root) return 0;
+  let res = 0;
+  const dfs = (node: TreeNode, level: number) => {
+    if (!node.left && !node.right) {
+      res = Math.max(res, level);
+      return;
+    }
+    if (node.left) dfs(node.left, level + 1);
+    if (node.right) dfs(node.right, level + 1);
+  };
+  return res;
+}
+
+export function buildTree(preorder: number[], inorder: number[]) {
+  if (preorder.length === 0 || inorder.length === 0) return null;
+  const rootValue = preorder[0];
+  const rootIndex = inorder.indexOf(rootValue);
+  const root = new TreeNode(rootValue);
+  root.left = buildTree(
+    preorder.slice(1, rootIndex + 1),
+    inorder.slice(0, rootIndex)
+  );
+  root.right = buildTree(
+    preorder.slice(rootIndex + 1),
+    inorder.slice(rootIndex + 1)
+  );
+  return root;
+}
+
+export function flatten(root: TreeNode | null) {
+  if (!root) return null;
+  const dummyHead = new TreeNode(-1);
+  let p = dummyHead;
+  const dfs = (node: TreeNode) => {
+    const left = node.left;
+    const right = node.right;
+    node.left = null;
+    node.right = null;
+    p.right = node;
+    p = p.right;
+    if (left) dfs(left);
+    if (right) dfs(right);
+  };
+  dfs(root);
+}
+
+// backtracking 6-10
+export function subsets(nums: number[]) {
+  const res: number[][] = [];
+  const dfs = (path: number[], index: number, length: number) => {
+    if (path.length === length) {
+      res.push(path);
+      return;
+    }
+    if (path.length + nums.length - index < length) return;
+    for (let i = index; i < nums.length; i++) {
+      dfs(path.concat(nums[i]), i + 1, length);
+    }
+  };
+  for (let i = 0; i <= nums.length; i++) {
+    dfs([], 0, i);
+  }
+  return res;
+}
 // todo
