@@ -52,68 +52,129 @@ export function findSequence(target: number) {
 }
 
 // binary search
-// todo
-// hot 41 - 44
-export function levelOrder(root: TreeNode | null) {
-  if (!root) return [];
-  const res: number[][] = [];
-  const queue: [TreeNode, number][] = [[root, 0]];
-  while (queue.length > 0) {
-    const [current, level] = queue.shift()!;
-    const arr = res[level] || (res[level] = []);
-    arr.push(current.val);
-    if (current.left) queue.push([current.left, level + 1]);
-    if (current.right) queue.push([current.right, level + 1]);
-  }
-  return res;
-}
-
-export function maxDepth(root: TreeNode | null) {
-  if (!root) return 0;
-  let res = 0;
-  const dfs = (node: TreeNode, level: number) => {
-    if (!node.left && !node.right) {
-      res = Math.max(res, level);
-      return;
+export function binarySearch(nums: number[], target: number) {
+  const search = (nums: number[], l: number, r: number): number => {
+    if (l > r) return -1;
+    const mid = Math.floor(l + (r - l) / 2);
+    if (nums[mid] === target) {
+      return mid;
+    } else if (nums[mid] > target) {
+      return search(nums, l, r - 1);
+    } else {
+      return search(nums, l + 1, r);
     }
-    if (node.left) dfs(node.left, level + 1);
-    if (node.right) dfs(node.right, level + 1);
   };
-  return res;
+  return search(nums, 0, nums.length - 1);
 }
 
-export function buildTree(preorder: number[], inorder: number[]) {
-  if (preorder.length === 0 || inorder.length === 0) return null;
-  const rootValue = preorder[0];
-  const rootIndex = inorder.indexOf(rootValue);
-  const root = new TreeNode(rootValue);
-  root.left = buildTree(
-    preorder.slice(1, rootIndex + 1),
-    inorder.slice(0, rootIndex)
-  );
-  root.right = buildTree(
-    preorder.slice(rootIndex + 1),
-    inorder.slice(rootIndex + 1)
-  );
-  return root;
+export function binarySearch1(nums: number[], target: number) {
+  let l = 0,
+    r = nums.length;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    if (nums[mid] === target) {
+      return mid;
+    } else if (nums[mid] > target) {
+      r = mid;
+    } else {
+      l = mid + 1;
+    }
+  }
+  return -1;
 }
 
-export function flatten(root: TreeNode | null) {
-  if (!root) return null;
-  const dummyHead = new TreeNode(-1);
-  let p = dummyHead;
-  const dfs = (node: TreeNode) => {
-    const left = node.left;
-    const right = node.right;
-    node.left = null;
-    node.right = null;
-    p.right = node;
-    p = p.right;
-    if (left) dfs(left);
-    if (right) dfs(right);
-  };
-  dfs(root);
+// > target的第一个
+export function upper(nums: number[], target: number) {
+  let l = 0,
+    r = nums.length;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    if (nums[mid] <= target) {
+      l = mid + 1;
+    } else {
+      r = mid;
+    }
+  }
+  return l;
 }
+
+// = target的最后一个或者 > target的第一个
+export function ceil(nums: number[], target: number) {
+  const index = upper(nums, target);
+  if (index - 1 >= 0 && nums[index - 1] === target) {
+    return index - 1;
+  }
+  return index;
+}
+
+// = target第一个或者 > target第一个
+export function lowerCeil(nums: number[], target: number) {
+  let l = 0,
+    r = nums.length;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    if (nums[mid] >= target) {
+      r = mid;
+    } else {
+      l = mid + 1;
+    }
+  }
+  return l;
+}
+
+// < target得第一个
+export function lower(nums: number[], target: number) {
+  let l = -1,
+    r = nums.length - 1;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l + 1) / 2);
+    if (nums[mid] < target) {
+      l = mid;
+    } else {
+      r = mid - 1;
+    }
+  }
+  return l;
+}
+
+// = target的最后一个，< target的第一个
+export function upperFloor(nums: number[], target: number) {
+  let l = -1,
+    r = nums.length - 1;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l + 1) / 2);
+    if (nums[mid] <= target) {
+      l = mid;
+    } else {
+      r = mid - 1;
+    }
+  }
+  return l;
+}
+
+// < target得第一个，= target得第一个
+export function lowerFloor(nums: number[], target: number) {
+  const index = lower(nums, target);
+  if (index + 1 < nums.length && nums[index + 1] === target) return index + 1;
+  return index;
+}
+
+export function fn(x: number) {
+  let l = 0,
+    r = x;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l + 1) / 2);
+    if (mid ** 2 <= x) {
+      l = mid;
+    } else {
+      r = mid - 1;
+    }
+  }
+  return l;
+}
+
+// hot 45 - 48
+// todo
 
 // backtracking 6-10
 export function subsets(nums: number[]) {
