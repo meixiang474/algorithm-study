@@ -174,113 +174,90 @@ export function fn(x: number) {
 }
 
 // hot 45 - 48
-// todo
+export function maxProfit(prices: number[]) {
+  let profit = 0;
+  for (let i = 0; i < prices.length; i++) {
+    if (prices[i + 1] > prices[i]) {
+      profit += prices[i + 1] - prices[i];
+    }
+  }
+  return profit;
+}
 
-// backtracking 6-10
-export function subsets(nums: number[]) {
-  const res: number[][] = [];
-  const dfs = (path: number[], index: number, length: number) => {
-    if (path.length === length) {
-      res.push(path);
-      return;
-    }
-    if (path.length + nums.length - index < length) return;
-    for (let i = index; i < nums.length; i++) {
-      dfs(path.concat(nums[i]), i + 1, length);
-    }
+export function maxPathSum(root: TreeNode | null) {
+  if (!root) return 0;
+  let res = -Infinity;
+  const dfs = (node: TreeNode): number => {
+    const left = Math.max(node.left ? dfs(node.left) : 0, 0);
+    const right = Math.max(node.right ? dfs(node.right) : 0, 0);
+    res = Math.max(node.val + left + right, res);
+    return Math.max(left, right) + node.val;
   };
-  for (let i = 0; i <= nums.length; i++) {
-    dfs([], 0, i);
+  dfs(root);
+  return res;
+}
+
+export function longestConsecutive(nums: number[]) {
+  const set = new Set<number>();
+  for (let item of nums) {
+    set.add(item);
+  }
+  let res = 0;
+  for (let item of nums) {
+    if (!set.has(item - 1)) {
+      let current = item;
+      let length = 1;
+      while (set.has(current + 1)) {
+        current++;
+        length++;
+      }
+      res = Math.max(res, length);
+    }
   }
   return res;
 }
 
-export function exist(board: string[][], word: string) {
-  if (board.length === 0 || board[0].length === 0) return false;
-  const m = board.length;
-  const n = board[0].length;
-  const dfs = (r: number, c: number, index: number) => {
-    if (index >= word.length) return true;
-    const temp = board[r][c];
-    board[r][c] = "";
-    const res = [
-      [r + 1, c],
-      [r - 1, c],
-      [r, c + 1],
-      [r, c - 1],
-    ].some(([nextR, nextC]) => {
-      if (
-        nextR >= 0 &&
-        nextR < m &&
-        nextC >= 0 &&
-        nextC < n &&
-        board[nextR][nextC] === word[index]
-      ) {
-        return dfs(nextR, nextC, index + 1);
-      }
-      return false;
-    });
-    board[r][c] = temp;
-    return res;
-  };
-  for (let r = 0; r < m; r++) {
-    for (let c = 0; c < n; c++) {
-      if (board[r][c] === word[0]) {
-        const res = dfs(r, c, 1);
-        if (res) return true;
-      }
-    }
-  }
-  return false;
-}
-
-export function subsetsWithDup(nums: number[]) {
-  nums.sort((a, b) => a - b);
-  const res: number[][] = [];
-  const dfs = (path: number[], index: number, length: number) => {
-    if (path.length === length) {
-      res.push(path);
-      return;
-    }
-    if (path.length + nums.length - index < length) return;
-    for (let i = index; i < nums.length; i++) {
-      if (i > index && nums[i - 1] === nums[i]) continue;
-      dfs(path.concat(nums[i]), i + 1, length);
-    }
-  };
-  for (let i = 0; i <= nums.length; i++) {
-    dfs([], 0, i);
+export function singleNumber1(nums: number[]) {
+  let res = 0;
+  for (let item of nums) {
+    res ^= item;
   }
   return res;
 }
 
-export function restoreIpAddresses(s: string) {
-  const ips: string[] = [];
-  const res: string[] = [];
-  const dfs = (ipIndex: number, index: number) => {
-    if (ipIndex === 4) {
-      if (index === s.length) {
-        res.push(ips.join("."));
-      }
+// binarySearch 6-10
+export function kthSmallest(root: TreeNode | null, k: number) {
+  if (!root) return 0;
+  let index = 0;
+  let res = 0;
+  const dfs = (node: TreeNode) => {
+    if (node.left) dfs(node.left);
+    if (index >= k) return;
+    index++;
+    if (index === k) {
+      res = node.val;
       return;
     }
-    if (index === s.length) return;
-    if (s[index] === "0") {
-      ips[ipIndex] = "0";
-      dfs(ipIndex + 1, index + 1);
-      return;
-    }
-    let item = 0;
-    for (let i = index; i < s.length; i++) {
-      const current = item * 10 + parseInt(s[i]);
-      if (current > 0 && current <= 255) {
-        ips[ipIndex] = current.toString();
-        dfs(ipIndex + 1, i + 1);
-      } else {
-        break;
-      }
-    }
+    if (node.right) dfs(node.right);
   };
-  dfs(0, 0);
+  dfs(root);
   return res;
+}
+
+export function findDuplicate(nums: number[]) {
+  let l = 1,
+    r = nums.length - 1;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    let cnt = 0;
+    for (let item of nums) {
+      if (item <= mid) cnt++;
+    }
+    if (cnt <= mid) {
+      l = mid + 1;
+    } else {
+      r = mid;
+    }
+  }
+  return l;
 }
