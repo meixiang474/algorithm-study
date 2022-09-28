@@ -13,6 +13,7 @@ export default function reverseWords(s: string) {
         j--;
       }
       res.push(s.slice(j + 1, i + 1));
+      i = j - 1;
     } else {
       i--;
     }

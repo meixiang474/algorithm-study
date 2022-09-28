@@ -18,159 +18,96 @@ export class ListNode {
   }
 }
 
-// offer 56-II 57-II
-export function singleNumber(nums: number[]) {
-  const map = new Map<number, number>();
-  for (let item of nums) {
-    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
-  }
-  for (let [key, value] of map) {
-    if (value === 1) return key;
-  }
-}
-
-export function findSequence(target: number) {
-  const res: number[][] = [];
-  let l = 1,
-    r = 2;
+// offer 57 58-I
+export function twoSum(nums: number[], target: number) {
+  let l = 0,
+    r = nums.length - 1;
   while (l < r) {
-    const sum = ((l + r) * (r - l + 1)) / 2;
+    const sum = nums[l] + nums[r];
     if (sum === target) {
-      const arr = [];
-      for (let i = l; i <= r; i++) {
-        arr.push(i);
+      return [nums[l], nums[r]];
+    }
+    if (sum > target) {
+      r--;
+    } else {
+      l++;
+    }
+  }
+  return [];
+}
+
+export function reverseWords(s: string) {
+  const res: string[] = [];
+  s = s.trim();
+  for (let i = s.length - 1; i >= 0; i--) {
+    if (s[i] !== " ") {
+      let j = i;
+      while (s[j] !== " " && j >= 0) {
+        j--;
       }
-      res.push(arr);
-      l++;
-    } else if (sum < target) {
-      r++;
-    } else {
-      l++;
+      res.push(s.slice(j + 1, i + 1));
+      i = j;
     }
   }
-  return res;
+  return res.join(" ");
 }
 
-// binary search
-export function binarySearch(nums: number[], target: number) {
-  const search = (nums: number[], l: number, r: number): number => {
-    if (l > r) return -1;
-    const mid = Math.floor(l + (r - l) / 2);
-    if (nums[mid] === target) {
-      return mid;
-    } else if (nums[mid] > target) {
-      return search(nums, l, r - 1);
-    } else {
-      return search(nums, l + 1, r);
-    }
-  };
-  return search(nums, 0, nums.length - 1);
+// bst
+interface Visitor {
+  visit: (v: number) => void;
 }
 
-export function binarySearch1(nums: number[], target: number) {
-  let l = 0,
-    r = nums.length;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l) / 2);
-    if (nums[mid] === target) {
-      return mid;
-    } else if (nums[mid] > target) {
-      r = mid;
-    } else {
-      l = mid + 1;
-    }
+export class BST {
+  root: TreeNode | null;
+  size: number;
+  constructor() {
+    this.root = null;
+    this.size = 0;
   }
-  return -1;
-}
-
-// > target的第一个
-export function upper(nums: number[], target: number) {
-  let l = 0,
-    r = nums.length;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l) / 2);
-    if (nums[mid] <= target) {
-      l = mid + 1;
-    } else {
-      r = mid;
+  getSize() {
+    return this.size;
+  }
+  isEmpty() {
+    return this.size === 0;
+  }
+  add(item: number) {
+    this.root = this.addNode(this.root, item);
+  }
+  addNode(node: TreeNode | null, item: number) {
+    if (!node) {
+      this.size++;
+      return new TreeNode(item);
     }
-  }
-  return l;
-}
-
-// = target的最后一个或者 > target的第一个
-export function ceil(nums: number[], target: number) {
-  const index = upper(nums, target);
-  if (index - 1 >= 0 && nums[index - 1] === target) {
-    return index - 1;
-  }
-  return index;
-}
-
-// = target第一个或者 > target第一个
-export function lowerCeil(nums: number[], target: number) {
-  let l = 0,
-    r = nums.length;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l) / 2);
-    if (nums[mid] >= target) {
-      r = mid;
+    if (node.val === item) return node;
+    if (node.val < item) {
+      node.right = this.addNode(node.right, item);
     } else {
-      l = mid + 1;
+      node.left = this.addNode(node.left, item);
+    }
+    return node;
+  }
+  contains(item: number) {
+    return this.containsNode(this.root, item);
+  }
+  containsNode(node: TreeNode | null, item: number): boolean {
+    if (!node) return false;
+    if (node.val === item) return true;
+    if (node.val < item) return this.containsNode(node.right, item);
+    return this.containsNode(node.left, item);
+  }
+  preOrder(visitor: Visitor) {
+    this.preOrderNode(this.root, visitor);
+  }
+  preOrderNode(node: TreeNode | null, visitor: Visitor) {
+    if (node) {
+      visitor.visit(node.val);
+      this.preOrderNode(node.left, visitor);
+      this.preOrderNode(node.right, visitor);
     }
   }
-  return l;
-}
-
-// < target得第一个
-export function lower(nums: number[], target: number) {
-  let l = -1,
-    r = nums.length - 1;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l + 1) / 2);
-    if (nums[mid] < target) {
-      l = mid;
-    } else {
-      r = mid - 1;
-    }
+  inOrder(visitor: Visitor) {
+    // todo
   }
-  return l;
-}
-
-// = target的最后一个，< target的第一个
-export function upperFloor(nums: number[], target: number) {
-  let l = -1,
-    r = nums.length - 1;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l + 1) / 2);
-    if (nums[mid] <= target) {
-      l = mid;
-    } else {
-      r = mid - 1;
-    }
-  }
-  return l;
-}
-
-// < target得第一个，= target得第一个
-export function lowerFloor(nums: number[], target: number) {
-  const index = lower(nums, target);
-  if (index + 1 < nums.length && nums[index + 1] === target) return index + 1;
-  return index;
-}
-
-export function fn(x: number) {
-  let l = 0,
-    r = x;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l + 1) / 2);
-    if (mid ** 2 <= x) {
-      l = mid;
-    } else {
-      r = mid - 1;
-    }
-  }
-  return l;
 }
 
 // hot 45 - 48
@@ -260,4 +197,49 @@ export function findDuplicate(nums: number[]) {
     }
   }
   return l;
+}
+
+export function lengthOfLIS(nums: number[]) {
+  const dp = [1];
+  let res = 1;
+  for (let i = 1; i < nums.length; i++) {
+    dp[i] = 1;
+    for (let j = 0; j < i; j++) {
+      if (nums[j] < nums[i]) {
+        dp[i] = Math.max(dp[i], dp[j] + 1);
+      }
+    }
+    res = Math.max(res, dp[i]);
+  }
+  return res;
+}
+
+export function intersection(nums1: number[], nums2: number[]) {
+  const set = new Set<number>();
+  for (let item of nums1) {
+    set.add(item);
+  }
+  const res: number[] = [];
+  for (let item of nums2) {
+    if (set.has(item)) {
+      res.push(item);
+      set.delete(item);
+    }
+  }
+  return res;
+}
+
+export function intersect(nums1: number[], nums2: number[]) {
+  const map = new Map<number, number>();
+  for (let item of nums1) {
+    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
+  }
+  const res: number[] = [];
+  for (let item of nums2) {
+    if (map.get(item)! > 0) {
+      res.push(item);
+      map.set(item, map.get(item)! - 1);
+    }
+  }
+  return res;
 }
