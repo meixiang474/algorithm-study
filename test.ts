@@ -106,7 +106,107 @@ export class BST {
     }
   }
   inOrder(visitor: Visitor) {
-    // todo
+    this.inOrderNode(this.root, visitor);
+  }
+  inOrderNode(node: TreeNode | null, visitor: Visitor) {
+    if (node) {
+      this.inOrderNode(node.left, visitor);
+      visitor.visit(node.val);
+      this.inOrderNode(node.right, visitor);
+    }
+  }
+  postOrder(visitor: Visitor) {
+    this.postOrderNode(this.root, visitor);
+  }
+  postOrderNode(node: TreeNode | null, visitor: Visitor) {
+    if (node) {
+      this.postOrderNode(node.left, visitor);
+      this.postOrderNode(node.right, visitor);
+      visitor.visit(node.val);
+    }
+  }
+  preOrderNR(visitor: Visitor) {
+    if (!this.root) return;
+    const stack: TreeNode[] = [this.root];
+    while (stack.length) {
+      const current = stack.pop()!;
+      visitor.visit(current.val);
+      if (current.right) stack.push(current.right);
+      if (current.left) stack.push(current.left);
+    }
+  }
+  levelOrder(visitor: Visitor) {
+    if (!this.root) return;
+    const queue: TreeNode[] = [this.root];
+    while (queue.length) {
+      const current = queue.shift()!;
+      visitor.visit(current.val);
+      if (current.left) queue.push(current.left);
+      if (current.right) queue.push(current.right);
+    }
+  }
+  minimum() {
+    if (!this.root) throw new Error("error");
+    return this.minimumNode(this.root);
+  }
+  minimumNode(node: TreeNode): TreeNode {
+    if (!node.left) return node;
+    return this.minimumNode(node.left);
+  }
+  maximum() {
+    if (!this.root) throw new Error("error");
+    return this.maximumNode(this.root);
+  }
+  maximumNode(node: TreeNode): TreeNode {
+    if (!node.right) return node;
+    return this.maximumNode(node.right);
+  }
+  removeMin() {
+    if (!this.root) throw new Error("error");
+    const { res, next } = this.removeMinNode(this.root);
+    this.root = next;
+    return res;
+  }
+  removeMinNode(node: TreeNode): { res: number; next: TreeNode | null } {
+    if (!node.left) {
+      const res = node.val;
+      this.size--;
+      return {
+        res,
+        next: node.right,
+      };
+    }
+    const { res, next } = this.removeMinNode(node.left);
+    node.left = next;
+    return {
+      res,
+      next: node,
+    };
+  }
+  removeMax() {
+    if (!this.root) throw new Error("error");
+    const { res, next } = this.removeMaxNode(this.root);
+    this.root = next;
+    return res;
+  }
+  removeMaxNode(node: TreeNode): { res: number; next: TreeNode | null } {
+    if (!node.right) {
+      this.size--;
+      const res = node.val;
+      return {
+        res,
+        next: node.left,
+      };
+    }
+    const { res, next } = this.removeMaxNode(node.right);
+    node.right = next;
+    return {
+      res,
+      next: node,
+    };
+  }
+  remove() {
+    // toto
   }
 }
 
