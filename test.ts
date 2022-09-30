@@ -205,62 +205,193 @@ export class BST {
       next: node,
     };
   }
-  remove() {
-    // toto
+  remove(item: number) {
+    this.root = this.removeNode(this.root, item);
   }
-}
-
-// hot 45 - 48
-export function maxProfit(prices: number[]) {
-  let profit = 0;
-  for (let i = 0; i < prices.length; i++) {
-    if (prices[i + 1] > prices[i]) {
-      profit += prices[i + 1] - prices[i];
+  removeNode(node: TreeNode | null, item: number): TreeNode | null {
+    if (!node) return node;
+    if (node.val > item) {
+      node.left = this.removeNode(node.left, item);
+      return node;
+    }
+    if (node.val < item) {
+      node.right = this.removeNode(node.right, item);
+      return node;
+    }
+    if (!node.left) {
+      this.size--;
+      return node.right;
+    } else if (!node.right) {
+      this.size--;
+      return node.left;
+    } else {
+      const successor = this.maximumNode(node.right);
+      successor.left = node.left;
+      successor.right = this.removeMinNode(node.right).next;
+      return successor;
     }
   }
-  return profit;
 }
 
-export function maxPathSum(root: TreeNode | null) {
+export function maxDepth(root: TreeNode | null) {
   if (!root) return 0;
-  let res = -Infinity;
-  const dfs = (node: TreeNode): number => {
-    const left = Math.max(node.left ? dfs(node.left) : 0, 0);
-    const right = Math.max(node.right ? dfs(node.right) : 0, 0);
-    res = Math.max(node.val + left + right, res);
-    return Math.max(left, right) + node.val;
+  let res = 0;
+  const dfs = (node: TreeNode, level: number) => {
+    if (!node.left && !node.right) {
+      res = Math.max(res, level);
+      return;
+    }
+    if (node.left) dfs(node.left, level + 1);
+    if (node.right) dfs(node.right, level + 1);
   };
-  dfs(root);
   return res;
 }
 
-export function longestConsecutive(nums: number[]) {
-  const set = new Set<number>();
-  for (let item of nums) {
-    set.add(item);
+export function minDepth(root: TreeNode | null) {
+  if (!root) return 0;
+  const queue: [TreeNode, number][] = [[root, 1]];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    if (!current.left && !current.right) {
+      return level;
+    }
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
   }
-  let res = 0;
-  for (let item of nums) {
-    if (!set.has(item - 1)) {
-      let current = item;
-      let length = 1;
-      while (set.has(current + 1)) {
-        current++;
-        length++;
-      }
-      res = Math.max(res, length);
+}
+
+export function levelOrder(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[][] = [];
+  const queue: [TreeNode, number][] = [[root, 0]];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    const arr = res[level] || (res[level] = []);
+    arr.push(current.val);
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
+  }
+  return res;
+}
+
+export function inorderTraversal(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  const dfs = (node: TreeNode) => {
+    if (node.left) dfs(node.left);
+    res.push(node.val);
+    if (node.right) dfs(node.right);
+  };
+  return res;
+}
+
+export function inorderTraversal1(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  const stack: TreeNode[] = [];
+  let p: TreeNode | null = root;
+  while (p || stack.length) {
+    while (p) {
+      stack.push(p);
+      p = p.left;
+    }
+    const current = stack.pop()!;
+    res.push(current.val);
+    p = current.right;
+  }
+  return res;
+}
+
+export function hasPathSum(root: TreeNode | null, sum: number) {
+  if (!root) return false;
+  let res = false;
+  const dfs = (node: TreeNode, s: number) => {
+    if (!node.left && !node.right && s === sum) {
+      res = true;
+      return;
+    }
+    if (node.left) dfs(node.left, node.left.val + s);
+    if (node.right) dfs(node.right, node.right.val);
+  };
+  dfs(root, root.val);
+  return res;
+}
+
+export function postOrderTraversal(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  const stack: TreeNode[] = [];
+  let p: TreeNode | null = root;
+  let prevRight: TreeNode | null = null;
+  while (p || stack.length) {
+    while (p) {
+      stack.push(p);
+      p = p.left;
+    }
+    const current = stack.pop()!;
+    if (!current.right || current.right === prevRight) {
+      res.push(current.val);
+      prevRight = current;
+    } else {
+      stack.push(current);
+      p = current.right;
     }
   }
   return res;
 }
 
-export function singleNumber1(nums: number[]) {
-  let res = 0;
-  for (let item of nums) {
-    res ^= item;
+// hot 49 - 52
+export function wordBreak(s: string, wordDict: string[]) {
+  const dp = [true];
+  for (let i = 1; i <= s.length; i++) {
+    dp[i] = false;
+    for (let j = 0; j < i; j++) {
+      if (dp[j] && wordDict.includes(s.slice(j, i))) {
+        dp[i] = true;
+        break;
+      }
+    }
   }
-  return res;
+  return dp[s.length];
 }
+
+export function hasCycle(head: ListNode | null) {
+  if (!head) return false;
+  let slow: ListNode | null = head;
+  let fast: ListNode | null = head;
+  while (slow && fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
+    if (slow === fast) return true;
+  }
+  return false;
+}
+
+export function detectCycle(head: ListNode | null) {
+  if (!head) return null;
+  let slow: ListNode | null = head;
+  let fast: ListNode | null = head;
+  let hasCycle = false;
+  while (slow && fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
+    if (slow === fast) {
+      hasCycle = true;
+      break;
+    }
+  }
+  if (!hasCycle) return null;
+  let res: ListNode | null = head;
+  while (res && slow) {
+    if (res === slow) {
+      return res;
+    }
+    res = res.next;
+    slow = slow.next;
+  }
+}
+
+// todo
 
 // binarySearch 6-10
 export function kthSmallest(root: TreeNode | null, k: number) {

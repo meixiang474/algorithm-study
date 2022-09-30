@@ -27,19 +27,19 @@ function fn(root: TreeNode | null) {
   return res;
 }
 
-// function fn1(root: TreeNode | null) {
-//   if (!root) return [];
-//   const res: number[] = [];
-//   const stack: TreeNode[] = [];
-//   let p: TreeNode | null = root;
-//   while (stack.length || p) {
-//     while (p) {
-//       stack.push(p);
-//       p = p.left;
-//     }
-//     const n = stack.pop()!;
-//     res.push(n.val);
-//     p = n.right;
-//   }
-//   return res;
-// }
+function fn1(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  const stack: TreeNode[] = [];
+  let p: TreeNode | null = root;
+  while (stack.length || p) {
+    while (p) {
+      stack.push(p);
+      p = p.left;
+    }
+    const n = stack.pop()!;
+    res.push(n.val);
+    p = n.right;
+  }
+  return res;
+}
