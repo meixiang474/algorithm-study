@@ -391,85 +391,117 @@ export function detectCycle(head: ListNode | null) {
   }
 }
 
-// todo
-
-// binarySearch 6-10
-export function kthSmallest(root: TreeNode | null, k: number) {
-  if (!root) return 0;
-  let index = 0;
-  let res = 0;
-  const dfs = (node: TreeNode) => {
-    if (node.left) dfs(node.left);
-    if (index >= k) return;
-    index++;
-    if (index === k) {
-      res = node.val;
-      return;
-    }
-    if (node.right) dfs(node.right);
-  };
-  dfs(root);
-  return res;
-}
-
-export function findDuplicate(nums: number[]) {
-  let l = 1,
-    r = nums.length - 1;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l) / 2);
-    let cnt = 0;
-    for (let item of nums) {
-      if (item <= mid) cnt++;
-    }
-    if (cnt <= mid) {
-      l = mid + 1;
-    } else {
-      r = mid;
-    }
+export class DLinkedListNode {
+  key: number;
+  value: number;
+  prev: DLinkedListNode | null;
+  next: DLinkedListNode | null;
+  constructor(key: number, value: number) {
+    this.key = key;
+    this.value = value;
+    this.prev = null;
+    this.next = null;
   }
-  return l;
 }
 
-export function lengthOfLIS(nums: number[]) {
-  const dp = [1];
-  let res = 1;
-  for (let i = 1; i < nums.length; i++) {
-    dp[i] = 1;
-    for (let j = 0; j < i; j++) {
-      if (nums[j] < nums[i]) {
-        dp[i] = Math.max(dp[i], dp[j] + 1);
+export class LURCache {
+  capacity: number;
+  size: number;
+  head: DLinkedListNode;
+  tail: DLinkedListNode;
+  cache: Map<number, DLinkedListNode>;
+  constructor(capacity: number) {
+    this.capacity = capacity;
+    this.size = 0;
+    this.head = new DLinkedListNode(-1, -1);
+    this.tail = new DLinkedListNode(-1, -1);
+    this.head.next = this.tail;
+    this.tail.prev = this.head;
+    this.cache = new Map();
+  }
+  addToHead(node: DLinkedListNode) {
+    node.prev = this.head;
+    node.next = this.head.next;
+    this.head.next = node;
+    node.next!.prev = node;
+  }
+  removeNode(node: DLinkedListNode) {
+    node.prev!.next = node.next;
+    node.next!.prev = node.prev;
+  }
+  moveToHead(node: DLinkedListNode) {
+    this.removeNode(node);
+    this.addToHead(node);
+  }
+  get(key: number) {
+    const cacheNode = this.cache.get(key);
+    if (!cacheNode) return -1;
+    this.moveToHead(cacheNode);
+    return cacheNode.value;
+  }
+  put(key: number, value: number) {
+    const cacheNode = this.cache.get(key);
+    if (!cacheNode) {
+      const newNode = new DLinkedListNode(key, value);
+      this.cache.set(key, newNode);
+      this.size++;
+      if (this.size > this.capacity) {
+        const tail = this.tail.prev!;
+        this.removeNode(tail);
+        this.cache.delete(tail.key);
+        this.size--;
       }
+    } else {
+      this.moveToHead(cacheNode);
+      cacheNode.value = value;
     }
-    res = Math.max(res, dp[i]);
+  }
+}
+
+// bfs 6-10
+export function rightSideView(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  const queue: [TreeNode, number][] = [[root, 0]];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    res[level] = current.val;
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
   }
   return res;
 }
 
-export function intersection(nums1: number[], nums2: number[]) {
-  const set = new Set<number>();
-  for (let item of nums1) {
-    set.add(item);
-  }
-  const res: number[] = [];
-  for (let item of nums2) {
-    if (set.has(item)) {
-      res.push(item);
-      set.delete(item);
-    }
-  }
-  return res;
-}
-
-export function intersect(nums1: number[], nums2: number[]) {
-  const map = new Map<number, number>();
-  for (let item of nums1) {
-    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
-  }
-  const res: number[] = [];
-  for (let item of nums2) {
-    if (map.get(item)! > 0) {
-      res.push(item);
-      map.set(item, map.get(item)! - 1);
+export function numIslands(grid: string[][]) {
+  if (grid.length === 0 || grid[0].length === 0) return 0;
+  const m = grid.length;
+  const n = grid[0].length;
+  const dfs = (r: number, c: number) => {
+    grid[r][c] = "0";
+    [
+      [r + 1, c],
+      [r - 1, c],
+      [r, c + 1],
+      [r, c - 1],
+    ].forEach(([nextR, nextC]) => {
+      if (
+        nextR >= 0 &&
+        nextR < m &&
+        nextC >= 0 &&
+        nextC < n &&
+        grid[nextR][nextC] === "1"
+      ) {
+        dfs(nextR, nextC);
+      }
+    });
+  };
+  let res = 0;
+  for (let r = 0; r < m; r++) {
+    for (let c = 0; c < n; c++) {
+      if (grid[r][c] === "1") {
+        res++;
+        dfs(r, c);
+      }
     }
   }
   return res;
