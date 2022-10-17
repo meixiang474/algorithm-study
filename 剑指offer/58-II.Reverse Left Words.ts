@@ -5,5 +5,5 @@
 export default function reverseLeftWords(s: string, n: number) {
   const tail = s.slice(n);
   const front = s.slice(0, n);
-  return front + tail;
+  return tail + front;
 }
