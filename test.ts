@@ -205,8 +205,136 @@ export class LinkedListMap<K = string, V = any> {
       node.value = value;
     }
   }
-  // todo
+  set(key: K, value: V) {
+    const node = this.getNode(key);
+    if (!node) throw new Error("error");
+    node.value = value;
+  }
+  remove(key: K) {
+    let prev = this.dummyHead;
+    while (prev.next) {
+      if (prev.next.key === key) {
+        break;
+      }
+      prev = prev.next;
+    }
+    if (prev.next) {
+      const node = prev.next;
+      prev.next = prev.next.next;
+      this.size--;
+      return node.value;
+    }
+    return null;
+  }
 }
+
+export class BSTMapNode<K = number, V = any> {
+  key: K;
+  value: V;
+  left: BSTMapNode<K, V> | null;
+  right: BSTMapNode<K, V> | null;
+  constructor(key: K, value: V) {
+    this.key = key;
+    this.value = value;
+    this.left = null;
+    this.right = null;
+  }
+}
+
+export class BSTMap<K = number, V = any> {
+  root: BSTMapNode<K, V> | null;
+  size: number;
+  constructor(compare: (a: K, b: K) => boolean) {
+    this.root = null;
+    this.size = 0;
+    this.compare = compare || this.compare;
+  }
+  compare(a: K, b: K) {
+    return a < b;
+  }
+  add(key: K, value: V) {
+    this.root = this.addNode(key, value, this.root);
+  }
+  addNode(key: K, value: V, node: BSTMapNode<K, V> | null) {
+    if (!node) {
+      this.size++;
+      return new BSTMapNode(key, value);
+    }
+    if (this.compare(node.key, key)) {
+      node.right = this.addNode(key, value, node.right);
+    } else if (this.compare(key, node.key)) {
+      node.left = this.addNode(key, value, node.left);
+    } else {
+      node.value = value;
+    }
+    return node;
+  }
+  getNode(node: BSTMapNode<K, V> | null, key: K): BSTMapNode<K, V> | null {
+    if (!node) return null;
+    if (this.compare(node.key, key)) {
+      return this.getNode(node.right, key);
+    } else if (this.compare(key, node.key)) {
+      return this.getNode(node.left, key);
+    } else {
+      return node;
+    }
+  }
+  contains(key: K) {
+    return this.getNode(this.root, key) != null;
+  }
+  get(key: K) {
+    const node = this.getNode(this.root, key);
+    return node ? node.value : null;
+  }
+  set(key: K, value: V) {
+    const node = this.getNode(this.root, key);
+    if (!node) throw new Error("error");
+    node.value = value;
+  }
+  minimumNode(node: BSTMapNode<K, V>): BSTMapNode<K, V> {
+    if (!node.left) return node;
+    return this.minimumNode(node.left);
+  }
+  removeMinNode(node: BSTMapNode<K, V>) {
+    if (!node.left) {
+      this.size--;
+      return node.right;
+    }
+    node.left = this.removeMinNode(node.left);
+    return node;
+  }
+  remove(key: K) {
+    const node = this.getNode(this.root, key);
+    if (!node) return null;
+    this.root = this.removeNode(this.root, key);
+    return node.value;
+  }
+  removeNode(node: BSTMapNode<K, V> | null, key: K) {
+    if (!node) return null;
+    if (this.compare(node.key, key)) {
+      node.right = this.removeNode(node.right, key);
+      return node;
+    }
+    if (this.compare(key, node.key)) {
+      node.left = this.removeNode(node.left, key);
+      return node;
+    }
+    if (!node.left) {
+      this.size--;
+      return node.right;
+    } else if (!node.right) {
+      this.size--;
+      return node.left;
+    } else {
+      const successor = this.minimumNode(node.right);
+      successor.left = node.left;
+      successor.right = this.removeMinNode(node.right);
+      return successor;
+    }
+  }
+}
+
+// todo
 
 // hot 49 - 52
 export function wordBreak(s: string, wordDict: string[]) {
