@@ -334,124 +334,119 @@ export class BSTMap<K = number, V = any> {
   }
 }
 
-// todo
+export function intersection(nums1: number[], nums2: number[]) {
+  const map = new Map<number, boolean>();
+  for (let item of nums1) {
+    map.set(item, true);
+  }
+  const res: number[] = [];
+  for (let item of nums2) {
+    if (map.get(item)) {
+      res.push(item);
+      map.delete(item);
+    }
+  }
+  return res;
+}
 
-// hot 49 - 52
-export function wordBreak(s: string, wordDict: string[]) {
-  const dp = [true];
-  for (let i = 1; i <= s.length; i++) {
-    dp[i] = false;
-    for (let j = 0; j < i; j++) {
-      if (dp[j] && wordDict.includes(s.slice(j, i))) {
-        dp[i] = true;
-        break;
+export function twoSum(nums: number[], target: number) {
+  const map = new Map<number, number>();
+  for (let i = 0; i < nums.length; i++) {
+    const current = nums[i];
+    const rest = target - current;
+    if (map.has(rest)) {
+      return [i, map.get(rest)];
+    }
+    map.set(current, i);
+  }
+}
+
+export function longestSubstring(s: string) {
+  const map = new Map<string, number>();
+  let res = 0;
+  let l = 0,
+    r = 0;
+  while (r < s.length) {
+    const currentr = s[r];
+    if (map.has(currentr) && map.get(currentr)! >= l) {
+      l = map.get(currentr)! + 1;
+    }
+    res = Math.max(res, r - l + 1);
+    map.set(currentr, r);
+    r++;
+  }
+  return res;
+}
+
+export function shortestSubstring(s: string, t: string) {
+  if (s === t) return s;
+  const need = new Map<string, number>();
+  for (let item of t) {
+    need.set(item, need.has(item) ? need.get(item)! + 1 : 1);
+  }
+  let needType = need.size;
+  let l = 0,
+    r = 0;
+  let res = "";
+  while (r < s.length) {
+    const currentr = s[r];
+    if (need.has(currentr)) {
+      need.set(currentr, need.get(currentr)! - 1);
+      if (need.get(currentr) === 0) {
+        needType--;
       }
     }
-  }
-  return dp[s.length];
-}
-
-export function hasCycle(head: ListNode | null) {
-  if (!head) return false;
-  let slow: ListNode | null = head;
-  let fast: ListNode | null = head;
-  while (slow && fast && fast.next) {
-    slow = slow.next;
-    fast = fast.next.next;
-    if (slow === fast) return true;
-  }
-  return false;
-}
-
-export function detectCycle(head: ListNode | null) {
-  if (!head) return null;
-  let slow: ListNode | null = head;
-  let fast: ListNode | null = head;
-  let hasCycle = false;
-  while (slow && fast && fast.next) {
-    slow = slow.next;
-    fast = fast.next.next;
-    if (slow === fast) {
-      hasCycle = true;
-      break;
-    }
-  }
-  if (!hasCycle) return null;
-  let res: ListNode | null = head;
-  while (res && slow) {
-    if (res === slow) {
-      return res;
-    }
-    res = res.next;
-    slow = slow.next;
-  }
-}
-
-export class DLinkedListNode {
-  key: number;
-  value: number;
-  prev: DLinkedListNode | null;
-  next: DLinkedListNode | null;
-  constructor(key: number, value: number) {
-    this.key = key;
-    this.value = value;
-    this.prev = null;
-    this.next = null;
-  }
-}
-
-export class LURCache {
-  capacity: number;
-  size: number;
-  head: DLinkedListNode;
-  tail: DLinkedListNode;
-  cache: Map<number, DLinkedListNode>;
-  constructor(capacity: number) {
-    this.capacity = capacity;
-    this.size = 0;
-    this.head = new DLinkedListNode(-1, -1);
-    this.tail = new DLinkedListNode(-1, -1);
-    this.head.next = this.tail;
-    this.tail.prev = this.head;
-    this.cache = new Map();
-  }
-  addToHead(node: DLinkedListNode) {
-    node.prev = this.head;
-    node.next = this.head.next;
-    this.head.next = node;
-    node.next!.prev = node;
-  }
-  removeNode(node: DLinkedListNode) {
-    node.prev!.next = node.next;
-    node.next!.prev = node.prev;
-  }
-  moveToHead(node: DLinkedListNode) {
-    this.removeNode(node);
-    this.addToHead(node);
-  }
-  get(key: number) {
-    const cacheNode = this.cache.get(key);
-    if (!cacheNode) return -1;
-    this.moveToHead(cacheNode);
-    return cacheNode.value;
-  }
-  put(key: number, value: number) {
-    const cacheNode = this.cache.get(key);
-    if (!cacheNode) {
-      const newNode = new DLinkedListNode(key, value);
-      this.cache.set(key, newNode);
-      this.size++;
-      if (this.size > this.capacity) {
-        const tail = this.tail.prev!;
-        this.removeNode(tail);
-        this.cache.delete(tail.key);
-        this.size--;
+    while (needType === 0) {
+      const newRes = s.slice(l, r + 1);
+      if (!res || newRes.length < res.length) res = newRes;
+      const currentl = s[l];
+      if (need.has(currentl)) {
+        need.set(currentl, need.get(currentl)! + 1);
+        if (need.get(currentl) === 1) {
+          needType++;
+        }
       }
+      l++;
+    }
+    r++;
+  }
+  return res;
+}
+
+// hot 53 - 56
+export function sortList(head: ListNode | null) {
+  if (!head || !head.next) return head;
+  let slow: ListNode | null = head;
+  let fast: ListNode | null = head;
+  while (slow && fast && fast.next && fast.next.next) {
+    slow = slow.next;
+    fast = fast.next.next;
+  }
+  const next = slow!.next;
+  slow!.next = null;
+  const l1 = sortList(head);
+  const l2 = sortList(next);
+  const dummyHead = new ListNode(-1);
+  let p1 = l1;
+  let p2 = l2;
+  let p3 = dummyHead;
+  while (p1 && p2) {
+    if (p1.val <= p2.val) {
+      p3.next = p1;
+      p1 = p1.next;
     } else {
-      this.moveToHead(cacheNode);
-      cacheNode.value = value;
+      p3.next = p2;
+      p2 = p2.next;
     }
+    p3 = p3.next;
   }
+  if (p1) p3.next = p1;
+  if (p2) p3.next = p2;
+  return dummyHead.next;
+}
+
+export function maxProduct() {
+  // todo
 }
 
 // bfs 6-10
