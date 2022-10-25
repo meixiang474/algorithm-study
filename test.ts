@@ -445,140 +445,86 @@ export function sortList(head: ListNode | null) {
   return dummyHead.next;
 }
 
-export function maxProduct() {
-  // todo
-}
-
-// bfs 6-10
-export function rightSideView(root: TreeNode | null) {
-  if (!root) return [];
-  const res: number[] = [];
-  const queue: [TreeNode, number][] = [[root, 0]];
-  while (queue.length) {
-    const [current, level] = queue.shift()!;
-    res[level] = current.val;
-    if (current.left) queue.push([current.left, level + 1]);
-    if (current.right) queue.push([current.right, level + 1]);
+export function maxProduct(nums: number[]) {
+  const max = [nums[0]];
+  const min = [nums[0]];
+  for (let i = 1; i < nums.length; i++) {
+    max[i] = Math.max(nums[i] * max[i - 1], nums[i] * min[i - 1], nums[i]);
+    min[i] = Math.min(nums[i] * min[i - 1], nums[i] * max[i - 1], nums[i]);
   }
-  return res;
+  return Math.max(...max);
 }
 
-export function numIslands(grid: string[][]) {
-  if (grid.length === 0 || grid[0].length === 0) return 0;
-  const m = grid.length;
-  const n = grid[0].length;
-  const dfs = (r: number, c: number) => {
-    grid[r][c] = "0";
-    [
-      [r + 1, c],
-      [r - 1, c],
-      [r, c + 1],
-      [r, c - 1],
-    ].forEach(([nextR, nextC]) => {
-      if (
-        nextR >= 0 &&
-        nextR < m &&
-        nextC >= 0 &&
-        nextC < n &&
-        grid[nextR][nextC] === "1"
-      ) {
-        dfs(nextR, nextC);
-      }
-    });
+export class MinStack {
+  items: number[];
+  queue: number[];
+  constructor() {
+    this.items = [];
+    this.queue = [];
+  }
+  push(item: number) {
+    this.items.push(item);
+    if (this.queue.length === 0 || this.queue[0] >= item) {
+      this.queue.unshift(item);
+    }
+  }
+  pop() {
+    const item = this.items.pop();
+    if (item === this.queue[0]) this.queue.shift();
+    return item;
+  }
+  getMin() {
+    return this.queue[0];
+  }
+  top() {
+    return this.items[this.items.length - 1];
+  }
+}
+
+export function getIntersectionNode(
+  headA: ListNode | null,
+  headB: ListNode | null
+) {
+  let p1 = headA;
+  let p2 = headB;
+  while (p1 !== p2) {
+    p1 = p1 ? p1.next : headB;
+    p2 = p2 ? p2.next : headA;
+  }
+  return p1;
+}
+
+// dfs 6-10
+export function sortedArrayToBST(nums: number[]) {
+  if (nums.length === 0) return null;
+  const mid = Math.floor((nums.length - 1) / 2);
+  const node = new TreeNode(nums[mid]);
+  node.left = sortedArrayToBST(nums.slice(0, mid));
+  node.right = sortedArrayToBST(nums.slice(mid + 1));
+  return node;
+}
+
+export function sortedListToBST(head: ListNode | null) {
+  const buildTree = (head: ListNode | null, tail: ListNode | null) => {
+    if (head === tail) return null;
+    const node = getMid(head, tail);
+    const res = new TreeNode(node.val);
+    res.left = buildTree(head, node);
+    res.right = buildTree(node.next, tail);
+    return res;
   };
-  let res = 0;
-  for (let r = 0; r < m; r++) {
-    for (let c = 0; c < n; c++) {
-      if (grid[r][c] === "1") {
-        res++;
-        dfs(r, c);
-      }
+  const getMid = (head: ListNode | null, tail: ListNode | null) => {
+    let slow = head,
+      fast = head;
+    while (slow !== tail && fast !== tail && fast?.next !== tail) {
+      slow = slow!.next;
+      fast = fast!.next!.next;
     }
-  }
-  return res;
+    return slow!;
+  };
+  return buildTree(head, null);
 }
 
-export function canFinish(numsCourses: number, prerequisites: number[][]) {
-  const inDegree: number[] = new Array(numsCourses).fill(0);
-  const map = new Map<number, number[]>();
-  for (let i = 0; i < prerequisites.length; i++) {
-    inDegree[prerequisites[i][0]]++;
-    if (map.has(prerequisites[i][1])) {
-      map.get(prerequisites[i][1])?.push(prerequisites[i][0]);
-    } else {
-      map.set(prerequisites[i][1], [prerequisites[i][0]]);
-    }
-  }
-  let count = 0;
-  const queue: number[] = [];
-  for (let i = 0; i < inDegree.length; i++) {
-    if (inDegree[i] === 0) {
-      queue.push(i);
-    }
-  }
-  while (queue.length) {
-    const current = queue.shift()!;
-    count++;
-    const arr = map.get(current);
-    if (arr && arr.length > 0) {
-      for (let i = 0; i < arr.length; i++) {
-        inDegree[arr[i]]--;
-        if (inDegree[arr[i]] === 0) {
-          queue.push(arr[i]);
-        }
-      }
-    }
-  }
-  return count === numsCourses;
-}
-
-export function findOrder(numCourses: number, prerequisites: number[][]) {
-  const inDegree: number[] = new Array(numCourses).fill(0);
-  const map = new Map<number, number[]>();
-  for (let i = 0; i < prerequisites.length; i++) {
-    inDegree[prerequisites[i][0]]++;
-    if (map.has(prerequisites[i][1])) {
-      map.get(prerequisites[i][1])?.push(prerequisites[i][0]);
-    } else {
-      map.set(prerequisites[i][1], [prerequisites[i][0]]);
-    }
-  }
-  const queue: number[] = [];
-  const res: number[] = [];
-  for (let i = 0; i < inDegree.length; i++) {
-    if (inDegree[i] === 0) {
-      queue.push(i);
-    }
-  }
-  while (queue.length) {
-    const current = queue.shift()!;
-    res.push(current);
-    const arr = map.get(current);
-    if (arr && arr.length > 0) {
-      for (let i = 0; i < arr.length; i++) {
-        inDegree[arr[i]]--;
-        if (inDegree[arr[i]] === 0) {
-          queue.push(arr[i]);
-        }
-      }
-    }
-  }
-  return res.length === numCourses ? res : [];
-}
-
-export function largestValues(root: TreeNode | null) {
-  if (!root) return [];
-  const queue: [TreeNode, number][] = [[root, 0]];
-  const res: number[] = [];
-  while (queue.length) {
-    const [current, level] = queue.shift()!;
-    if (res[level] != null) {
-      res[level] = Math.max(res[level], current.val);
-    } else {
-      res[level] = current.val;
-    }
-    if (current.left) queue.push([current.left, level + 1]);
-    if (current.right) queue.push([current.right, level + 1]);
-  }
-  return res;
+export function isBalanced(root: TreeNode | null) {
+  // todo
 }
