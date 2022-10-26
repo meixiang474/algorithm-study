@@ -20,40 +20,11 @@ export class ListNode {
   }
 }
 
-// offer 58-II 59-II
-export function reverseLeftWords(s: string, n: number) {
-  const tail = s.slice(n);
-  const front = s.slice(0, n);
-  return tail + front;
+// offer 60 61
+export function dicesProbability(n: number) {
+  // todo
 }
 
-export class MaxQueue {
-  items: number[];
-  queue: number[];
-  constructor() {
-    this.items = [];
-    this.queue = [];
-  }
-  enqueue(item: number) {
-    this.items.push(item);
-    while (this.queue.length > 0 && this.queue[this.queue.length - 1] < item) {
-      this.queue.pop();
-    }
-    this.queue.push(item);
-  }
-  dequeue() {
-    if (this.items.length === 0) return -1;
-    const res = this.items.shift()!;
-    if (res === this.queue[0]) {
-      this.queue.shift();
-    }
-    return res;
-  }
-  getMax() {
-    if (this.items.length === 0) return -1;
-    return this.queue[0];
-  }
-}
 
 // set map
 export class BSTSet<T = number> {
@@ -525,6 +496,37 @@ export function sortedListToBST(head: ListNode | null) {
   return buildTree(head, null);
 }
 
-export function isBalanced(root: TreeNode | null) {
-  // todo
+export function isBalanced(root: TreeNode | null): boolean {
+  if (!root) return true;
+  const height = (node: TreeNode | null): number => {
+    if (!node) return 0;
+    return Math.max(height(node.left), height(node.right)) + 1;
+  };
+  return (
+    Math.abs(height(root.left) - height(root.right)) <= 1 &&
+    isBalanced(root.left) &&
+    isBalanced(root.right)
+  );
+}
+
+export function minDepth(root: TreeNode | null) {
+  if (!root) return 0;
+  const queue: [TreeNode, number][] = [[root, 1]];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    if (!current.left && !current.right) return level;
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
+  }
+}
+
+export function hasPathSum(root: TreeNode | null, targetSum: number) {
+  if (!root) return false;
+  const dfs = (node: TreeNode, sum: number): boolean => {
+    if (!node.left && !node.right && sum === targetSum) return true;
+    return [node.left, node.right]
+      .filter((item) => item)
+      .some((node) => dfs(node!, sum + node!.val));
+  };
+  return dfs(root, root.val);
 }
