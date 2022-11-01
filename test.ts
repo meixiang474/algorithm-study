@@ -133,90 +133,104 @@ export function waterFlow(matrix: number[][]) {
   return res;
 }
 
-export function cloneGraph() {
-  // todo
+export class GraphNode {
+  val: number;
+  neighbours: GraphNode[];
+  constructor(val: number, neighbours: GraphNode[] = []) {
+    this.val = val;
+    this.neighbours = neighbours;
+  }
 }
 
-// hot 53 - 56
-export function sortList(head: ListNode | null) {
-  if (!head || !head.next) return head;
-  let slow: ListNode | null = head;
-  let fast: ListNode | null = head;
-  while (slow && fast && fast.next && fast.next.next) {
-    slow = slow.next;
-    fast = fast.next.next;
+export function cloneGraph(node: GraphNode | null) {
+  if (!node) return null;
+  const visited = new Map<GraphNode, GraphNode>();
+  const dfs = (node: GraphNode) => {
+    const newNode = new GraphNode(node.val);
+    visited.set(node, newNode);
+    node.neighbours.forEach((item) => {
+      if (!visited.has(item)) {
+        dfs(item);
+      }
+      newNode.neighbours.push(visited.get(item)!);
+    });
+  };
+  dfs(node);
+  return visited.get(node)!;
+}
+
+export function cloneGraph1(node: GraphNode | null) {
+  if (!node) return null;
+  const queue: GraphNode[] = [node];
+  const visited = new Map<GraphNode, GraphNode>();
+  visited.set(node, new GraphNode(node.val));
+  while (queue.length) {
+    const current = queue.shift()!;
+    current.neighbours.forEach((item) => {
+      if (!visited.has(item)) {
+        visited.set(item, new GraphNode(item.val));
+        queue.push(item);
+      }
+      visited.get(current)!.neighbours.push(visited.get(item)!);
+    });
   }
-  const next = slow!.next;
-  slow!.next = null;
-  const l1 = sortList(head);
-  const l2 = sortList(next);
-  const dummyHead = new ListNode(-1);
-  let p1 = l1;
-  let p2 = l2;
-  let p3 = dummyHead;
-  while (p1 && p2) {
-    if (p1.val <= p2.val) {
-      p3.next = p1;
-      p1 = p1.next;
-    } else {
-      p3.next = p2;
-      p2 = p2.next;
+  return visited.get(node)!;
+}
+
+// hot 57 - 60
+export function majorityElement(nums: number[]) {
+  const map = new Map<number, number>();
+  for (let item of nums) {
+    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
+  }
+  for (let [key, value] of map) {
+    if (value > Math.floor(nums.length / 2)) return key;
+  }
+}
+
+export function rob(nums: number[]) {
+  const dp = [0, nums[0]];
+  for (let i = 2; i <= nums.length; i++) {
+    dp[i] = Math.max(dp[i - 1], dp[i - 2] + nums[i - 1]);
+  }
+  return dp[nums.length];
+}
+
+export function numIslands(grid: string[][]) {
+  if (grid.length === 0 || grid[0].length === 0) return 0;
+  const m = grid.length;
+  const n = grid[0].length;
+  const dfs = (r: number, c: number) => {
+    grid[r][c] = "0";
+    [
+      [r + 1, c],
+      [r - 1, c],
+      [r, c + 1],
+      [r, c - 1],
+    ].forEach(([nextR, nextC]) => {
+      if (
+        nextR >= 0 &&
+        nextR < m &&
+        nextC >= 0 &&
+        nextC < n &&
+        grid[nextR][nextC] === "1"
+      )
+        dfs(nextR, nextC);
+    });
+  };
+  let res = 0;
+  for (let r = 0; r < m; r++) {
+    for (let c = 0; c < n; c++) {
+      if (grid[r][c] === "1") {
+        res++;
+        dfs(r, c);
+      }
     }
-    p3 = p3.next;
   }
-  if (p1) p3.next = p1;
-  if (p2) p3.next = p2;
-  return dummyHead.next;
+  return res;
 }
 
-export function maxProduct(nums: number[]) {
-  const max = [nums[0]];
-  const min = [nums[0]];
-  for (let i = 1; i < nums.length; i++) {
-    max[i] = Math.max(nums[i] * max[i - 1], nums[i] * min[i - 1], nums[i]);
-    min[i] = Math.min(nums[i] * min[i - 1], nums[i] * max[i - 1], nums[i]);
-  }
-  return Math.max(...max);
-}
-
-export class MinStack {
-  items: number[];
-  queue: number[];
-  constructor() {
-    this.items = [];
-    this.queue = [];
-  }
-  push(item: number) {
-    this.items.push(item);
-    if (this.queue.length === 0 || this.queue[0] >= item) {
-      this.queue.unshift(item);
-    }
-  }
-  pop() {
-    const item = this.items.pop();
-    if (item === this.queue[0]) this.queue.shift();
-    return item;
-  }
-  getMin() {
-    return this.queue[0];
-  }
-  top() {
-    return this.items[this.items.length - 1];
-  }
-}
-
-export function getIntersectionNode(
-  headA: ListNode | null,
-  headB: ListNode | null
-) {
-  let p1 = headA;
-  let p2 = headB;
-  while (p1 !== p2) {
-    p1 = p1 ? p1.next : headB;
-    p2 = p2 ? p2.next : headA;
-  }
-  return p1;
-}
+// todo
 
 // dfs 6-10
 export function sortedArrayToBST(nums: number[]) {
