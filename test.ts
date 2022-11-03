@@ -20,36 +20,8 @@ export class ListNode {
   }
 }
 
-// offer 60 61
-export function dicesProbability(n: number) {
-  if (n === 0) return [];
-  const dp = new Array(6).fill(1 / 6);
-  for (let i = 2; i <= n; i++) {
-    const temp: number[] = [];
-    for (let j = 1; j <= 6; j++) {
-      for (let k = 0; k < dp.length; k++) {
-        const sum = k + j - 1;
-        temp[sum] = (temp[sum] || 0) + dp[k] * (1 / 6);
-      }
-    }
-  }
-  return dp;
-}
-
-export function isStraight(nums: number[]) {
-  const set = new Set<number>();
-  let max = 0;
-  let min = 14;
-  for (let item of nums) {
-    if (item === 0) continue;
-    if (set.has(item)) return false;
-    max = Math.max(max, item);
-    min = Math.min(min, item);
-    set.add(item);
-  }
-  return max - min < 5;
-}
-
+// offer 62 63
+// todo
 // graph
 export function bfs(
   graph: Record<number, number[]>,
@@ -230,70 +202,73 @@ export function numIslands(grid: string[][]) {
   return res;
 }
 
-// todo
-
-// dfs 6-10
-export function sortedArrayToBST(nums: number[]) {
-  if (nums.length === 0) return null;
-  const mid = Math.floor((nums.length - 1) / 2);
-  const node = new TreeNode(nums[mid]);
-  node.left = sortedArrayToBST(nums.slice(0, mid));
-  node.right = sortedArrayToBST(nums.slice(mid + 1));
-  return node;
+export function reverseList(head: ListNode | null): ListNode | null {
+  if (!head || !head.next) return head;
+  const res = reverseList(head.next);
+  head.next.next = head;
+  head.next = null;
+  return res;
 }
 
-export function sortedListToBST(head: ListNode | null) {
-  const buildTree = (head: ListNode | null, tail: ListNode | null) => {
-    if (head === tail) return null;
-    const node = getMid(head, tail);
-    const res = new TreeNode(node.val);
-    res.left = buildTree(head, node);
-    res.right = buildTree(node.next, tail);
-    return res;
-  };
-  const getMid = (head: ListNode | null, tail: ListNode | null) => {
-    let slow = head,
-      fast = head;
-    while (slow !== tail && fast !== tail && fast?.next !== tail) {
-      slow = slow!.next;
-      fast = fast!.next!.next;
-    }
-    return slow!;
-  };
-  return buildTree(head, null);
-}
-
-export function isBalanced(root: TreeNode | null): boolean {
-  if (!root) return true;
-  const height = (node: TreeNode | null): number => {
-    if (!node) return 0;
-    return Math.max(height(node.left), height(node.right)) + 1;
-  };
-  return (
-    Math.abs(height(root.left) - height(root.right)) <= 1 &&
-    isBalanced(root.left) &&
-    isBalanced(root.right)
-  );
-}
-
-export function minDepth(root: TreeNode | null) {
-  if (!root) return 0;
-  const queue: [TreeNode, number][] = [[root, 1]];
-  while (queue.length) {
-    const [current, level] = queue.shift()!;
-    if (!current.left && !current.right) return level;
-    if (current.left) queue.push([current.left, level + 1]);
-    if (current.right) queue.push([current.right, level + 1]);
+// dp 6-10
+export function numDecoding(s: string) {
+  if (s.length === 0) return 0;
+  const dp = [1];
+  dp[1] = s[0] === "0" ? 0 : 1;
+  for (let i = 2; i <= s.length; i++) {
+    dp[i] =
+      (s[i - 1] === "0" ? 0 : dp[i - 1]) +
+      (s[i - 2] === "0" || parseInt(s[i - 2] + s[i - 1]) > 26 ? 0 : dp[i - 2]);
   }
+  return dp[s.length];
 }
 
-export function hasPathSum(root: TreeNode | null, targetSum: number) {
-  if (!root) return false;
-  const dfs = (node: TreeNode, sum: number): boolean => {
-    if (!node.left && !node.right && sum === targetSum) return true;
-    return [node.left, node.right]
-      .filter((item) => item)
-      .some((node) => dfs(node!, sum + node!.val));
-  };
-  return dfs(root, root.val);
+export function numTrees(n: number) {
+  const dp = [1, 1];
+  for (let i = 2; i <= n; i++) {
+    if (dp[i] == null) {
+      dp[i] = 0;
+    }
+    for (let j = 1; j <= i; j++) {
+      dp[i] += dp[j - 1] * dp[i - j];
+    }
+  }
+  return dp[n];
+}
+
+export function minimumTotal(triangle: number[][]) {
+  const dp: number[][] = Array.from({ length: triangle.length }, () =>
+    new Array(triangle.length).fill(Infinity)
+  );
+  dp[0][0] = triangle[0][0];
+  for (let i = 1; i < triangle.length; i++) {
+    dp[i][0] = dp[i - 1][0] + triangle[i][0];
+    for (let j = 1; j < i; j++) {
+      dp[i][j] = Math.min(dp[i - 1][j - 1], dp[i - 1][j]) + triangle[i][j];
+    }
+    dp[i][i] = dp[i - 1][i - 1] + triangle[i][i];
+  }
+  return Math.min(...dp[triangle.length - 1]);
+}
+
+export function maxProfit(prices: number[]) {
+  let max = 0;
+  let min = prices[0];
+  for (let i = 1; i < prices.length; i++) {
+    const current = prices[i];
+    const profit = current - min;
+    max = Math.max(max, profit);
+    min = Math.min(current, min);
+  }
+  return max;
+}
+
+export function maxProduct(nums: number[]) {
+  const max = [nums[0]];
+  const min = [nums[0]];
+  for (let i = 1; i < nums.length; i++) {
+    max[i] = Math.max(nums[i] * max[i - 1], nums[i] * min[i - 1], nums[i]);
+    min[i] = Math.min(nums[i] * max[i - 1], nums[i] * min[i - 1], nums[i]);
+  }
+  return Math.max(...max);
 }
