@@ -20,138 +20,46 @@ export class ListNode1 {
   }
 }
 
-// offer 62 63
-export function lastRemaining(n: number, m: number) {
-  const f = (n: number, m: number): number => {
-    if (n === 1) return 0;
-    const x = f(n - 1, m);
-    return (m + x) % n;
-  };
-  return f(n, m);
+// offer 64 68-I
+export function sumNums(n: number) {
+  n && (n += sumNums(n - 1));
+  return n;
 }
 
-export function maxProfit1(prices: number[]) {
-  let max = 0;
-  let min = prices[0];
-  for (let i = 1; i < prices.length; i++) {
-    const current = prices[i];
-    max = Math.max(max, current - min);
-    min = Math.min(min, current);
-  }
-  return max;
-}
-
-// heap
-export class MinHeap<T = number> {
-  heap: T[];
-  constructor(compare?: (a: T, b: T) => boolean) {
-    this.heap = [];
-    this.compare = compare || this.compare;
-  }
-  compare(a: T, b: T) {
-    return a < b;
-  }
-  swap(i: number, j: number) {
-    [this.heap[i], this.heap[j]] = [this.heap[j], this.heap[i]];
-  }
-  insert(item: T) {
-    this.heap.push(item);
-    this.shiftUp(this.heap.length - 1);
-  }
-  getParentIndex(index: number) {
-    return Math.floor((index - 1) / 2);
-  }
-  getLeftIndeex(index: number) {
-    return 2 * index + 1;
-  }
-  getRightIndex(index: number) {
-    return 2 * index + 2;
-  }
-  shiftUp(index: number) {
-    if (index === 0) return;
-    const parentIndex = this.getParentIndex(index);
-    if (
-      this.heap[parentIndex] != null &&
-      this.compare(this.heap[index], this.heap[parentIndex])
-    ) {
-      this.swap(parentIndex, index);
-      this.shiftUp(parentIndex);
+export function lowestCommon(
+  root: TreeNode | null,
+  p: TreeNode | null,
+  q: TreeNode | null
+) {
+  const getPath = (node: TreeNode | null) => {
+    const res: TreeNode[] = [];
+    let current = root;
+    while (current !== node && current && node) {
+      res.push(current);
+      if (current.val > node.val) {
+        current = current.left;
+      } else {
+        current = current.right;
+      }
     }
-  }
-  pop() {
-    if (this.heap.length === 0) throw new Error("error");
-    if (this.heap.length === 1) return this.heap.pop();
-    const res = this.heap[0];
-    this.heap[0] = this.heap.pop()!;
-    this.shiftDown(0);
+    res.push(current!);
     return res;
-  }
-  shiftDown(index: number) {
-    const leftIndex = this.getLeftIndeex(index);
-    const rightIndex = this.getRightIndex(index);
-    if (
-      this.heap[leftIndex] != null &&
-      this.compare(this.heap[index], this.heap[leftIndex])
-    ) {
-      this.swap(leftIndex, index);
-      this.shiftDown(leftIndex);
-    }
-    if (
-      this.heap[rightIndex] != null &&
-      this.compare(this.heap[index], this.heap[rightIndex])
-    ) {
-      this.swap(rightIndex, index);
-      this.shiftDown(rightIndex);
+  };
+  let res = null;
+  const pPath = getPath(p);
+  const qPath = getPath(q);
+  for (let i = 0; i < pPath.length && i < qPath.length; i++) {
+    if (pPath[i] === qPath[i]) {
+      res = pPath[i];
+    } else {
+      break;
     }
   }
-  peek() {
-    if (this.heap.length === 0) throw new Error("error");
-    return this.heap[0];
-  }
-  size() {
-    return this.heap.length;
-  }
+  return res;
 }
 
-export function findKthLargest(nums: number[], k: number) {
-  const heap = new MinHeap();
-  for (let item of nums) {
-    heap.insert(item);
-    if (heap.size() > k) heap.pop();
-  }
-  return heap.peek();
-}
-
-export function topKFrequent(nums: number[], k: number) {
-  const map = new Map<number, number>();
-  for (let item of nums) {
-    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
-  }
-  const heap = new MinHeap<{ value: number; key: number }>(
-    (a, b) => a.value < b.value
-  );
-  for (let [key, value] of map) {
-    heap.insert({ key, value });
-    if (heap.size() > k) heap.pop();
-  }
-  return heap.heap.map((item) => item.key);
-}
-
-export function mergeKLists(lists: (ListNode | null)[]) {
-  const heap = new MinHeap<ListNode>((a, b) => a.val < b.val);
-  for (let item of lists) {
-    if (item) heap.insert(item);
-  }
-  let res = new ListNode(-1);
-  let p = res;
-  while (heap.size()) {
-    const current = heap.pop()!;
-    p.next = current;
-    p = p.next;
-    if (current.next) heap.insert(current.next);
-  }
-  return res.next;
-}
+// fenzhi donggui tanxin huisu
+// todo
 
 // hot 61 - 64
 export function canFinish(numCourses: number, prerequisites: number[][]) {
@@ -335,5 +243,47 @@ export function copyRandomList(head: ListNode | null) {
 }
 
 function isHappy(n: number) {
-  // todo
+  const compute = (n: number) => {
+    return n
+      .toString()
+      .split("")
+      .map((item) => parseInt(item))
+      .reduce((memo, current) => {
+        return memo + current ** 2;
+      }, 0);
+  };
+  const set = new Set<number>();
+  while (!set.has(n)) {
+    if (n === 1) return true;
+    set.add(n);
+    n = compute(n);
+  }
+  return false;
+}
+
+export function isIsomorphic(s: string, t: string) {
+  if (s.length !== t.length) return false;
+  const smap = new Map<string, string>();
+  const tmap = new Map<string, string>();
+  for (let i = 0; i < s.length; i++) {
+    const scurrent = s[i];
+    const tcurrent = t[i];
+    if (
+      (smap.has(scurrent) && smap.get(scurrent) !== tcurrent) ||
+      (tmap.has(tcurrent) && tmap.get(tcurrent) !== scurrent)
+    )
+      return false;
+    smap.set(scurrent, tcurrent);
+    tmap.set(tcurrent, scurrent);
+  }
+  return true;
+}
+
+export function containsDuplicate(nums: number[]) {
+  const set = new Set<number>();
+  for (let item of nums) {
+    if (set.has(item)) return true;
+    set.add(item);
+  }
+  return false;
 }
