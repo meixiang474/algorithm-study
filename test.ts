@@ -59,7 +59,79 @@ export function lowestCommon(
 }
 
 // fenzhi donggui tanxin huisu
-// todo
+export function invertTree(root: TreeNode | null) {
+  if (!root) return null;
+  const dfs = (node: TreeNode) => {
+    const temp = node.left;
+    node.left = node.right;
+    node.right = temp;
+    if (node.left) dfs(node.left);
+    if (node.right) dfs(node.right);
+  };
+  dfs(root);
+  return root;
+}
+
+export function isSameTree(p: TreeNode | null, q: TreeNode | null) {
+  if (!p && !q) return true;
+  if (
+    p &&
+    q &&
+    p.val === q.val &&
+    isSameTree(p.left, q.left) &&
+    isSameTree(p.right, q.right)
+  )
+    return true;
+  return false;
+}
+
+export function isSymmetic(root: TreeNode | null) {
+  if (!root) return true;
+  const compare = (p: TreeNode | null, q: TreeNode | null) => {
+    if (!p || !q) return true;
+    if (
+      p &&
+      q &&
+      p.val === q.val &&
+      compare(p.left, q.right) &&
+      compare(p.right, q.left)
+    )
+      return true;
+    return false;
+  };
+  return compare(root.left, root.right);
+}
+
+export function climbStairs(n: number) {
+  const dp = [1, 1];
+  for (let i = 2; i <= n; i++) {
+    dp[i] = dp[i - 1] + dp[i - 2];
+  }
+  return dp[n];
+}
+
+export function rob(nums: number[]) {
+  const dp = [0, nums[0]];
+  for (let i = 2; i <= nums.length; i++) {
+    dp[i] = Math.max(dp[i - 1], dp[i - 2] + nums[i - 1]);
+  }
+  return dp[nums.length];
+}
+
+export function rob1(nums: number[]) {
+  if (nums.length === 0) return 0;
+  if (nums.length === 1) return nums[0];
+  const compute = (nums: number[]) => {
+    const dp = [0, nums[0]];
+    for (let i = 2; i <= nums.length; i++) {
+      dp[i] = Math.max(dp[i - 1], dp[i - 2] + nums[i - 1]);
+    }
+    return dp[nums.length];
+  };
+  return Math.max(compute(nums.slice(1)), compute(nums.slice(0, -1)));
+}
+
+// todo tanxin
 
 // hot 61 - 64
 export function canFinish(numCourses: number, prerequisites: number[][]) {
