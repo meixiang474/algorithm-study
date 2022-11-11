@@ -20,43 +20,33 @@ export class ListNode1 {
   }
 }
 
-// offer 64 68-I
-export function sumNums(n: number) {
-  n && (n += sumNums(n - 1));
-  return n;
-}
-
+// offer 68-II 3
 export function lowestCommon(
   root: TreeNode | null,
   p: TreeNode | null,
   q: TreeNode | null
 ) {
-  const getPath = (node: TreeNode | null) => {
-    const res: TreeNode[] = [];
-    let current = root;
-    while (current !== node && current && node) {
-      res.push(current);
-      if (current.val > node.val) {
-        current = current.left;
-      } else {
-        current = current.right;
-      }
-    }
-    res.push(current!);
-    return res;
-  };
   let res = null;
-  const pPath = getPath(p);
-  const qPath = getPath(q);
-  for (let i = 0; i < pPath.length && i < qPath.length; i++) {
-    if (pPath[i] === qPath[i]) {
-      res = pPath[i];
-    } else {
-      break;
-    }
-  }
+  const dfs = (
+    node: TreeNode | null,
+    p: TreeNode | null,
+    q: TreeNode | null
+  ): boolean => {
+    if (!node || !p || !q) return false;
+    const left = dfs(node.left, p, q);
+    const right = dfs(node.right, p, q);
+    if (
+      (left && right) ||
+      ((node.val === p.val || node.val === q.val) && (left || right))
+    )
+      res = node;
+    return left || right || node.val === p.val || node.val === q.val;
+  };
+  dfs(root, p, q);
   return res;
 }
+
+// todo
 
 // fenzhi donggui tanxin huisu
 export function invertTree(root: TreeNode | null) {
@@ -131,231 +121,250 @@ export function rob1(nums: number[]) {
   return Math.max(compute(nums.slice(1)), compute(nums.slice(0, -1)));
 }
 
-// todo tanxin
-
-// hot 61 - 64
-export function canFinish(numCourses: number, prerequisites: number[][]) {
-  const degree = new Array(numCourses).fill(0);
-  const map = new Map<number, number[]>();
-  for (let [item1, item2] of prerequisites) {
-    degree[item1]++;
-    if (map.has(item2)) {
-      map.get(item2)!.push(item1);
-    } else {
-      map.set(item2, [item1]);
-    }
-  }
-  const queue: number[] = [];
-  for (let i = 0; i < numCourses; i++) {
-    if (degree[i] === 0) queue.push(i);
-  }
-  let count = 0;
-  while (queue.length) {
-    const current = queue.shift()!;
-    count++;
-    const arr = map.get(current);
-    if (arr && arr.length) {
-      for (let item of arr) {
-        degree[item]--;
-        if (degree[item] === 0) {
-          queue.push(item);
-        }
-      }
-    }
-  }
-  return count === numCourses;
-}
-
-export class TrieNode {
-  isWord: boolean;
-  map: Map<string, TrieNode>;
-  constructor(isWord: boolean = false) {
-    this.isWord = isWord;
-    this.map = new Map();
-  }
-}
-
-export class Trie {
-  root: TrieNode;
-  constructor() {
-    this.root = new TrieNode();
-  }
-  insert(word: string) {
-    let current = this.root;
-    for (let item of word) {
-      if (!current.map.has(item)) current.map.set(item, new TrieNode());
-      current = current.map.get(item)!;
-    }
-    current.isWord = true;
-  }
-  search(word: string) {
-    let current = this.root;
-    for (let item of word) {
-      if (!current.map.has(item)) return false;
-      current = current.map.get(item)!;
-    }
-    return current.isWord;
-  }
-  startsWith(prefix: string) {
-    let current = this.root;
-    for (let item of prefix) {
-      if (!current.map.has(item)) return false;
-      current = current.map.get(item)!;
-    }
-    return true;
-  }
-}
-
-export function findKthLargest1(nums: number[], k: number) {
-  k = nums.length - k;
-  const sortArr = (nums: number[], l: number, r: number): number => {
-    if (l === r) return nums[k];
-    const p = partition(nums, l, r);
-    if (p === k) {
-      return nums[k];
-    } else if (p > k) {
-      return sortArr(nums, l, p - 1);
-    } else {
-      return sortArr(nums, p + 1, k);
-    }
-  };
-  const swap = (nums: number[], i: number, j: number) => {
-    [nums[i], nums[j]] = [nums[j], nums[i]];
-  };
-  const getRandom = (l: number, r: number) =>
-    Math.floor(Math.random() * (r - l + 1) + l);
-  const partition = (nums: number[], l: number, r: number) => {
-    const p = getRandom(l, r);
-    swap(nums, l, p);
-    let i = l + 1,
-      j = r;
-    while (true) {
-      while (j >= i && nums[l] > nums[i]) {
-        i++;
-      }
-      while (j >= i && nums[l] < nums[j]) {
-        j--;
-      }
-      if (i >= j) break;
-      swap(nums, i, j);
-      i++;
-      j--;
-    }
-    swap(nums, l, j);
-    return j;
-  };
-  return sortArr([...nums], 0, nums.length - 1);
-}
-
-export function maximalSquare(matrix: string[][]) {
-  if (matrix.length === 0 || matrix[0].length === 0) return 0;
-  const m = matrix.length;
-  const n = matrix[0].length;
-  const dp: number[][] = Array.from({ length: m }, () => new Array(n).fill(0));
+export function findContentChildren(g: number[], s: number[]) {
+  g.sort((a, b) => a - b);
+  s.sort((a, b) => a - b);
   let res = 0;
-  for (let r = 0; r < m; r++) {
-    for (let c = 0; c < n; c++) {
-      if (matrix[r][c] === "0") continue;
-      if (r === 0 || c === 0) {
-        dp[r][c] = 1;
-      } else {
-        dp[r][c] = Math.min(dp[r - 1][c - 1], dp[r][c - 1], dp[r - 1][c]) + 1;
-      }
-      res = Math.max(res, dp[r][c]);
+  for (let i = 0; i < s.length; i++) {
+    if (s[i] >= g[res]) {
+      res++;
     }
   }
-  return res ** 2;
-}
-
-// hashtable 6-10
-export function inorderTraversal(root: TreeNode | null) {
-  if (!root) return [];
-  const res: number[] = [];
-  const dfs = (node: TreeNode) => {
-    if (node.left) dfs(node.left);
-    res.push(node.val);
-    if (node.right) dfs(node.right);
-  };
-  dfs(root);
   return res;
 }
 
-export class ListNode {
-  val: number;
-  next: ListNode | null;
-  random: ListNode | null;
-  constructor(val: number) {
-    this.val = val;
-    this.next = null;
-    this.random = null;
+export function maxProfit(prices: number[]) {
+  let profit = 0;
+  for (let i = 0; i < prices.length - 1; i++) {
+    if (prices[i + 1] > prices[i]) {
+      profit += prices[i + 1] - prices[i];
+    }
   }
+  return profit;
 }
 
-export function copyRandomList(head: ListNode | null) {
-  if (!head) return head;
-  const map = new Map<ListNode, ListNode>();
-  const dfs = (node: ListNode) => {
-    const newNode = new ListNode(node.val);
-    map.set(node, newNode);
-    if (node.random) {
-      if (!map.has(node.random)) {
-        dfs(node.random);
-      }
-      newNode.random = map.get(node.random)!;
+export function permute(nums: number[]) {
+  const dfs = (path: number[]) => {
+    if (path.length === nums.length) {
+      res.push(path);
+      return;
     }
-    if (node.next) {
-      if (!map.has(node.next)) {
-        dfs(node.next);
-      }
-      newNode.next = map.get(node.next)!;
+    for (let i = 0; i < nums.length; i++) {
+      if (path.includes(nums[i])) continue;
+      dfs(path.concat(nums[i]));
     }
   };
-  dfs(head);
-  return map.get(head)!;
+  const res: number[][] = [];
+  dfs([]);
+  return res;
 }
 
-function isHappy(n: number) {
-  const compute = (n: number) => {
-    return n
-      .toString()
-      .split("")
-      .map((item) => parseInt(item))
-      .reduce((memo, current) => {
-        return memo + current ** 2;
-      }, 0);
+export function subsets(nums: number[]) {
+  const dfs = (path: number[], index: number, length: number) => {
+    if (path.length === length) {
+      res.push(path);
+      return;
+    }
+    if (path.length + nums.length - index < length) return;
+    for (let i = index; i < nums.length; i++) {
+      dfs(path.concat(nums[i]), i + 1, length);
+    }
   };
-  const set = new Set<number>();
-  while (!set.has(n)) {
-    if (n === 1) return true;
-    set.add(n);
-    n = compute(n);
+  const res: number[][] = [];
+  for (let i = 0; i <= nums.length; i++) {
+    dfs([], 0, i);
   }
-  return false;
+  return res;
 }
 
-export function isIsomorphic(s: string, t: string) {
-  if (s.length !== t.length) return false;
-  const smap = new Map<string, string>();
-  const tmap = new Map<string, string>();
-  for (let i = 0; i < s.length; i++) {
-    const scurrent = s[i];
-    const tcurrent = t[i];
-    if (
-      (smap.has(scurrent) && smap.get(scurrent) !== tcurrent) ||
-      (tmap.has(tcurrent) && tmap.get(tcurrent) !== scurrent)
-    )
-      return false;
-    smap.set(scurrent, tcurrent);
-    tmap.set(tcurrent, scurrent);
+// hot 65-68
+export function invertTree1(root: TreeNode | null) {
+  if (!root) return root;
+  const dfs = (node: TreeNode) => {
+    const temp = node.left;
+    node.left = node.right;
+    node.right = temp;
+    if (node.left) dfs(node.left);
+    if (node.right) dfs(node.right);
+  };
+  dfs(root);
+  return root;
+}
+
+export function isPalindrome(head: ListNode | null) {
+  if (!head || !head.next) return true;
+  let slow: ListNode | null = head,
+    fast: ListNode | null = head;
+  while (slow && fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
+  }
+  if (fast) {
+    slow = slow!.next;
+  }
+  let prev: ListNode | null = null;
+  let current = slow;
+  while (current) {
+    const temp = current.next;
+    current.next = prev;
+    prev = current;
+    current = temp;
+  }
+  let p1: ListNode | null = head;
+  let p2 = prev;
+  while (p1 && p2) {
+    if (p1.val !== p2.val) return false;
+    p1 = p1.next;
+    p2 = p2.next;
   }
   return true;
 }
 
-export function containsDuplicate(nums: number[]) {
-  const set = new Set<number>();
-  for (let item of nums) {
-    if (set.has(item)) return true;
-    set.add(item);
+export function lowestCommonAncestor(
+  root: TreeNode | null,
+  p: TreeNode | null,
+  q: TreeNode | null
+) {
+  let res = null;
+  const dfs = (
+    node: TreeNode | null,
+    p: TreeNode | null,
+    q: TreeNode | null
+  ): boolean => {
+    if (!node || !p || !q) return false;
+    const left = dfs(node.left, p, q);
+    const right = dfs(node.right, p, q);
+    if (
+      (left && right) ||
+      ((node.val === p.val || node.val === q.val) && (left || right))
+    ) {
+      res = node;
+    }
+    return left || right || node.val === p.val || node.val === q.val;
+  };
+  dfs(root, p, q);
+  return res;
+}
+
+export function productExceptionSelf(nums: number[]) {
+  const res: number[] = [];
+  res[0] = 1;
+  for (let i = 1; i < nums.length; i++) {
+    res[i] = nums[i - 1] * res[i - 1];
   }
-  return false;
+  let right = 1;
+  for (let i = nums.length - 1; i >= 0; i--) {
+    res[i] *= right;
+    right *= nums[i];
+  }
+  return res;
+}
+
+// linkedlist 6-10
+export function rotateRight(head: ListNode | null, k: number) {
+  if (k === 0 || !head || !head.next) return head;
+  let count = 1;
+  let current = head;
+  while (current.next) {
+    count++;
+    current = current.next;
+  }
+  current.next = head;
+  k = count - (k % count);
+  let prev = head;
+  for (let i = 0; i < k - 1; i++) {
+    prev = prev.next!;
+  }
+  const res = prev.next;
+  prev.next = null;
+  return res;
+}
+
+export function deleteDuplicates(head: ListNode | null): ListNode | null {
+  if (!head || !head.next) return head;
+  const res = deleteDuplicates(head.next);
+  if (res && res.val === head.val) {
+    return res.next;
+  } else if (head.val === head.next.val) {
+    return res;
+  } else {
+    head.next = res;
+    return head;
+  }
+}
+
+export function deleteDuplicates1(head: ListNode | null) {
+  const dummyHead = new ListNode(-1);
+  dummyHead.next = head;
+  let prev = dummyHead;
+  while (prev && prev.next && prev.next.next) {
+    if (prev.next.val === prev.next.next.val) {
+      prev.next = prev.next.next;
+    } else {
+      prev = prev.next;
+    }
+  }
+  return dummyHead.next;
+}
+
+export function partition(head: ListNode | null, x: number) {
+  const minHead = new ListNode(-1);
+  const maxHead = new ListNode(-1);
+  let current = head;
+  let p1 = minHead;
+  let p2 = maxHead;
+  while (current) {
+    if (current.val < x) {
+      p1.next = current;
+      p1 = p1.next;
+    } else {
+      p2.next = current;
+      p2 = p2.next;
+    }
+    current = current.next;
+  }
+  p2.next = null;
+  p1.next = maxHead.next;
+  return minHead.next;
+}
+
+export function reverseBetween(
+  head: ListNode | null,
+  left: number,
+  right: number
+) {
+  if (!head || !head.next) return head;
+  let index = 0;
+  let leftNode: ListNode | null = null,
+    rightNode: ListNode | null = null,
+    nextNode: ListNode | null = null,
+    prevNode: ListNode | null = null;
+  let current = head;
+  while (current) {
+    if (index === left - 2) {
+      prevNode = current;
+    } else if (index === left - 1) {
+      leftNode = current;
+    } else if (index === right - 1) {
+      rightNode = current;
+      nextNode = current.next;
+    }
+  }
+  let prev: ListNode | null = null;
+  let reverseCurrent = leftNode;
+  while (reverseCurrent) {
+    const temp = reverseCurrent.next;
+    reverseCurrent.next = prev;
+    prev = reverseCurrent;
+    reverseCurrent = temp;
+  }
+  if (prevNode) {
+    prevNode.next = prev;
+  } else {
+    head = prev;
+  }
+  if (prev) {
+    prev.next = nextNode;
+  }
+  return head;
 }
