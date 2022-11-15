@@ -157,113 +157,86 @@ export function shellSort2(nums: number[]) {
 }
 
 // hot 69-72
-// todo
-
-// linkedlist 6-10
-export function rotateRight(head: ListNode | null, k: number) {
-  if (k === 0 || !head || !head.next) return head;
-  let count = 1;
-  let current = head;
-  while (current.next) {
-    count++;
-    current = current.next;
+export function maxSlidingWindow(nums: number[], k: number) {
+  if (nums.length === 0 || k === 0) return [];
+  const stack: number[] = [];
+  const res: number[] = [];
+  for (let i = 0; i < k; i++) {
+    while (stack.length && nums[i] >= nums[stack[stack.length - 1]]) {
+      stack.pop();
+    }
+    stack.push(i);
   }
-  current.next = head;
-  k = count - (k % count);
-  let prev = head;
-  for (let i = 0; i < k - 1; i++) {
-    prev = prev.next!;
+  res.push(nums[stack[0]]);
+  for (let i = k; i < nums.length; i++) {
+    while (stack.length && nums[i] >= nums[stack[stack.length - 1]]) {
+      stack.pop();
+    }
+    stack.push(i);
+    if (stack[0] <= i - k) stack.shift();
+    res.push(nums[stack[0]]);
   }
-  const res = prev.next;
-  prev.next = null;
   return res;
 }
 
-export function deleteDuplicates(head: ListNode | null): ListNode | null {
-  if (!head || !head.next) return head;
-  const res = deleteDuplicates(head.next);
-  if (res && res.val === head.val) {
-    return res.next;
-  } else if (head.val === head.next.val) {
-    return res;
-  } else {
-    head.next = res;
-    return head;
-  }
-}
-
-export function deleteDuplicates1(head: ListNode | null) {
-  const dummyHead = new ListNode(-1);
-  dummyHead.next = head;
-  let prev = dummyHead;
-  while (prev && prev.next && prev.next.next) {
-    if (prev.next.val === prev.next.next.val) {
-      prev.next = prev.next.next;
+export function searchMatrix(matrix: number[][], target: number) {
+  if (matrix.length === 0 || matrix[0].length === 0) return false;
+  const m = matrix.length;
+  const n = matrix[0].length;
+  const dfs = (r: number, c: number): boolean => {
+    if (matrix[r][c] === target) return true;
+    if (matrix[r][c] > target) {
+      return c - 1 >= 0 && dfs(r, c - 1);
     } else {
-      prev = prev.next;
+      return r + 1 < m && dfs(r + 1, c);
     }
-  }
-  return dummyHead.next;
+  };
+  return dfs(0, n - 1);
 }
 
-export function partition(head: ListNode | null, x: number) {
-  const minHead = new ListNode(-1);
-  const maxHead = new ListNode(-1);
-  let current = head;
-  let p1 = minHead;
-  let p2 = maxHead;
-  while (current) {
-    if (current.val < x) {
-      p1.next = current;
-      p1 = p1.next;
-    } else {
-      p2.next = current;
-      p2 = p2.next;
+export function minMeetingRooms(intervals: number[][]) {
+  const map = new Array(intervals.length).fill(false);
+  const dfs = (stop: number) => {
+    let l = 0,
+      r = intervals.length;
+    while (l < r) {
+      const mid = Math.floor(l + (r - l) / 2);
+      if (intervals[mid][0] >= stop) {
+        r = mid;
+      } else {
+        l = mid + 1;
+      }
     }
-    current = current.next;
+    while (map[l]) {
+      l++;
+    }
+    if (l >= intervals.length) return;
+    map[l] = true;
+    dfs(intervals[l][1]);
+  };
+  let res = 0;
+  for (let i = 0; i < intervals.length; i++) {
+    if (!map[i]) {
+      res++;
+      dfs(intervals[i][1]);
+    }
   }
-  p2.next = null;
-  p1.next = maxHead.next;
-  return minHead.next;
+  return res;
 }
 
-export function reverseBetween(
-  head: ListNode | null,
-  left: number,
-  right: number
-) {
-  if (!head || !head.next) return head;
-  let index = 0;
-  let leftNode: ListNode | null = null,
-    rightNode: ListNode | null = null,
-    nextNode: ListNode | null = null,
-    prevNode: ListNode | null = null;
-  let current = head;
-  while (current) {
-    if (index === left - 2) {
-      prevNode = current;
-    } else if (index === left - 1) {
-      leftNode = current;
-    } else if (index === right - 1) {
-      rightNode = current;
-      nextNode = current.next;
+export function numSquares(n: number) {
+  if (n < 0) return 0;
+  if (n === 0) return 1;
+  const dp = [0];
+  for (let i = 1; i <= n; i++) {
+    let min = Infinity;
+    for (let j = 1; j ** 2 <= i; j++) {
+      min = Math.min(min, dp[i - j ** 2]);
     }
+    dp[i] = min + 1;
   }
-  let prev: ListNode | null = null;
-  let reverseCurrent = leftNode;
-  while (reverseCurrent) {
-    const temp = reverseCurrent.next;
-    reverseCurrent.next = prev;
-    prev = reverseCurrent;
-    reverseCurrent = temp;
-  }
-  if (prevNode) {
-    prevNode.next = prev;
-  } else {
-    head = prev;
-  }
-  if (prev) {
-    prev.next = nextNode;
-  }
-  return head;
+  return dp[n];
 }
+
+// math 6-10
+// todo
