@@ -21,140 +21,27 @@ export class ListNode1 {
   }
 }
 
-// offer 68-II 3
-export function lowestCommon(
-  root: TreeNode | null,
-  p: TreeNode | null,
-  q: TreeNode | null
-) {
-  let res = null;
-  const dfs = (
-    node: TreeNode | null,
-    p: TreeNode | null,
-    q: TreeNode | null
-  ): boolean => {
-    if (!node || !p || !q) return false;
-    const left = dfs(node.left, p, q);
-    const right = dfs(node.right, p, q);
-    if (
-      (left && right) ||
-      ((node.val === p.val || node.val === q.val) && (left || right))
-    )
-      res = node;
-    return left || right || node.val === p.val || node.val === q.val;
+// offer 4 5
+export function findNumberIn2DArray(matrix: number[][], target: number) {
+  if (matrix.length === 0 || matrix[0].length === 0) return false;
+  const m = matrix.length;
+  const n = matrix[0].length;
+  const dfs = (r: number, c: number): boolean => {
+    if (matrix[r][c] === target) return true;
+    if (matrix[r][c] > target) {
+      return c - 1 >= 0 && dfs(r, c - 1);
+    } else {
+      return r + 1 < m && dfs(r + 1, c);
+    }
   };
-  dfs(root, p, q);
-  return res;
+  return dfs(0, n - 1);
+}
+export function replaceSpace(s: string) {
+  return s.replace(/\s/g, "%20");
 }
 
-export function findRepeatNumber(nums: number[]) {
-  const set = new Set<number>();
-  for (let item of nums) {
-    if (set.has(item)) return item;
-    set.add(item);
-  }
-}
-
-// priorityqueue shellsort
-export class PriorityQueue<T = number> {
-  maxHeap: Heap<T>;
-  constructor(compare: (a: T, b: T) => boolean) {
-    this.maxHeap = new Heap("max", compare);
-  }
-  getSize() {
-    return this.maxHeap.size();
-  }
-  isEmpty() {
-    return this.maxHeap.size() === 0;
-  }
-  getFront() {
-    return this.maxHeap.peek();
-  }
-  enqueue(item: T) {
-    this.maxHeap.insert(item);
-  }
-  dequeue() {
-    if (this.isEmpty()) throw new Error("error");
-    return this.maxHeap.pop();
-  }
-}
-
-export function shellSort(nums: number[]) {
-  const res = [...nums];
-  let h = Math.floor(nums.length / 2);
-  while (h) {
-    for (let start = 0; start < h; start++) {
-      for (let i = start; i < res.length; i += h) {
-        let swapIndex = i;
-        let current = res[i];
-        for (let j = i - h; j >= start; j -= h) {
-          if (res[j] > current) {
-            swapIndex = j;
-            res[j + h] = res[j];
-          } else {
-            break;
-          }
-        }
-        if (swapIndex !== i) {
-          res[swapIndex] = current;
-        }
-      }
-    }
-    h = Math.floor(h / 2);
-  }
-  return h;
-}
-
-export function shellSort1(nums: number[]) {
-  const res = [...nums];
-  let h = Math.floor(res.length / 2);
-  while (h) {
-    for (let i = h; i < res.length; i++) {
-      let swapIndex = i;
-      const current = res[i];
-      for (let j = i - h; j >= 0; j -= h) {
-        if (res[j] > current) {
-          swapIndex = j;
-          res[j + h] = res[j];
-        } else {
-          break;
-        }
-      }
-      if (swapIndex !== i) {
-        res[swapIndex] = current;
-      }
-    }
-    h = Math.floor(h / 2);
-  }
-  return res;
-}
-
-export function shellSort2(nums: number[]) {
-  const res = [...nums];
-  let h = Math.floor(nums.length / 2);
-  while (h < res.length) {
-    h = h * 3 + 1;
-  }
-  while (h) {
-    for (let i = h; i < res.length; i++) {
-      let swapIndex = i;
-      const current = res[i];
-      for (let j = i - h; j >= 0; j -= h) {
-        if (res[j] > current) {
-          swapIndex = j;
-          res[j + h] = res[j];
-        } else {
-          break;
-        }
-      }
-      if (swapIndex !== i) {
-        res[swapIndex] = current;
-      }
-    }
-    h = Math.floor(h / 3);
-  }
-  return res;
-}
+// segment tree
+// todo
 
 // hot 69-72
 export function maxSlidingWindow(nums: number[], k: number) {
@@ -239,4 +126,50 @@ export function numSquares(n: number) {
 }
 
 // math 6-10
-// todo
+export function powerOfTwo(n: number): boolean {
+  if (n === 0) return false;
+  if (n === 1) return true;
+  if (n % 2 !== 0) return false;
+  return powerOfTwo(n / 2);
+}
+
+export function isUgly(n: number) {
+  if (n <= 0) return false;
+  const arr = [2, 3, 5];
+  for (let item of arr) {
+    while (n % item === 0) {
+      n /= item;
+    }
+  }
+  return n === 1;
+}
+
+export function powerOfThree(n: number): boolean {
+  if (n === 0) return false;
+  if (n === 1) return true;
+  if (n % 3 !== 0) return false;
+  return powerOfThree(n / 3);
+}
+
+export function integerBreak(n: number) {
+  const arr = [1, 2, 4, 6, 9];
+  if (n <= 6) return arr[n - 2];
+  let res = 1;
+  while (n > 6) {
+    res *= 3;
+    n -= 3;
+  }
+  return res * arr[n - 2];
+}
+
+export function countNumbers(n: number) {
+  if (n === 0) return 1;
+  if (n === 1) return 10;
+  let res = 10;
+  let current = 9;
+  for (let i = 0; i < n - 1; i++) {
+    current *= 9 - i;
+    res += current;
+  }
+  return res;
+}
