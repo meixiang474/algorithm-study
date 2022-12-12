@@ -343,53 +343,142 @@ export class NumArray3 {
 }
 
 // hot 73-76
-// todo
-
-// math 6-10
-export function powerOfTwo(n: number): boolean {
-  if (n === 0) return false;
-  if (n === 1) return true;
-  if (n % 2 !== 0) return false;
-  return powerOfTwo(n / 2);
+export function moveZeroes(nums: number[]) {
+  let l = 0,
+    r = 0;
+  while (r < nums.length) {
+    if (nums[r] !== 0) {
+      const temp = nums[l];
+      nums[l] = nums[r];
+      nums[r] = temp;
+      l++;
+    }
+    r++;
+  }
 }
 
-export function isUgly(n: number) {
-  if (n <= 0) return false;
-  const arr = [2, 3, 5];
-  for (let item of arr) {
-    while (n % item === 0) {
-      n /= item;
+export function findDuplicate(nums: number[]) {
+  let l = 1,
+    r = nums.length;
+  while (l > r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    let count = 0;
+    for (let i = 0; i < nums.length; i++) {
+      if (nums[i] <= mid) count++;
+    }
+    if (count <= mid) {
+      l = mid + 1;
+    } else {
+      r = mid;
     }
   }
-  return n === 1;
+  return l;
 }
 
-export function powerOfThree(n: number): boolean {
-  if (n === 0) return false;
-  if (n === 1) return true;
-  if (n % 3 !== 0) return false;
-  return powerOfThree(n / 3);
+export function serialize(root: TreeNode | null) {
+  if (!root) return "None";
+  let res = "";
+  const dfs = (node: TreeNode | null) => {
+    if (!node) {
+      res += "None,";
+      return;
+    }
+    res += node.val + ",";
+    dfs(node.left);
+    dfs(node.right);
+  };
+  dfs(root);
+  return res.slice(0, -1);
 }
 
-export function integerBreak(n: number) {
-  const arr = [1, 2, 4, 6, 9];
-  if (n <= 6) return arr[n - 2];
+export function deserialize(s: string) {
+  const order = s.split(",");
+  const dfs = () => {
+    const first = order.shift()!;
+    if (first === "None") return null;
+    const node = new TreeNode(parseFloat(first));
+    node.left = dfs();
+    node.right = dfs();
+    return node;
+  };
+  return dfs();
+}
+
+export function lengthOfLIS(nums: number[]) {
+  const dp = [1];
   let res = 1;
-  while (n > 6) {
-    res *= 3;
-    n -= 3;
-  }
-  return res * arr[n - 2];
-}
-
-export function countNumbers(n: number) {
-  if (n === 0) return 1;
-  if (n === 1) return 10;
-  let res = 10;
-  let current = 9;
-  for (let i = 0; i < n - 1; i++) {
-    current *= 9 - i;
-    res += current;
+  for (let i = 1; i < nums.length; i++) {
+    dp[i] = 1;
+    for (let j = 0; j < i; j++) {
+      if (nums[j] < nums[i]) {
+        dp[i] = Math.max(dp[i], dp[j] + 1);
+      }
+    }
+    res = Math.max(res, dp[i]);
   }
   return res;
+}
+
+// sort 6-10
+export function largestNumber(nums: number[]) {
+  const res = nums
+    .map((item) => item.toString())
+    .sort((a, b) => parseFloat(b + a) - parseFloat(a + b))
+    .join("");
+  return res[0] === "0" ? "0" : res;
+}
+
+export function containsDuplicates(nums: number[], k: number, t: number) {
+  const getId = (num: number) => {
+    return num < 0
+      ? Math.floor((num + 1) / (t + 1)) - 1
+      : Math.floor(num / (t + 1));
+  };
+  const map = new Map<number, number>();
+  for (let i = 0; i < nums.length; i++) {
+    const current = nums[i];
+    const id = getId(current);
+    if (map.has(id)) return true;
+    if (map.has(id - 1) && Math.abs(current - map.get(id - 1)!) <= t)
+      return true;
+    if (map.has(id + 1) && Math.abs(current - map.get(id + 1)!) <= t)
+      return true;
+    map.set(id, current);
+    if (i >= k) {
+      map.delete(getId(nums[i - k]));
+    }
+  }
+  return false;
+}
+
+export function isAnagram(s: string, t: string) {
+  if (s.length !== t.length) return false;
+  const map = new Map<string, number>();
+  for (let item of s) {
+    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
+  }
+  for (let item of t) {
+    if (map.has(item)) {
+      map.set(item, map.get(item)! - 1);
+    }
+  }
+  for (let [, value] of map) {
+    if (value !== 0) return false;
+  }
+  return true;
+}
+
+export function hIndex(citations: number[]) {
+  citations.sort((a, b) => a - b);
+  let h = 0,
+    index = citations.length - 1;
+  while (index >= 0 && citations[index] > h) {
+    h++;
+    index--;
+  }
+  return h;
+}
+
+export function wiggleSort(nums: number[]) {
+  // todo
 }
