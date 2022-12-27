@@ -21,24 +21,36 @@ export class ListNode1 {
   }
 }
 
-// offer 4 5
-export function findNumberIn2DArray(matrix: number[][], target: number) {
-  if (matrix.length === 0 || matrix[0].length === 0) return false;
-  const m = matrix.length;
-  const n = matrix[0].length;
-  const dfs = (r: number, c: number): boolean => {
-    if (matrix[r][c] === target) return true;
-    if (matrix[r][c] > target) {
-      return c - 1 >= 0 && dfs(r, c - 1);
-    } else {
-      return r + 1 < m && dfs(r + 1, c);
-    }
+// offer 6 7
+export function reversePrint(head: ListNode | null) {
+  const reverse = (head: ListNode | null): ListNode | null => {
+    if (!head || !head.next) return head;
+    const res = reverse(head.next);
+    head.next.next = head;
+    head.next = null;
+    return res;
   };
-  return dfs(0, n - 1);
+  const newHead = reverse(head);
+  let current = newHead;
+  const res: number[] = [];
+  while (current) {
+    res.push(current.val);
+    current = current.next;
+  }
+  return res;
 }
-export function replaceSpace(s: string) {
-  return s.replace(/\s/g, "%20");
+
+export function reversePrint1(head: ListNode | null) {
+  const res: number[] = [];
+  let current = head;
+  while (current) {
+    res.unshift(current.val);
+    current = current.next;
+  }
+  return res;
 }
+
+// todo
 
 // segment tree
 export class SegmentTree<T = number> {
@@ -480,5 +492,10 @@ export function hIndex(citations: number[]) {
 }
 
 export function wiggleSort(nums: number[]) {
-  // todo
+  let l = Math.floor((nums.length - 1) / 2);
+  let r = nums.length - 1;
+  const arr = nums.slice().sort((a, b) => a - b);
+  for (let i = 0; i < nums.length; i++) {
+    nums[i] = i % 2 === 0 ? arr[l--] : arr[r--];
+  }
 }
