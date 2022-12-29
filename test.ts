@@ -156,85 +156,94 @@ export class WordDictionary {
 
 export class MapSumNode {
   value: number;
-  // todo
-}
-
-// hot 73-76
-export function moveZeroes(nums: number[]) {
-  let l = 0,
-    r = 0;
-  while (r < nums.length) {
-    if (nums[r] !== 0) {
-      const temp = nums[l];
-      nums[l] = nums[r];
-      nums[r] = temp;
-      l++;
-    }
-    r++;
+  next: Map<string, MapSumNode>;
+  constructor(value: number = 0) {
+    this.value = value;
+    this.next = new Map();
   }
 }
 
-export function findDuplicate(nums: number[]) {
-  let l = 1,
-    r = nums.length;
-  while (l > r) {
-    const mid = Math.floor(l + (r - l) / 2);
+export class MapSum {
+  root: MapSumNode;
+  constructor() {
+    this.root = new MapSumNode();
+  }
+  insert(key: string, value: number) {
+    let current = this.root;
+    for (let item of key) {
+      if (!current.next.has(item)) {
+        current.next.set(item, new MapSumNode());
+      }
+      current = current.next.get(item)!;
+    }
+    current.value = value;
+  }
+  sum(prefix: string) {
+    let current = this.root;
+    for (let item of prefix) {
+      if (!current.next.has(item)) return 0;
+      current = current.next.get(item)!;
+    }
+    this.sumNode(current);
+  }
+  sumNode(node: MapSumNode): number {
+    let res = node.value;
+    for (let [, item] of node.next) {
+      res += this.sumNode(item);
+    }
+    return res;
+  }
+}
+
+// hot 77-80
+export function removeInvalidParentheses(s: string) {
+  const isValid = (s: string) => {
     let count = 0;
-    for (let i = 0; i < nums.length; i++) {
-      if (nums[i] <= mid) count++;
+    for (let item of s) {
+      if (item === "(") count++;
+      if (item === ")") count--;
+      if (count < 0) return false;
     }
-    if (count <= mid) {
-      l = mid + 1;
-    } else {
-      r = mid;
-    }
-  }
-  return l;
-}
-
-export function serialize(root: TreeNode | null) {
-  if (!root) return "None";
-  let res = "";
-  const dfs = (node: TreeNode | null) => {
-    if (!node) {
-      res += "None,";
-      return;
-    }
-    res += node.val + ",";
-    dfs(node.left);
-    dfs(node.right);
+    return count === 0;
   };
-  dfs(root);
-  return res.slice(0, -1);
-}
-
-export function deserialize(s: string) {
-  const order = s.split(",");
-  const dfs = () => {
-    const first = order.shift()!;
-    if (first === "None") return null;
-    const node = new TreeNode(parseFloat(first));
-    node.left = dfs();
-    node.right = dfs();
-    return node;
-  };
-  return dfs();
-}
-
-export function lengthOfLIS(nums: number[]) {
-  const dp = [1];
-  let res = 1;
-  for (let i = 1; i < nums.length; i++) {
-    dp[i] = 1;
-    for (let j = 0; j < i; j++) {
-      if (nums[j] < nums[i]) {
-        dp[i] = Math.max(dp[i], dp[j] + 1);
+  const res: string[] = [];
+  let set = new Set<string>();
+  set.add(s);
+  while (true) {
+    for (let item of set) {
+      if (isValid(item)) res.push(item);
+    }
+    if (res.length > 0) return res;
+    const newSet = new Set<string>();
+    for (let item of set) {
+      for (let i = 0; i < item.length; i++) {
+        const current = item[i];
+        if (i > 0 && current === item[i - 1]) continue;
+        if (current === "(" || current === ")") {
+          newSet.add(item.slice(0, i) + item.slice(i + 1));
+        }
       }
     }
-    res = Math.max(res, dp[i]);
+    set = newSet;
   }
-  return res;
 }
+
+export function maxProfit(prices: number[]) {
+  let f0 = -prices[0];
+  let f1 = 0;
+  let f2 = 0;
+  for (let item of prices) {
+    let newf0 = Math.max(f0, f2 - item);
+    let newf1 = f0 + item;
+    let newf2 = Math.max(f1, f2);
+    f0 = newf0;
+    f1 = newf1;
+    f2 = newf2;
+  }
+  return Math.max(f1, f2);
+}
+
+// todo
 
 // sort 6-10
 export function largestNumber(nums: number[]) {
