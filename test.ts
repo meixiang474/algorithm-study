@@ -243,73 +243,37 @@ export function maxProfit(prices: number[]) {
   return Math.max(f1, f2);
 }
 
+export function maxCoins(nums: number[]) {
+  const n = nums.length;
+  const dp = Array.from({ length: n + 2 }, () => new Array(n + 1).fill(0));
+  const arr: number[] = new Array(n + 2);
+  for (let i = 1; i <= n; i++) {
+    arr[i] = nums[i - 1];
+  }
+  arr[0] = arr[n + 1] = 1;
+  for (let i = n - 1; i >= 0; i--) {
+    for (let j = i + 2; j <= n + 1; j++) {
+      for (let k = i + 1; k < j; j++) {
+        const coins = arr[i] * arr[k] * arr[j] + dp[i][k] + dp[k][j];
+        dp[i][j] = Math.max(dp[i][j], coins);
+      }
+    }
+  }
+  return dp[0][n + 1];
+}
+
+export function coinChange(coins: number[], amount: number) {
+  const dp: number[] = new Array(amount + 1).fill(amount + 1);
+  dp[0] = 0;
+  for (let i = 1; i <= amount; i++) {
+    for (let j = 0; j < coins.length; j++) {
+      if (coins[j] <= i) {
+        dp[i] = Math.min(dp[i], dp[i - coins[j]] + 1);
+      }
+    }
+  }
+  return dp[amount] > amount ? -1 : dp[amount];
+}
+
+// stack 6-10
 // todo
-
-// sort 6-10
-export function largestNumber(nums: number[]) {
-  const res = nums
-    .map((item) => item.toString())
-    .sort((a, b) => parseFloat(b + a) - parseFloat(a + b))
-    .join("");
-  return res[0] === "0" ? "0" : res;
-}
-
-export function containsDuplicates(nums: number[], k: number, t: number) {
-  const getId = (num: number) => {
-    return num < 0
-      ? Math.floor((num + 1) / (t + 1)) - 1
-      : Math.floor(num / (t + 1));
-  };
-  const map = new Map<number, number>();
-  for (let i = 0; i < nums.length; i++) {
-    const current = nums[i];
-    const id = getId(current);
-    if (map.has(id)) return true;
-    if (map.has(id - 1) && Math.abs(current - map.get(id - 1)!) <= t)
-      return true;
-    if (map.has(id + 1) && Math.abs(current - map.get(id + 1)!) <= t)
-      return true;
-    map.set(id, current);
-    if (i >= k) {
-      map.delete(getId(nums[i - k]));
-    }
-  }
-  return false;
-}
-
-export function isAnagram(s: string, t: string) {
-  if (s.length !== t.length) return false;
-  const map = new Map<string, number>();
-  for (let item of s) {
-    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
-  }
-  for (let item of t) {
-    if (map.has(item)) {
-      map.set(item, map.get(item)! - 1);
-    }
-  }
-  for (let [, value] of map) {
-    if (value !== 0) return false;
-  }
-  return true;
-}
-
-export function hIndex(citations: number[]) {
-  citations.sort((a, b) => a - b);
-  let h = 0,
-    index = citations.length - 1;
-  while (index >= 0 && citations[index] > h) {
-    h++;
-    index--;
-  }
-  return h;
-}
-
-export function wiggleSort(nums: number[]) {
-  let l = Math.floor((nums.length - 1) / 2);
-  let r = nums.length - 1;
-  const arr = nums.slice().sort((a, b) => a - b);
-  for (let i = 0; i < nums.length; i++) {
-    nums[i] = i % 2 === 0 ? arr[l--] : arr[r--];
-  }
-}
