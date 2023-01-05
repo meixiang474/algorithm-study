@@ -276,4 +276,51 @@ export function coinChange(coins: number[], amount: number) {
 }
 
 // stack 6-10
-// todo
+export function postorderTraversal(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  const stack: TreeNode[] = [];
+  let p: TreeNode | null = root;
+  let prevRight: TreeNode | null = null;
+  while (p || stack.length) {
+    while (p) {
+      stack.push(p);
+      p = p.left;
+    }
+    const current = stack.pop()!;
+    if (!current.right || current.right === prevRight) {
+      prevRight = current;
+      res.push(current.val);
+    } else {
+      stack.push(current);
+      p = current;
+    }
+  }
+  return res;
+}
+
+export function evalRPN(tokens: string[]) {
+  const stack: string[] = [];
+  for (let item of tokens) {
+    if (isNaN(parseFloat(item))) {
+      const n1 = stack.pop()!;
+      const n2 = stack.pop()!;
+      let res = eval(`${n1} ${item} ${n2}`);
+      res = res > 0 ? Math.floor(res) : Math.ceil(res);
+      stack.push(res + "");
+    } else {
+      stack.push(item);
+    }
+  }
+  return parseFloat(stack[0]);
+}
+
+export class MinStack {
+  queue: number[];
+  stack: number[];
+  constructor() {
+    this.queue = []
+    this.stack = []
+  }
+ // todo 
+}
