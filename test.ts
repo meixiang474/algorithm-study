@@ -319,8 +319,47 @@ export class MinStack {
   queue: number[];
   stack: number[];
   constructor() {
-    this.queue = []
-    this.stack = []
+    this.queue = [];
+    this.stack = [];
   }
- // todo 
+  push(item: number) {
+    this.stack.push(item);
+    if (this.queue.length === 0 || this.queue[0] >= item) {
+      this.queue.unshift(item);
+    }
+  }
+  pop() {
+    const res = this.stack.pop();
+    if (res === this.queue[0]) {
+      this.queue.shift();
+    }
+    return res;
+  }
+  top() {
+    return this.stack[this.stack.length - 1];
+  }
+  min() {
+    return this.queue[0];
+  }
+}
+
+export class BSTIterator {
+  current: TreeNode | null;
+  stack: TreeNode[];
+  constructor(root: TreeNode | null) {
+    this.current = root;
+    this.stack = [];
+  }
+  next() {
+    while (this.current) {
+      this.stack.push(this.current);
+      this.current = this.current.left;
+    }
+    const current = this.stack.pop()!;
+    this.current = current ? current.right : null;
+    return current ? current.val : null;
+  }
+  hasNext() {
+    return this.current != null || this.stack.length !== 0;
+  }
 }
