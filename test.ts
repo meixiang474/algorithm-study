@@ -133,9 +133,83 @@ export function bubbleSort(data: number[]) {
 
 // hot 81-84
 export function rob(root: TreeNode | null) {
-  const dfs = (node: TreeNode | null) => {
-    if(!node) return [0, 0]
-    const l = dfs();
+  const dfs = (node: TreeNode | null): [number, number] => {
+    if (!node) return [0, 0];
+    const left = dfs(node.left);
+    const right = dfs(node.right);
+    return [
+      node.val + left[1] + right[1],
+      Math.max(left[0], left[1]) + Math.max(right[0], right[1]),
+    ];
+  };
+  const [select, notSelect] = dfs(root);
+  return Math.max(select, notSelect);
+}
+
+export function countBits(n: number) {
+  const res: number[] = new Array(n + 1).fill(0);
+  let hightBit = 0;
+  for (let i = 0; i <= n; i++) {
+    if ((i & (i - 1)) === 0) {
+      hightBit = i;
+    }
+    res[i] = res[i - hightBit] + 1;
+  }
+  return res;
+}
+
+export function topKFrequent(nums: number[], k: number) {
+  const map = new Map<number, number>();
+  for (let item of nums) {
+    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
+  }
+  const arr: [number, number][] = [];
+  for (let [key, value] of map) {
+    arr.push([key, value]);
+  }
+  if (k >= arr.length) return arr.map((item) => item[0]);
+  k = arr.length - k;
+  const sortArr = (arr: [number, number][], l: number, r: number): number[] => {
+    if (l >= r) return arr.slice(k).map((item) => item[0]);
+    const p = partition(arr, l, r);
+    if (p === k) {
+      return arr.slice(k).map((item) => item[0]);
+    } else if (p > k) {
+      return sortArr(arr, l, p - 1);
+    } else {
+      return sortArr(arr, p + 1, r);
+    }
+  };
+  const swap = <T>(arr: T[], i: number, j: number) =>
+    ([arr[i], arr[j]] = [arr[j], arr[i]]);
+  const getRandom = (l: number, r: number) =>
+    Math.floor(Math.random() * (r - l + 1) + l);
+  const partition = (arr: [number, number][], l: number, r: number): number => {
+    const p = getRandom(l, r);
+    swap(arr, l, p);
+    let i = l + 1,
+      j = r;
+    while (true) {
+      while (i <= j && arr[i][1] < arr[l][1]) {
+        i++;
+      }
+      while (i <= j && arr[j][1] > arr[l][1]) {
+        j--;
+      }
+      if (i >= j) break;
+      swap(arr, i, j);
+      i++;
+      j--;
+    }
+    swap(arr, l, j);
+    return j;
+  };
+  return sortArr(arr, 0, arr.length - 1);
+}
+
+export function decodeString(s: string) {
+  let index = 0
+  const getString = () => {
     // todo
   }
 }
