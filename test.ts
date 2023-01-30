@@ -208,119 +208,50 @@ export function topKFrequent(nums: number[], k: number) {
 }
 
 export function decodeString(s: string) {
-  let index = 0
-  const getString = () => {
-    // todo
-  }
+  let index = 0;
+  const getString = (): string => {
+    if (index >= s.length || s[index] === "]") return "";
+    const current = s[index];
+    let res = "";
+    if (!isNaN(parseFloat(current))) {
+      const count = getCount();
+      index++;
+      const str = getString();
+      index++;
+      res += str.repeat(count);
+    } else {
+      res = current;
+      index++;
+    }
+    return res + getString();
+  };
+  const getCount = () => {
+    let res = 0;
+    while (index < s.length && s[index] !== "[") {
+      res = res * 10 + parseFloat(s[index]);
+    }
+    return res;
+  };
 }
 
-// stack 6-10
-export function postorderTraversal(root: TreeNode | null) {
-  if (!root) return [];
-  const res: number[] = [];
-  const stack: TreeNode[] = [];
-  let p: TreeNode | null = root;
-  let prevRight: TreeNode | null = null;
-  while (p || stack.length) {
-    while (p) {
-      stack.push(p);
-      p = p.left;
-    }
-    const current = stack.pop()!;
-    if (!current.right || current.right === prevRight) {
-      prevRight = current;
-      res.push(current.val);
+// string 6-10
+export function groupAnagrams(strs: string[]) {
+  const map = new Map<string, string[]>();
+  for (let item of strs) {
+    const key = item.split("").sort().join("");
+    if (map.has(key)) {
+      map.get(key)!.push(item);
     } else {
-      stack.push(current);
-      p = current;
+      map.set(key, [item]);
     }
+  }
+  const res: string[][] = [];
+  for (let [key, value] of map) {
+    res.push(value);
   }
   return res;
 }
 
-export function evalRPN(tokens: string[]) {
-  const stack: string[] = [];
-  for (let item of tokens) {
-    if (isNaN(parseFloat(item))) {
-      const n1 = stack.pop()!;
-      const n2 = stack.pop()!;
-      let res = eval(`${n1} ${item} ${n2}`);
-      res = res > 0 ? Math.floor(res) : Math.ceil(res);
-      stack.push(res + "");
-    } else {
-      stack.push(item);
-    }
-  }
-  return parseFloat(stack[0]);
-}
-
-export class MinStack {
-  queue: number[];
-  stack: number[];
-  constructor() {
-    this.queue = [];
-    this.stack = [];
-  }
-  push(item: number) {
-    this.stack.push(item);
-    if (this.queue.length === 0 || this.queue[0] >= item) {
-      this.queue.unshift(item);
-    }
-  }
-  pop() {
-    const res = this.stack.pop();
-    if (res === this.queue[0]) {
-      this.queue.shift();
-    }
-    return res;
-  }
-  top() {
-    return this.stack[this.stack.length - 1];
-  }
-  min() {
-    return this.queue[0];
-  }
-}
-
-export class BSTIterator {
-  current: TreeNode | null;
-  stack: TreeNode[];
-  constructor(root: TreeNode | null) {
-    this.current = root;
-    this.stack = [];
-  }
-  next() {
-    while (this.current) {
-      this.stack.push(this.current);
-      this.current = this.current.left;
-    }
-    const current = this.stack.pop()!;
-    this.current = current ? current.right : null;
-    return current ? current.val : null;
-  }
-  hasNext() {
-    return this.current != null || this.stack.length !== 0;
-  }
-}
-
-export class MyStack {
-  queue: number[];
-  constructor() {
-    this.queue = [];
-  }
-  push(item: number) {
-    this.queue.push(item);
-  }
-  pop() {
-    for (let i = 0; i < this.queue.length - 1; i++) {
-      this.queue.push(this.queue.shift()!);
-    }
-    return this.queue.shift();
-  }
-  top() {
-    return this.queue[this.queue.length - 1];
-  }
-  empty() {
-    return this.queue.length === 0;
-  }
+export function simplifyPath(path: string) {
+  // todo
 }
