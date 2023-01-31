@@ -253,5 +253,60 @@ export function groupAnagrams(strs: string[]) {
 }
 
 export function simplifyPath(path: string) {
-  // todo
+  const stack: string[] = [];
+  const dirs = path.split("/");
+  for (let item of dirs) {
+    if (item === "" || item === ".") continue;
+    if (item === "..") {
+      dirs.pop();
+      continue;
+    }
+    dirs.push(item);
+  }
+  return "/" + dirs.join("/");
 }
+
+export function numDecoding(s: string) {
+  if (s.length === 0) return 0;
+  const dp: number[] = [1];
+  dp[1] = s[0] === "0" ? 0 : 1;
+  for (let i = 2; i <= s.length; i++) {
+    dp[i] =
+      (s[i - 1] === "0" ? 0 : dp[i - 1]) +
+      (s[i - 2] === "0" || parseFloat(s[i - 2]) + parseFloat(s[i - 1]) > 26
+        ? 0
+        : dp[i - 2]);
+  }
+  return dp[s.length];
+}
+
+export function restoreIpAddresses(s: string) {
+  const res: string[] = [];
+  const dfs = (path: string[], index: number) => {
+    if (path.length === 4) {
+      if (index === s.length) {
+        res.push(path.join("."));
+      }
+      return;
+    }
+    if (index === s.length) return;
+    const current = s[index];
+    if (current === "0") {
+      dfs(path.concat(current), index + 1);
+      return;
+    }
+    let num = 0;
+    for (let i = index; i < s.length; i++) {
+      num = num * 10 + parseFloat(s[i]);
+      if (num > 0 && num < 255) {
+        dfs(path.concat(num + ""), i + 1);
+      } else {
+        break;
+      }
+    }
+  };
+  dfs([], 0);
+  return res;
+}
+
+// todo 10
