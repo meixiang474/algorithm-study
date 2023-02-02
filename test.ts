@@ -153,6 +153,90 @@ export class MyArray<T> {
 }
 
 // hot 85-88
+export function calcEquation(
+  equations: number[][],
+  values: number[],
+  queries: number[][]
+) {
+  const map = new Map<number, number>();
+  let count = 0;
+  for (let item of equations) {
+    const [num1, num2] = item;
+    if (!map.has(num1)) {
+      map.set(num1, count++);
+    }
+    if (!map.has(num2)) {
+      map.set(num1, count++);
+    }
+  }
+  const graph: number[][][] = new Array(count).fill(null);
+  for (let i = 0; i < count; i++) {
+    graph[i] = [];
+  }
+  for (let i = 0; i < equations.length; i++) {
+    const num1 = equations[i][0];
+    const num2 = equations[i][1];
+    const index1 = map.get(num1)!;
+    const index2 = map.get(num2)!;
+    graph[index1].push([index2, values[i]]);
+    graph[index2].push([index1, 1 / values[i]]);
+  }
+  const res: number[] = [];
+  for (let i = 0; i < queries.length; i++) {
+    const index1 = map.get(queries[i][0])!;
+    const index2 = map.get(queries[i][1])!;
+    if (index1 == null || index2 == null) {
+      res[i] = -1;
+      continue;
+    }
+    if (index1 === index2) {
+      res[i] = 1;
+      continue;
+    }
+    const ratios: number[] = new Array(count).fill(-1);
+    ratios[index1] = 1;
+    const queue = [index1];
+    while (queue.length && ratios[index2] !== -1) {
+      const current = queue.shift()!;
+      const arr = graph[current];
+      for (let i = 0; i < arr.length; i++) {
+        const [next, value] = arr[i];
+        if (ratios[next] === -1) {
+          ratios[next] = value * ratios[current];
+        }
+      }
+    }
+    res[i] = ratios[index2];
+  }
+  return res;
+}
+
+export function reconstructQueue(people: number[][]) {
+  people.sort((a, b) => {
+    if (a[0] !== b[0]) {
+      return a[0] - b[0];
+    } else {
+      return b[1] - a[1];
+    }
+  });
+  const res: number[][] = new Array(people.length).fill(null);
+  for (let i = 0; i < people.length; i++) {
+    const prevCount = people[i][1];
+    let index = prevCount + 1;
+    for (let j = 0; j < res.length; j++) {
+      if (res[j] == null) {
+        index--;
+        if (index === 0) {
+          res[j] = people[i];
+          break;
+        }
+      }
+    }
+  }
+  return res;
+}
+
+// todo 87
 
 // string 6-10
 export function groupAnagrams(strs: string[]) {
