@@ -236,106 +236,73 @@ export function reconstructQueue(people: number[][]) {
   return res;
 }
 
-// todo 87
-
-// string 6-10
-export function groupAnagrams(strs: string[]) {
-  const map = new Map<string, string[]>();
-  for (let item of strs) {
-    const key = item.split("").sort().join("");
-    if (map.has(key)) {
-      map.get(key)!.push(item);
-    } else {
-      map.set(key, [item]);
-    }
+export function canPartition(nums: number[]) {
+  let sum = 0;
+  let max = nums[0];
+  for (let item of nums) {
+    sum += item;
+    max = Math.max(max, item);
   }
-  const res: string[][] = [];
-  for (let [key, value] of map) {
-    res.push(value);
+  if (sum % 2 !== 0) return false;
+  const target = sum / 2;
+  if (max > target) return false;
+  const dp: boolean[][] = Array.from({ length: nums.length }, () =>
+    new Array(target + 1).fill(false)
+  );
+  for (let i = 0; i < nums.length; i++) {
+    dp[i][0] = true;
   }
-  return res;
-}
-
-export function simplifyPath(path: string) {
-  const stack: string[] = [];
-  const dirs = path.split("/");
-  for (let item of dirs) {
-    if (item === "" || item === ".") continue;
-    if (item === "..") {
-      dirs.pop();
-      continue;
-    }
-    dirs.push(item);
-  }
-  return "/" + dirs.join("/");
-}
-
-export function numDecoding(s: string) {
-  if (s.length === 0) return 0;
-  const dp: number[] = [1];
-  dp[1] = s[0] === "0" ? 0 : 1;
-  for (let i = 2; i <= s.length; i++) {
-    dp[i] =
-      (s[i - 1] === "0" ? 0 : dp[i - 1]) +
-      (s[i - 2] === "0" || parseFloat(s[i - 2]) + parseFloat(s[i - 1]) > 26
-        ? 0
-        : dp[i - 2]);
-  }
-  return dp[s.length];
-}
-
-export function restoreIpAddresses(s: string) {
-  const res: string[] = [];
-  const dfs = (path: string[], index: number) => {
-    if (path.length === 4) {
-      if (index === s.length) {
-        res.push(path.join("."));
-      }
-      return;
-    }
-    if (index === s.length) return;
-    const current = s[index];
-    if (current === "0") {
-      dfs(path.concat(current), index + 1);
-      return;
-    }
-    let num = 0;
-    for (let i = index; i < s.length; i++) {
-      num = num * 10 + parseFloat(s[i]);
-      if (num > 0 && num < 255) {
-        dfs(path.concat(num + ""), i + 1);
+  dp[0][nums[0]] = true;
+  for (let i = 1; i < nums.length; i++) {
+    const current = nums[i];
+    for (let j = 1; j <= target; j++) {
+      if (j >= current) {
+        dp[i][j] = dp[i - 1][j] || dp[i - 1][j - current];
       } else {
-        break;
+        dp[i][j] = dp[i - 1][j];
       }
     }
+  }
+  return dp[nums.length - 1][target];
+}
+
+export function pathSum(root: TreeNode | null, targetSum: number) {
+  if (!root) return 0;
+  const map = new Map<number, number>();
+  map.set(0, 1);
+  const dfs = (node: TreeNode | null, sum: number): number => {
+    if (!node) return 0;
+    sum += node.val;
+    let count = map.has(sum - targetSum) ? map.get(sum - targetSum)! : 0;
+    map.set(sum, map.has(sum) ? map.get(sum)! + 1 : 1);
+    count += dfs(node.left, sum);
+    count += dfs(node.right, sum);
+    map.set(sum, map.get(sum)! - 1);
+    return count;
   };
-  dfs([], 0);
+  return dfs(root, 0);
+}
+
+// tree 6-10
+export function levelOrder(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[][] = [];
+  const queue: [TreeNode, number][] = [[root, 0]];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    const arr = res[level] || (res[level] = []);
+    arr.push(current.val);
+    if (current.left) {
+      queue.push([current.left, level + 1]);
+    }
+    if (current.right) {
+      queue.push([current.right, level + 1]);
+    }
+  }
   return res;
 }
 
-export function isPalindrome(s: string) {
-  let l = 0,
-    r = s.length - 1;
-  while (l < r) {
-    const currentl = s[l];
-    const currentr = s[r];
-    if (
-      isNaN(parseFloat(currentl)) &&
-      currentl.toLowerCase() === currentl.toUpperCase()
-    ) {
-      l++;
-      continue;
-    }
-    if (
-      isNaN(parseFloat(currentr)) &&
-      currentr.toLowerCase() === currentr.toLowerCase()
-    ) {
-      r--;
-      continue;
-    }
-    if (currentl.toLowerCase() !== currentr.toLowerCase()) return false;
-    l++;
-    r--;
-  }
-  return true;
+export function zigzagLevelOrder(root: TreeNode | null) {
+  if(!root) return []
+  // todo 
 }
