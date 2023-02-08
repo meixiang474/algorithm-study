@@ -21,30 +21,8 @@ export class ListNode1 {
   }
 }
 
-// offer 10-II 11
-export function numWays(n: number) {
-  const dp = [1, 1];
-  for (let i = 2; i <= n; i++) {
-    dp[i] = dp[i - 1] + dp[i - 2];
-  }
-  return dp[n];
-}
-
-export function minArray(nums: number[]) {
-  let l = 0,
-    r = nums.length - 1;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l) / 2);
-    if (nums[mid] > nums[r]) {
-      l = mid + 1;
-    } else if (nums[mid] < nums[r]) {
-      r = mid;
-    } else {
-      r--;
-    }
-  }
-  return nums[l];
-}
+// offer 12 13
+// todo 
 
 // array
 export class MyArray<T> {
@@ -303,6 +281,75 @@ export function levelOrder(root: TreeNode | null) {
 }
 
 export function zigzagLevelOrder(root: TreeNode | null) {
-  if(!root) return []
-  // todo 
+  if (!root) return [];
+  const res: number[][] = [];
+  const queue: [TreeNode, number][] = [[root, 0]];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    const arr = res[level] || (res[level] = []);
+    if (level % 2 === 0) {
+      arr.push(current.val);
+    } else {
+      arr.unshift(current.val);
+    }
+    if (current.left) {
+      queue.push([current.left, level + 1]);
+    }
+    if (current.right) {
+      queue.push([current.right, level + 1]);
+    }
+  }
+  return res;
+}
+
+export function maxDepth(root: TreeNode | null) {
+  if (!root) return 0;
+  let res = 0;
+  const dfs = (node: TreeNode, level: number) => {
+    if (!node.left && !node.right) {
+      res = Math.max(res, level);
+      return;
+    }
+    if (node.left) {
+      dfs(node.left, level + 1);
+    }
+    if (node.right) {
+      dfs(node.right, level + 1);
+    }
+  };
+  dfs(root, 1);
+  return res;
+}
+
+export function levelOrderBottom(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[][] = [];
+  const queue: [TreeNode, number][] = [[root, 0]];
+  let currentLevel = -1;
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    if (currentLevel === level) {
+      res[0].push(current.val);
+    } else {
+      const arr = [current.val];
+      res.unshift(arr);
+      currentLevel = level;
+    }
+    if (current.left) {
+      queue.push([current.left, level + 1]);
+    }
+    if (current.right) {
+      queue.push([current.right, level + 1]);
+    }
+  }
+  return res;
+}
+
+export function sortedArrayToBST(nums: number[]): TreeNode | null {
+  if (nums.length === 0) return null;
+  const mid = Math.floor((nums.length - 1) / 2);
+  const node = new TreeNode(nums[mid]);
+  node.left = sortedArrayToBST(nums.slice(0, mid));
+  node.right = sortedArrayToBST(nums.slice(mid + 1));
+  return node;
 }
