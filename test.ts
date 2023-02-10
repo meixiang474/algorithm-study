@@ -22,111 +22,150 @@ export class ListNode1 {
 }
 
 // offer 12 13
-// todo 
-
-// array
-export class MyArray<T> {
-  data: (T | null)[];
-  size: number;
-  constructor(capacity = 10) {
-    this.data = new Array(capacity).fill(null);
-    this.size = 0;
+export function exists(board: string[][], word: string) {
+  if (board.length === 0 || board[0].length === 0) return false;
+  const m = board.length;
+  const n = board[0].length;
+  const dfs = (r: number, c: number, index: number) => {
+    if (index === word.length - 1) return true;
+    const temp = board[r][c];
+    const res = (board[r][c] = "");
+    [
+      [r - 1, c],
+      [r + 1, c],
+      [r, c - 1],
+      [r, c + 1],
+    ].some(([nextR, nextC]) => {
+      if (
+        nextR >= 0 &&
+        nextR < m &&
+        nextC >= 0 &&
+        nextC < n &&
+        board[nextR][nextC] === word[index + 1]
+      ) {
+        return dfs(nextR, nextC, index + 1);
+      }
+      return false;
+    });
+    board[r][c] = temp;
+    return res;
+  };
+  for (let r = 0; r < m; r++) {
+    for (let c = 0; c < n; c++) {
+      if (board[r][c] === word[0]) {
+        const res = dfs(r, c, 0);
+        if (res) return true;
+      }
+    }
   }
-  getCapacity() {
-    return this.data.length;
+  return false;
+}
+
+export function movingCount(m: number, n: number, k: number) {
+  if (m === 0 || n === 0) return 0;
+  let res = 0;
+  const map: boolean[][] = Array.from({ length: m }, () =>
+    new Array(n).fill(false)
+  );
+  const dfs = (r: number, c: number) => {
+    res++;
+    map[r][c] = true;
+    [
+      [r + 1, c],
+      [r - 1, c],
+      [r, c + 1],
+      [r, c - 1],
+    ].forEach(([nextR, nextC]) => {
+      if (
+        nextR >= 0 &&
+        nextR < m &&
+        nextC >= 0 &&
+        nextC < n &&
+        !map[nextR][nextC]
+      ) {
+        const sum =
+          nextR
+            .toString()
+            .split("")
+            .map((i) => parseFloat(i))
+            .reduce((a, b) => a + b) +
+          nextC
+            .toString()
+            .split("")
+            .map((i) => parseFloat(i))
+            .reduce((a, b) => a + b);
+        if (sum <= k) {
+          dfs(nextR, nextC);
+        }
+      }
+    });
+  };
+  dfs(0, 0);
+  return res;
+}
+
+// stack
+export class Stack<T> {
+  items: T[];
+  constructor() {
+    this.items = [];
   }
   getSize() {
-    return this.size;
+    return this.items.length;
   }
-  resize(newCapacity: number) {
-    const newData: (T | null)[] = new Array(newCapacity).fill(null);
-    for (let i = 0; i < this.size; i++) {
-      newData[i] = this.data[i];
-    }
-    this.data = newData;
+  isEmpty() {
+    return this.getSize() === 0;
   }
-  add(index: number, e: T) {
-    if (index < 0 || index > this.size) throw new Error("error");
-    if (this.size >= this.data.length) {
-      this.resize(this.data.length * 2);
-    }
-    for (let i = this.size; i > index; i--) {
-      this.data[i] = this.data[i - 1];
-    }
-    this.data[index] = e;
-    this.size++;
+  push(item: T) {
+    this.items.push(item);
   }
-  addFirst(e: T) {
-    this.add(0, e);
+  pop() {
+    if (this.isEmpty()) throw new Error("error");
+    return this.items.pop()!;
   }
-  addLast(e: T) {
-    this.add(this.size, e);
-  }
-  get(index: number) {
-    if (index < 0 || index >= this.size) throw new Error("error");
-    return this.data[index];
-  }
-  getFirst() {
-    return this.get(0);
-  }
-  getLast() {
-    return this.get(this.size - 1);
-  }
-  contains(e: T) {
-    for (let i = 0; i < this.size; i++) {
-      if (this.data[i] === e) return true;
-    }
-    return false;
-  }
-  find(e: T) {
-    for (let i = 0; i < this.size; i++) {
-      if (this.data[i] === e) return i;
-    }
-    return -1;
-  }
-  remove(index: number) {
-    if (index < 0 || index >= this.size) throw new Error("error");
-    const res = this.data[index];
-    for (let i = index; i < this.size; i++) {
-      this.data[i] = this.data[i + 1];
-    }
-    this.size--;
-    if (
-      this.size <= Math.floor(this.getCapacity() / 4) &&
-      Math.floor(this.getCapacity() / 2) !== 0
-    ) {
-      this.resize(Math.floor(this.getCapacity() / 2));
-    }
-    return res;
-  }
-  removeFirst() {
-    return this.remove(0);
-  }
-  removeLast() {
-    return this.remove(this.size - 1);
-  }
-  removeElement(e: T) {
-    const index = this.find(e);
-    if (index !== -1) {
-      this.remove(index);
-      return true;
-    }
-    return false;
-  }
-  set(index: number, e: T) {
-    if (index < 0 || index >= this.size) throw new Error("error");
-    this.data[index] = e;
+  peek() {
+    if (this.isEmpty()) throw new Error("error");
+    return this.items[this.items.length - 1];
   }
   toString() {
-    let res = `MyArray: size=${this.getSize()}, capacity=${
-      this.getCapacity
-    }\r\n`;
-    res += "[";
-    for (let i = 0; i < this.size; i++) {
-      res += JSON.stringify(this.data[i]) + ",";
+    return this.items.toString();
+  }
+}
+
+export function isValid(s: string) {
+  if (s.length % 2 !== 0) return false;
+  const map = new Map<string, string>();
+  map.set("{", "}");
+  map.set("(", ")");
+  map.set("[", "]");
+  const stack: string[] = [];
+  for (let item of s) {
+    if (map.has(item)) {
+      stack.push(item);
+    } else {
+      const res = stack.pop();
+      if (res == null || map.get(res) !== item) return false;
     }
-    res = res.slice(0, -1) + "]";
-    return res;
+  }
+  return stack.length === 0;
+}
+
+export class MinStack {
+  items: number[];
+  queue: number[];
+  constructor() {
+    this.items = []
+    this.queue = []
+  }
+  getSize() {
+    return this.items.length
+  }
+  isEmpty() {
+    return this.getSize() === 0
+  }
+  push(item: number) {
+    this.items.push(item)
+    // todo
   }
 }
 
