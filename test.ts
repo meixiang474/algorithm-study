@@ -154,151 +154,110 @@ export class MinStack {
   items: number[];
   queue: number[];
   constructor() {
-    this.items = []
-    this.queue = []
+    this.items = [];
+    this.queue = [];
   }
   getSize() {
-    return this.items.length
+    return this.items.length;
   }
   isEmpty() {
-    return this.getSize() === 0
+    return this.getSize() === 0;
   }
   push(item: number) {
-    this.items.push(item)
-    // todo
+    this.items.push(item);
+    while (this.queue.length === 0 || item <= this.queue[0]) {
+      this.queue.unshift(item);
+    }
+  }
+  pop() {
+    if (this.isEmpty()) throw new Error("error");
+    const res = this.items.pop()!;
+    if (res === this.queue[0]) {
+      this.queue.shift();
+    }
+    return res;
+  }
+  peek() {
+    if (this.isEmpty()) throw new Error("error");
+    return this.items[this.items.length - 1];
+  }
+  getMin() {
+    return this.queue[0];
   }
 }
 
-// hot 85-88
-export function calcEquation(
-  equations: number[][],
-  values: number[],
-  queries: number[][]
-) {
-  const map = new Map<number, number>();
-  let count = 0;
-  for (let item of equations) {
-    const [num1, num2] = item;
-    if (!map.has(num1)) {
-      map.set(num1, count++);
-    }
-    if (!map.has(num2)) {
-      map.set(num1, count++);
-    }
+export class CustomStack {
+  items: number[];
+  maxSize: number;
+  constructor(maxSize: number) {
+    this.items = [];
+    this.maxSize = maxSize;
   }
-  const graph: number[][][] = new Array(count).fill(null);
-  for (let i = 0; i < count; i++) {
-    graph[i] = [];
+  push(item: number) {
+    if (this.items.length >= this.maxSize) return;
+    this.items.push(item);
   }
-  for (let i = 0; i < equations.length; i++) {
-    const num1 = equations[i][0];
-    const num2 = equations[i][1];
-    const index1 = map.get(num1)!;
-    const index2 = map.get(num2)!;
-    graph[index1].push([index2, values[i]]);
-    graph[index2].push([index1, 1 / values[i]]);
+  pop() {
+    if (this.items.length === 0) return -1;
+    return this.items.pop()!;
   }
-  const res: number[] = [];
-  for (let i = 0; i < queries.length; i++) {
-    const index1 = map.get(queries[i][0])!;
-    const index2 = map.get(queries[i][1])!;
-    if (index1 == null || index2 == null) {
-      res[i] = -1;
-      continue;
-    }
-    if (index1 === index2) {
-      res[i] = 1;
-      continue;
-    }
-    const ratios: number[] = new Array(count).fill(-1);
-    ratios[index1] = 1;
-    const queue = [index1];
-    while (queue.length && ratios[index2] !== -1) {
-      const current = queue.shift()!;
-      const arr = graph[current];
-      for (let i = 0; i < arr.length; i++) {
-        const [next, value] = arr[i];
-        if (ratios[next] === -1) {
-          ratios[next] = value * ratios[current];
-        }
-      }
-    }
-    res[i] = ratios[index2];
-  }
-  return res;
-}
-
-export function reconstructQueue(people: number[][]) {
-  people.sort((a, b) => {
-    if (a[0] !== b[0]) {
-      return a[0] - b[0];
+  inc(k: number, val: number) {
+    if (k >= this.items.length) {
+      this.items = this.items.map((item) => item + val);
     } else {
-      return b[1] - a[1];
-    }
-  });
-  const res: number[][] = new Array(people.length).fill(null);
-  for (let i = 0; i < people.length; i++) {
-    const prevCount = people[i][1];
-    let index = prevCount + 1;
-    for (let j = 0; j < res.length; j++) {
-      if (res[j] == null) {
-        index--;
-        if (index === 0) {
-          res[j] = people[i];
-          break;
-        }
+      for (let i = 0; i < k; i++) {
+        this.items[i] += val;
       }
+    }
+  }
+}
+
+export function preOrderTraversal(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  const stack: TreeNode[] = [root];
+  while (stack.length) {
+    const current = stack.pop()!;
+    res.push(current.val);
+    if (current.right) {
+      stack.push(current.right);
+    }
+    if (current.left) {
+      stack.push(current.left);
     }
   }
   return res;
 }
 
-export function canPartition(nums: number[]) {
-  let sum = 0;
-  let max = nums[0];
-  for (let item of nums) {
-    sum += item;
-    max = Math.max(max, item);
+export function decToBi(num: number) {
+  const queue: number[] = [];
+  while (num) {
+    queue.unshift(num % 2);
+    num = Math.floor(num / 2);
   }
-  if (sum % 2 !== 0) return false;
-  const target = sum / 2;
-  if (max > target) return false;
-  const dp: boolean[][] = Array.from({ length: nums.length }, () =>
-    new Array(target + 1).fill(false)
-  );
-  for (let i = 0; i < nums.length; i++) {
-    dp[i][0] = true;
-  }
-  dp[0][nums[0]] = true;
-  for (let i = 1; i < nums.length; i++) {
-    const current = nums[i];
-    for (let j = 1; j <= target; j++) {
-      if (j >= current) {
-        dp[i][j] = dp[i - 1][j] || dp[i - 1][j - current];
-      } else {
-        dp[i][j] = dp[i - 1][j];
-      }
-    }
-  }
-  return dp[nums.length - 1][target];
+  return parseFloat(queue.join(""));
 }
 
-export function pathSum(root: TreeNode | null, targetSum: number) {
-  if (!root) return 0;
-  const map = new Map<number, number>();
-  map.set(0, 1);
-  const dfs = (node: TreeNode | null, sum: number): number => {
-    if (!node) return 0;
-    sum += node.val;
-    let count = map.has(sum - targetSum) ? map.get(sum - targetSum)! : 0;
-    map.set(sum, map.has(sum) ? map.get(sum)! + 1 : 1);
-    count += dfs(node.left, sum);
-    count += dfs(node.right, sum);
-    map.set(sum, map.get(sum)! - 1);
-    return count;
-  };
-  return dfs(root, 0);
+// hot 89-92
+export function findAnagrams(s: string, p: string) {
+  if (s.length < p.length) return [];
+  const smap = new Array(26).fill(0);
+  const pmap = new Array(26).fill(0);
+  const res: number[] = [];
+  for (let i = 0; i < p.length; i++) {
+    smap[s[i].charCodeAt(0) - "a".charCodeAt(0)]++;
+    pmap[p[i].charCodeAt(0) - "a".charCodeAt(0)]++;
+  }
+  if (smap.toString() === pmap.toString()) res.push(0);
+  for (let i = 0; i < s.length - p.length; i++) {
+    smap[s[i].charCodeAt(0) - "a".charCodeAt(0)]--;
+    smap[s[i + p.length].charCodeAt(0) - "a".charCodeAt(0)]++;
+    if (smap.toString() === pmap.toString()) res.push(i + 1);
+  }
+  return res;
 }
+
+// todo
 
 // tree 6-10
 export function levelOrder(root: TreeNode | null) {
