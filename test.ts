@@ -257,6 +257,35 @@ export function findAnagrams(s: string, p: string) {
   return res;
 }
 
+export function findDisappearedNumbers(nums: number[]) {
+  for (let item of nums) {
+    const index = (item - 1) % nums.length;
+    nums[index] += nums.length;
+  }
+  const res: number[] = [];
+  for (let i = 0; i < nums.length; i++) {
+    if (nums[i] <= nums.length) res.push(i + 1);
+  }
+  return res;
+}
+
+export function hammingDistance(num1: number, num2: number) {
+  let num1Bi = num1.toString(2);
+  let num2Bi = num2.toString(2);
+  const maxLength = Math.max(num1Bi.length, num2Bi.length);
+  if (num1Bi.length !== num2Bi.length) {
+    num1Bi = num1Bi.padStart(maxLength, "0");
+    num2Bi = num2Bi.padStart(maxLength, "0");
+  }
+  let res = 0;
+  for (let i = 0; i < maxLength; i++) {
+    if (num1Bi[i] !== num2Bi[i]) {
+      res++;
+    }
+  }
+  return res;
+}
+
 // todo
 
 // tree 6-10
