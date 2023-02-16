@@ -286,97 +286,63 @@ export function hammingDistance(num1: number, num2: number) {
   return res;
 }
 
-// todo
-
-// tree 6-10
-export function levelOrder(root: TreeNode | null) {
-  if (!root) return [];
-  const res: number[][] = [];
-  const queue: [TreeNode, number][] = [[root, 0]];
-  while (queue.length) {
-    const [current, level] = queue.shift()!;
-    const arr = res[level] || (res[level] = []);
-    arr.push(current.val);
-    if (current.left) {
-      queue.push([current.left, level + 1]);
-    }
-    if (current.right) {
-      queue.push([current.right, level + 1]);
+export function findTargetSumWays(nums: number[], target: number) {
+  if (nums.length === 0) return 0;
+  const sum = nums.reduce((a, b) => a + b);
+  const diff = sum - target;
+  if (diff < 0 || diff % 2 !== 0) return 0;
+  const dp = Array.from({ length: nums.length }, () =>
+    new Array(diff / 2 + 1).fill(0)
+  );
+  dp[0][0] = 1;
+  for (let i = 1; i <= nums.length; i++) {
+    const current = nums[i - 1];
+    for (let j = 0; j <= diff / 2; j++) {
+      dp[i][j] = dp[i - 1][j];
+      if (current <= j) {
+        dp[i][j] += dp[i - 1][j - current];
+      }
     }
   }
-  return res;
+  return dp[nums.length][diff / 2];
 }
 
-export function zigzagLevelOrder(root: TreeNode | null) {
-  if (!root) return [];
-  const res: number[][] = [];
-  const queue: [TreeNode, number][] = [[root, 0]];
-  while (queue.length) {
-    const [current, level] = queue.shift()!;
-    const arr = res[level] || (res[level] = []);
-    if (level % 2 === 0) {
-      arr.push(current.val);
+// twoponinters 6-10
+export function removeNthFromEnd(head: ListNode | null, n: number) {
+  const dummyHead = new ListNode(-1);
+  dummyHead.next = head;
+  let current: ListNode | null = dummyHead;
+  const stack: ListNode[] = [];
+  while (current) {
+    stack.push(current);
+    current = current.next;
+  }
+  for (let i = 0; i < n; i++) {
+    stack.pop();
+  }
+  const prev = stack[stack.length - 1];
+  if (prev.next) {
+    prev.next = prev.next.next;
+  }
+  return dummyHead.next;
+}
+
+export function removeDuplicates(nums: number[]) {
+  let res = nums.length;
+  let i = 0;
+  while (i < res) {
+    if (i > 0 && nums[i - 1] === nums[i]) {
+      res--;
+      for (let j = i; j < res; j++) {
+        nums[j] = nums[j + 1];
+      }
     } else {
-      arr.unshift(current.val);
-    }
-    if (current.left) {
-      queue.push([current.left, level + 1]);
-    }
-    if (current.right) {
-      queue.push([current.right, level + 1]);
+      i++;
     }
   }
   return res;
 }
 
-export function maxDepth(root: TreeNode | null) {
-  if (!root) return 0;
-  let res = 0;
-  const dfs = (node: TreeNode, level: number) => {
-    if (!node.left && !node.right) {
-      res = Math.max(res, level);
-      return;
-    }
-    if (node.left) {
-      dfs(node.left, level + 1);
-    }
-    if (node.right) {
-      dfs(node.right, level + 1);
-    }
-  };
-  dfs(root, 1);
-  return res;
-}
-
-export function levelOrderBottom(root: TreeNode | null) {
-  if (!root) return [];
-  const res: number[][] = [];
-  const queue: [TreeNode, number][] = [[root, 0]];
-  let currentLevel = -1;
-  while (queue.length) {
-    const [current, level] = queue.shift()!;
-    if (currentLevel === level) {
-      res[0].push(current.val);
-    } else {
-      const arr = [current.val];
-      res.unshift(arr);
-      currentLevel = level;
-    }
-    if (current.left) {
-      queue.push([current.left, level + 1]);
-    }
-    if (current.right) {
-      queue.push([current.right, level + 1]);
-    }
-  }
-  return res;
-}
-
-export function sortedArrayToBST(nums: number[]): TreeNode | null {
-  if (nums.length === 0) return null;
-  const mid = Math.floor((nums.length - 1) / 2);
-  const node = new TreeNode(nums[mid]);
-  node.left = sortedArrayToBST(nums.slice(0, mid));
-  node.right = sortedArrayToBST(nums.slice(mid + 1));
-  return node;
+export function removeElement(nums: number[], val: number) {
+// todo  
 }
