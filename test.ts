@@ -21,91 +21,38 @@ export class ListNode1 {
   }
 }
 
-// offer 12 13
-export function exists(board: string[][], word: string) {
-  if (board.length === 0 || board[0].length === 0) return false;
-  const m = board.length;
-  const n = board[0].length;
-  const dfs = (r: number, c: number, index: number) => {
-    if (index === word.length - 1) return true;
-    const temp = board[r][c];
-    const res = (board[r][c] = "");
-    [
-      [r - 1, c],
-      [r + 1, c],
-      [r, c - 1],
-      [r, c + 1],
-    ].some(([nextR, nextC]) => {
-      if (
-        nextR >= 0 &&
-        nextR < m &&
-        nextC >= 0 &&
-        nextC < n &&
-        board[nextR][nextC] === word[index + 1]
-      ) {
-        return dfs(nextR, nextC, index + 1);
-      }
-      return false;
-    });
-    board[r][c] = temp;
-    return res;
+// offer 14-I 14-II
+export function cuttingRope(n: number) {
+  const compute = (m: number) => {
+    const floor = Math.floor(n / m);
+    const ceil = Math.ceil(n / m);
+    return Math.max(
+      ceil ** (m - 1) * (n - (m - 1) * ceil),
+      floor ** (m - 1) * (n - (m - 1) * floor)
+    );
   };
-  for (let r = 0; r < m; r++) {
-    for (let c = 0; c < n; c++) {
-      if (board[r][c] === word[0]) {
-        const res = dfs(r, c, 0);
-        if (res) return true;
-      }
-    }
-  }
-  return false;
-}
-
-export function movingCount(m: number, n: number, k: number) {
-  if (m === 0 || n === 0) return 0;
   let res = 0;
-  const map: boolean[][] = Array.from({ length: m }, () =>
-    new Array(n).fill(false)
-  );
-  const dfs = (r: number, c: number) => {
-    res++;
-    map[r][c] = true;
-    [
-      [r + 1, c],
-      [r - 1, c],
-      [r, c + 1],
-      [r, c - 1],
-    ].forEach(([nextR, nextC]) => {
-      if (
-        nextR >= 0 &&
-        nextR < m &&
-        nextC >= 0 &&
-        nextC < n &&
-        !map[nextR][nextC]
-      ) {
-        const sum =
-          nextR
-            .toString()
-            .split("")
-            .map((i) => parseFloat(i))
-            .reduce((a, b) => a + b) +
-          nextC
-            .toString()
-            .split("")
-            .map((i) => parseFloat(i))
-            .reduce((a, b) => a + b);
-        if (sum <= k) {
-          dfs(nextR, nextC);
-        }
-      }
-    });
-  };
-  dfs(0, 0);
+  for (let i = 2; i <= n; i++) {
+    res = Math.max(res, compute(i));
+  }
   return res;
 }
 
-// stack
-export class Stack<T> {
+export function cuttingRope1(n: number) {
+  const arr = [0, 0, 1, 2, 4];
+  if (n < 5) {
+    return arr[n];
+  }
+  let res = 1;
+  while (n >= 5) {
+    res *= 3;
+    n -= 3;
+  }
+  return res * n;
+}
+
+// queue
+export class Queue<T> {
   items: T[];
   constructor() {
     this.items = [];
@@ -116,127 +63,87 @@ export class Stack<T> {
   isEmpty() {
     return this.getSize() === 0;
   }
-  push(item: T) {
+  enqueue(item: T) {
     this.items.push(item);
   }
-  pop() {
-    if (this.isEmpty()) throw new Error("error");
-    return this.items.pop()!;
+  dequeue() {
+    if (this.items.length === 0) throw new Error("error");
+    return this.items.shift()!;
   }
-  peek() {
+  getFront() {
     if (this.isEmpty()) throw new Error("error");
-    return this.items[this.items.length - 1];
+    return this.items[0];
   }
   toString() {
     return this.items.toString();
   }
 }
 
-export function isValid(s: string) {
-  if (s.length % 2 !== 0) return false;
-  const map = new Map<string, string>();
-  map.set("{", "}");
-  map.set("(", ")");
-  map.set("[", "]");
-  const stack: string[] = [];
-  for (let item of s) {
-    if (map.has(item)) {
-      stack.push(item);
-    } else {
-      const res = stack.pop();
-      if (res == null || map.get(res) !== item) return false;
-    }
+export class LoopQueue<T = number> {
+  data: (T | null)[];
+  front: number;
+  tail: number;
+  constructor(capacity = 10) {
+    this.data = new Array(capacity + 1).fill(null);
+    this.front = this.tail = 0;
   }
-  return stack.length === 0;
-}
-
-export class MinStack {
-  items: number[];
-  queue: number[];
-  constructor() {
-    this.items = [];
-    this.queue = [];
+  getCapacity() {
+    return this.data.length - 1;
   }
   getSize() {
-    return this.items.length;
+    return this.tail >= this.front
+      ? this.tail - this.front
+      : this.tail - this.front + this.data.length;
   }
   isEmpty() {
-    return this.getSize() === 0;
+    return this.getSize();
   }
-  push(item: number) {
-    this.items.push(item);
-    while (this.queue.length === 0 || item <= this.queue[0]) {
-      this.queue.unshift(item);
+  resize(newCapacity: number) {
+    const newData = new Array(newCapacity + 1).fill(null);
+    for (let i = 0; i < this.getSize(); i++) {
+      newData[i] = this.data[(this.front + i) % this.data.length];
     }
+    this.tail = this.getSize();
+    this.front = 0;
+    this.data = newData;
   }
-  pop() {
+  enqueue(item: T) {
+    if (this.getSize() >= this.getCapacity()) {
+      this.resize(2 * this.getCapacity());
+    }
+    this.data[this.tail] = item;
+    this.tail = (this.tail + 1) % this.data.length;
+  }
+  dequeue() {
     if (this.isEmpty()) throw new Error("error");
-    const res = this.items.pop()!;
-    if (res === this.queue[0]) {
-      this.queue.shift();
+    const res = this.data[this.front] as T;
+    this.data[this.front] = null;
+    this.front = (this.front + 1) % this.data.length;
+    if (
+      this.getSize() <= Math.floor(this.getCapacity() / 4) &&
+      Math.floor(this.getCapacity() / 2) !== 0
+    ) {
+      this.resize(Math.floor(this.getCapacity() / 2));
     }
     return res;
   }
-  peek() {
+  getFront() {
     if (this.isEmpty()) throw new Error("error");
-    return this.items[this.items.length - 1];
+    return this.data[this.front] as T;
   }
-  getMin() {
-    return this.queue[0];
+  toString() {
+    let res = `LoopQueue: size=${this.getSize()}, capacity=${this.getCapacity()}\r\n`;
+    res += "[";
+    for (let i = 0; i < this.getSize(); i++) {
+      res +=
+        JSON.stringify(this.data[(this.front + i) % this.data.length]) + ",";
+    }
+    res = res.slice(0, -1) + "]";
+    return res;
   }
 }
 
-export class CustomStack {
-  items: number[];
-  maxSize: number;
-  constructor(maxSize: number) {
-    this.items = [];
-    this.maxSize = maxSize;
-  }
-  push(item: number) {
-    if (this.items.length >= this.maxSize) return;
-    this.items.push(item);
-  }
-  pop() {
-    if (this.items.length === 0) return -1;
-    return this.items.pop()!;
-  }
-  inc(k: number, val: number) {
-    if (k >= this.items.length) {
-      this.items = this.items.map((item) => item + val);
-    } else {
-      for (let i = 0; i < k; i++) {
-        this.items[i] += val;
-      }
-    }
-  }
-}
-
-export function preOrderTraversal(root: TreeNode | null) {
-  if (!root) return [];
-  const res: number[] = [];
-  const stack: TreeNode[] = [root];
-  while (stack.length) {
-    const current = stack.pop()!;
-    res.push(current.val);
-    if (current.right) {
-      stack.push(current.right);
-    }
-    if (current.left) {
-      stack.push(current.left);
-    }
-  }
-  return res;
-}
-
-export function decToBi(num: number) {
-  const queue: number[] = [];
-  while (num) {
-    queue.unshift(num % 2);
-    num = Math.floor(num / 2);
-  }
-  return parseFloat(queue.join(""));
-}
+// todo
 
 // hot 89-92
 export function findAnagrams(s: string, p: string) {
@@ -344,5 +251,62 @@ export function removeDuplicates(nums: number[]) {
 }
 
 export function removeElement(nums: number[], val: number) {
-// todo  
+  let res = nums.length;
+  let i = 0;
+  while (i < res) {
+    const current = nums[i];
+    if (current === val) {
+      res--;
+      for (let j = 0; j < res; j++) {
+        nums[j] = nums[j + 1];
+      }
+    } else {
+      i++;
+    }
+  }
+  return res;
+}
+
+export function strStr(hayStack: string, needle: string) {
+  if (!needle) return 0;
+  let res = -1;
+  let index = 0;
+  while (index < hayStack.length) {
+    const current = hayStack[index];
+    if (hayStack.length - index < needle.length) break;
+    if (current === needle[0]) {
+      let flag = true;
+      for (let i = index + 1; i < needle.length + index; i++) {
+        if (hayStack[i] !== needle[i - index]) {
+          flag = false;
+          break;
+        }
+      }
+      if (flag) {
+        res = index;
+        break;
+      }
+    }
+    index++;
+  }
+  return res;
+}
+
+export function rotateRight(head: ListNode | null, k: number) {
+  if (k === 0 || !head || !head.next) return;
+  let count = 1;
+  let current = head;
+  while (current.next) {
+    count++;
+    current = current.next;
+  }
+  current.next = head;
+  k = count - (k % count);
+  let prev = head;
+  for (let i = 0; i < k - 1; k++) {
+    prev = prev.next!;
+  }
+  const res = prev.next;
+  prev.next = null;
+  return res;
 }
