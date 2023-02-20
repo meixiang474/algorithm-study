@@ -144,6 +144,93 @@ export class LoopQueue<T = number> {
 }
 
 // todo
+export class Deque<T = number> {
+  data: (T | null)[];
+  size: number;
+  front: number;
+  tail: number;
+  constructor(capacity = 10) {
+    this.data = new Array(capacity).fill(null);
+    this.size = this.front = this.tail = 0;
+  }
+  getCapacity() {
+    return this.data.length;
+  }
+  getSize() {
+    return this.size;
+  }
+  isEmpty() {
+    return this.getSize() === 0;
+  }
+  resize(newCapacity: number) {
+    const newData = new Array(newCapacity).fill(null);
+    for (let i = 0; i < this.getSize(); i++) {
+      newData[i] = this.data[(this.front + i) % this.data.length];
+    }
+    this.front = 0;
+    this.tail = this.size;
+  }
+  addLast(e: T) {
+    if (this.getSize() === this.getCapacity()) {
+      this.resize(this.getCapacity() * 2);
+    }
+    this.data[this.tail] = e;
+    this.tail = (this.tail + 1) % this.data.length;
+    this.size++;
+  }
+  addFront(e: T) {
+    if (this.getSize() === this.getCapacity()) {
+      this.resize(this.getCapacity() * 2);
+    }
+    this.front = this.front === 0 ? this.data.length - 1 : this.front - 1;
+    this.data[this.front] = e;
+    this.size++;
+  }
+  removeFront() {
+    if (this.isEmpty()) throw new Error("error");
+    const res = this.data[this.front] as T;
+    this.data[this.front] = null;
+    this.front = (this.front + 1) % this.data.length;
+    this.size--;
+    if (
+      this.getSize() <= Math.floor(this.getCapacity() / 4) &&
+      Math.floor(this.getCapacity() / 2)
+    ) {
+      this.resize(Math.floor(this.getCapacity() / 2));
+    }
+    return res;
+  }
+  removeLast() {
+    if (this.isEmpty()) throw new Error("error");
+    this.tail = this.tail === 0 ? this.data.length - 1 : this.tail - 1;
+    const res = this.data[this.tail] as T;
+    this.data[this.tail] = null;
+    this.size--;
+    if (
+      this.getSize() <= Math.floor(this.getCapacity() / 4) &&
+      Math.floor(this.getSize() / 4)
+    ) {
+      this.resize(Math.floor(this.getCapacity() / 2));
+    }
+    return res;
+  }
+  getFront() {
+    if (this.isEmpty()) throw new Error("error");
+    return this.data[this.front] as T;
+  }
+  getLast() {
+    if (this.isEmpty()) throw new Error("error");
+    const index = this.tail === 0 ? this.data.length - 1 : this.tail - 1;
+    return this.data[index] as T;
+  }
+  toString() {
+    let res = `Deque: size=${this.getSize()}, capacity=${this.getCapacity()}\r\n`
+    res += 'front ['
+    for(let i = 0; i < this.getSize(); i++) {
+      // todo
+    }
+  }
+}
 
 // hot 89-92
 export function findAnagrams(s: string, p: string) {
