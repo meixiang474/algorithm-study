@@ -224,82 +224,101 @@ export class Deque<T = number> {
     return this.data[index] as T;
   }
   toString() {
-    let res = `Deque: size=${this.getSize()}, capacity=${this.getCapacity()}\r\n`
-    res += 'front ['
-    for(let i = 0; i < this.getSize(); i++) {
-      // todo
+    let res = `Deque: size=${this.getSize()}, capacity=${this.getCapacity()}\r\n`;
+    res += "front [";
+    for (let i = 0; i < this.getSize(); i++) {
+      res +=
+        JSON.stringify(this.data[(this.front + i) % this.data.length]) + ",";
     }
+    res = res.slice(0, -1) + "] tail";
+    return res;
   }
 }
 
-// hot 89-92
-export function findAnagrams(s: string, p: string) {
-  if (s.length < p.length) return [];
-  const smap = new Array(26).fill(0);
-  const pmap = new Array(26).fill(0);
-  const res: number[] = [];
-  for (let i = 0; i < p.length; i++) {
-    smap[s[i].charCodeAt(0) - "a".charCodeAt(0)]++;
-    pmap[p[i].charCodeAt(0) - "a".charCodeAt(0)]++;
+export class StackBasedOnQueue<T = number> {
+  queue: T[];
+  constructor() {
+    this.queue = [];
   }
-  if (smap.toString() === pmap.toString()) res.push(0);
-  for (let i = 0; i < s.length - p.length; i++) {
-    smap[s[i].charCodeAt(0) - "a".charCodeAt(0)]--;
-    smap[s[i + p.length].charCodeAt(0) - "a".charCodeAt(0)]++;
-    if (smap.toString() === pmap.toString()) res.push(i + 1);
+  getSize() {
+    return this.queue.length;
   }
-  return res;
-}
-
-export function findDisappearedNumbers(nums: number[]) {
-  for (let item of nums) {
-    const index = (item - 1) % nums.length;
-    nums[index] += nums.length;
+  isEmpty() {
+    return this.getSize() === 0;
   }
-  const res: number[] = [];
-  for (let i = 0; i < nums.length; i++) {
-    if (nums[i] <= nums.length) res.push(i + 1);
+  push(item: T) {
+    this.queue.push(item);
   }
-  return res;
-}
-
-export function hammingDistance(num1: number, num2: number) {
-  let num1Bi = num1.toString(2);
-  let num2Bi = num2.toString(2);
-  const maxLength = Math.max(num1Bi.length, num2Bi.length);
-  if (num1Bi.length !== num2Bi.length) {
-    num1Bi = num1Bi.padStart(maxLength, "0");
-    num2Bi = num2Bi.padStart(maxLength, "0");
-  }
-  let res = 0;
-  for (let i = 0; i < maxLength; i++) {
-    if (num1Bi[i] !== num2Bi[i]) {
-      res++;
+  pop() {
+    if (this.isEmpty()) throw new Error("error");
+    for (let i = 0; i < this.queue.length - 1; i++) {
+      this.queue.push(this.queue.shift()!);
     }
+    return this.queue.shift() as T;
   }
-  return res;
+  peek() {
+    if (this.isEmpty()) throw new Error("error");
+    const res = this.pop() as T;
+    this.push(res);
+    return res;
+  }
 }
 
-export function findTargetSumWays(nums: number[], target: number) {
-  if (nums.length === 0) return 0;
-  const sum = nums.reduce((a, b) => a + b);
-  const diff = sum - target;
-  if (diff < 0 || diff % 2 !== 0) return 0;
-  const dp = Array.from({ length: nums.length }, () =>
-    new Array(diff / 2 + 1).fill(0)
-  );
-  dp[0][0] = 1;
-  for (let i = 1; i <= nums.length; i++) {
-    const current = nums[i - 1];
-    for (let j = 0; j <= diff / 2; j++) {
-      dp[i][j] = dp[i - 1][j];
-      if (current <= j) {
-        dp[i][j] += dp[i - 1][j - current];
-      }
-    }
+export class QueueBasedOnStack<T> {
+  stack1: T[];
+  stack2: T[];
+  constructor() {
+    this.stack1 = [];
+    this.stack2 = [];
   }
-  return dp[nums.length][diff / 2];
+  getSize() {
+    return this.stack1.length;
+  }
+  isEmpty() {
+    return this.getSize() === 0;
+  }
+  enqueue(item: T) {
+    this.stack1.push(item);
+  }
+  dequeue() {
+    if (this.isEmpty()) throw new Error("error");
+    while (this.stack1.length) {
+      this.stack2.push(this.stack1.pop()!);
+    }
+    const res = this.stack2.pop()!;
+    while (this.stack2.length) {
+      this.stack1.push(this.stack2.pop()!);
+    }
+    return res;
+  }
+  getFront() {
+    if (this.isEmpty()) throw new Error("error");
+    const res = this.dequeue() as T;
+    while (this.stack1.length) {
+      this.stack2.push(this.stack1.pop()!);
+    }
+    this.stack1.push(res);
+    while (this.stack2.length) {
+      this.stack1.push(this.stack2.pop()!);
+    }
+    return res;
+  }
 }
+
+// hot 93-96
+export function convertBst(root: TreeNode | null) {
+  if (!root) return root;
+  let sum = 0;
+  const dfs = (node: TreeNode) => {
+    if (node.right) dfs(node.right);
+    sum += node.val;
+    node.val = sum;
+    if (node.left) dfs(node.left);
+  };
+  dfs(root);
+  return root;
+}
+// todo
 
 // twoponinters 6-10
 export function removeNthFromEnd(head: ListNode | null, n: number) {
