@@ -318,7 +318,29 @@ export function convertBst(root: TreeNode | null) {
   dfs(root);
   return root;
 }
-// todo
+
+export function diameterOfBinaryTree(root: TreeNode | null) {
+  if (!root) return 0;
+  let res = 0;
+  const dfs = (node: TreeNode | null): number => {
+    if (!node) return 0;
+    const left = dfs(node.left);
+    const right = dfs(node.right);
+    res = Math.max(left + right + 1, res);
+    return Math.max(left, right) + 1;
+  };
+  dfs(root);
+  return res;
+}
+
+export function subarraySum(nums: number[], k: number) {
+  const map = new Map<number, number>()
+  map.set(0, 1)
+  let res = 0, pre = 0
+  for(let i = 0; i < nums.length; i++) {
+    // todo
+  }
+}
 
 // twoponinters 6-10
 export function removeNthFromEnd(head: ListNode | null, n: number) {
