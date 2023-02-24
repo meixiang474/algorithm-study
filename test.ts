@@ -334,107 +334,51 @@ export function diameterOfBinaryTree(root: TreeNode | null) {
 }
 
 export function subarraySum(nums: number[], k: number) {
-  const map = new Map<number, number>()
-  map.set(0, 1)
-  let res = 0, pre = 0
-  for(let i = 0; i < nums.length; i++) {
-    // todo
-  }
-}
-
-// twoponinters 6-10
-export function removeNthFromEnd(head: ListNode | null, n: number) {
-  const dummyHead = new ListNode(-1);
-  dummyHead.next = head;
-  let current: ListNode | null = dummyHead;
-  const stack: ListNode[] = [];
-  while (current) {
-    stack.push(current);
-    current = current.next;
-  }
-  for (let i = 0; i < n; i++) {
-    stack.pop();
-  }
-  const prev = stack[stack.length - 1];
-  if (prev.next) {
-    prev.next = prev.next.next;
-  }
-  return dummyHead.next;
-}
-
-export function removeDuplicates(nums: number[]) {
-  let res = nums.length;
-  let i = 0;
-  while (i < res) {
-    if (i > 0 && nums[i - 1] === nums[i]) {
-      res--;
-      for (let j = i; j < res; j++) {
-        nums[j] = nums[j + 1];
-      }
-    } else {
-      i++;
+  const map = new Map<number, number>();
+  map.set(0, 1);
+  let res = 0,
+    pre = 0;
+  for (let i = 0; i < nums.length; i++) {
+    pre += nums[i];
+    if (map.has(pre - k)) {
+      res += map.get(pre - k)!;
     }
+    map.set(pre, map.has(pre) ? map.get(pre)! + 1 : 1);
   }
   return res;
 }
 
-export function removeElement(nums: number[], val: number) {
-  let res = nums.length;
-  let i = 0;
-  while (i < res) {
+export function findUnsortedSubarray(nums: number[]) {
+  const isSorted = (nums: number[]) => {
+    for (let i = 1; i < nums.length; i++) {
+      const prev = nums[i - 1];
+      const current = nums[i];
+      if (prev > current) {
+        return false;
+      }
+    }
+    return true;
+  };
+  if (isSorted(nums)) return 0;
+  const sorted = [...nums].sort((a, b) => a - b);
+  let res = 0;
+  let left = 0;
+  let right = nums.length - 1;
+  while (sorted[left] !== nums[left]) left++;
+  while (sorted[right] !== nums[right]) right--;
+  return right - left + 1;
+}
+
+// array 1 - 41
+export function twoSum(nums: number[], target: number) {
+  const map = new Map<number, number>();
+  for (let i = 0; i < nums.length; i++) {
     const current = nums[i];
-    if (current === val) {
-      res--;
-      for (let j = 0; j < res; j++) {
-        nums[j] = nums[j + 1];
-      }
-    } else {
-      i++;
-    }
+    const rest = target - current;
+    if (map.has(rest)) return [i, map.get(rest)!];
   }
-  return res;
 }
 
-export function strStr(hayStack: string, needle: string) {
-  if (!needle) return 0;
-  let res = -1;
-  let index = 0;
-  while (index < hayStack.length) {
-    const current = hayStack[index];
-    if (hayStack.length - index < needle.length) break;
-    if (current === needle[0]) {
-      let flag = true;
-      for (let i = index + 1; i < needle.length + index; i++) {
-        if (hayStack[i] !== needle[i - index]) {
-          flag = false;
-          break;
-        }
-      }
-      if (flag) {
-        res = index;
-        break;
-      }
-    }
-    index++;
-  }
-  return res;
-}
-
-export function rotateRight(head: ListNode | null, k: number) {
-  if (k === 0 || !head || !head.next) return;
-  let count = 1;
-  let current = head;
-  while (current.next) {
-    count++;
-    current = current.next;
-  }
-  current.next = head;
-  k = count - (k % count);
-  let prev = head;
-  for (let i = 0; i < k - 1; k++) {
-    prev = prev.next!;
-  }
-  const res = prev.next;
-  prev.next = null;
-  return res;
+export function maxArea() {
+  // todo
 }
