@@ -379,6 +379,109 @@ export function twoSum(nums: number[], target: number) {
   }
 }
 
-export function maxArea() {
-  // todo
+export function maxArea(height: number[]) {
+  let res = 0,
+    l = 0,
+    r = height.length - 1;
+  while (l < r) {
+    const area = Math.min(height[l], height[r]) * (r - l);
+    res = Math.max(area, res);
+    if (height[l] > height[r]) r--;
+    else l++;
+  }
+  return res;
 }
+
+export function threeSum(nums: number[]) {
+  const res: number[][] = [];
+  nums.sort((a, b) => a - b);
+  for (let i = 0; i < nums.length - 2; i++) {
+    const current = nums[i];
+    if (i > 0 && current === nums[i - 1]) continue;
+    if (current > 0) break;
+    if (nums.length - i - 2 < 0) break;
+    let l = i + 1,
+      r = nums.length - 1;
+    while (l < r) {
+      const currentl = nums[l];
+      const currentr = nums[r];
+      const sum = current + currentl + currentr;
+      if (sum === 0) {
+        res.push([current, currentr, currentl]);
+        while (l < r) {
+          l++;
+          if (nums[l] !== currentl) break;
+        }
+        while (l < r) {
+          r--;
+          if (nums[r] !== currentr) break;
+        }
+      } else if (sum > 0) {
+        while (l < r) {
+          r--;
+          if (nums[r] !== currentr) break;
+        }
+      } else {
+        while (l < r) {
+          l++;
+          if (nums[l] !== currentl) break;
+        }
+      }
+    }
+  }
+  return res;
+}
+
+export function threeSumClosest(nums: number[], target: number) {
+  let res = 0;
+  let diff = Infinity;
+  nums.sort((a, b) => a - b);
+  for (let i = 0; i < nums.length - 2; i++) {
+    let isEqual = false;
+    const current = nums[i];
+    if (i > 0 && current === nums[i - 1]) continue;
+    if (nums.length - i - 2 < 0) break;
+    let l = i + 1,
+      r = nums.length - 1;
+    while (l < r) {
+      const left = nums[l];
+      const right = nums[r];
+      const sum = left + right + current;
+      const newDiff = Math.abs(sum - target);
+      if (newDiff < diff) {
+        diff = newDiff;
+        res = sum;
+        if (sum > target) {
+          while (l < r) {
+            r--;
+            if (nums[r] !== right) break;
+          }
+        } else if (sum < target) {
+          while (l < r) {
+            l++;
+            if (nums[l] !== left) break;
+          }
+        } else {
+          isEqual = true;
+          break;
+        }
+      } else {
+        if (sum > target) {
+          while (l < r) {
+            r--;
+            if (nums[r] !== right) break;
+          }
+        } else {
+          while (l < r) {
+            l++;
+            if (nums[l] !== left) break;
+          }
+        }
+      }
+    }
+    if (isEqual) break;
+  }
+  return res;
+}
+
+// todo
