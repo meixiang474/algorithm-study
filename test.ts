@@ -484,4 +484,111 @@ export function threeSumClosest(nums: number[], target: number) {
   return res;
 }
 
-// todo
+export function fourSum(nums: number[], target: number) {
+  nums.sort((a, b) => a - b);
+  const res: number[][] = [];
+  for (let i = 0; i < nums.length - 3; i++) {
+    const current = nums[i];
+    if (i > 0 && nums[i - 1] === current) continue;
+    if (
+      current +
+        nums[nums.length - 1] +
+        nums[nums.length - 2] +
+        nums[nums.length - 3] <
+      target
+    )
+      continue;
+    if (current + nums[i + 1] + nums[i + 2] + nums[i + 3] > target) break;
+    for (let j = i + 1; j < nums.length - 2; j++) {
+      const currentj = nums[j];
+      if (j > i + 1 && nums[j - 1] === currentj) continue;
+      if (
+        current + currentj + nums[nums.length - 1] + nums[nums.length - 2] <
+        target
+      )
+        continue;
+      if (current + currentj + nums[j + 1] + nums[j + 2] > target) break;
+      let l = j + 1,
+        r = nums.length - 1;
+      while (l < r) {
+        const left = nums[l];
+        const right = nums[r];
+        const sum = current + currentj + left + right;
+        if (sum === target) {
+          res.push([current, currentj, left, right]);
+          while (l < r) {
+            l++;
+            if (nums[l] !== left) break;
+          }
+          while (l < r) {
+            r--;
+            if (nums[r] !== right) break;
+          }
+        } else if (sum > target) {
+          while (l < r) {
+            r--;
+            if (nums[r] !== right) break;
+          }
+        } else {
+          while (l < r) {
+            l++;
+            if (nums[l] !== left) break;
+          }
+        }
+      }
+    }
+    return res;
+  }
+}
+
+export function removeDuplicates(nums: number[]) {
+  let res = nums.length;
+  let i = 0;
+  while (i < res) {
+    if (i > 0 && nums[i - 1] === nums[i]) {
+      res--;
+      for (let j = i; j < res; j++) {
+        nums[j] = nums[j + 1];
+      }
+    } else {
+      i++;
+    }
+  }
+  return res;
+}
+
+export function removeElement(nums: number[], val: number) {
+  let res = nums.length;
+  let i = 0;
+  while (i < res) {
+    if (nums[i] === val) {
+      res--;
+      for (let j = i; j < res; j++) {
+        nums[j] = nums[j + 1];
+      }
+    } else {
+      i++;
+    }
+  }
+  return res;
+}
+
+export function combinationSum(nums: number[], target: number) {
+  const res: number[][] = [];
+  const dfs = (path: number[], sum: number, index: number) => {
+    if (sum === target) {
+      res.push(path);
+      return;
+    }
+    if (index >= nums.length) return;
+    if (sum > target) return;
+    dfs(path, sum, index + 1);
+    dfs(path.concat(nums[index]), sum + nums[index], index);
+  };
+  dfs([], 0, 0);
+  return res;
+}
+
+export function combineSum2(nums: number[], target: number) {
+  // todo
+}
