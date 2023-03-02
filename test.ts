@@ -590,5 +590,22 @@ export function combinationSum(nums: number[], target: number) {
 }
 
 export function combineSum2(nums: number[], target: number) {
-  // todo
+  nums.sort((a, b) => a - b);
+  const res: number[][] = [];
+  const dfs = (path: number[], sum: number, index: number) => {
+    if (sum === target) {
+      res.push(path);
+      return;
+    }
+    if (index >= nums.length) return;
+    if (sum > target) {
+      return;
+    }
+    for (let i = index; i < nums.length; i++) {
+      if (i > index && nums[i - 1] === nums[i]) continue;
+      dfs(path.concat(nums[i]), sum + nums[i], i + 1);
+    }
+  };
+  dfs([], 0, 0);
+  return res;
 }
