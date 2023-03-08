@@ -1,5 +1,4 @@
 import { BST } from "./11.BST";
-import { LinkedList } from "./7.LinkedList";
 import { Heap } from "./practice/week5/1.heap";
 export class TreeNode {
   val: number;
@@ -12,10 +11,10 @@ export class TreeNode {
   }
 }
 
-export class ListNode1 {
-  val: number;
-  next: ListNode | null;
-  constructor(val: number) {
+export class ListNode<T = number> {
+  val: T;
+  next: ListNode<T> | null;
+  constructor(val: T) {
     this.val = val;
     this.next = null;
   }
@@ -45,7 +44,174 @@ export function myPow(x: number, n: number) {
 }
 
 // linked list
+export class LinkedList<T = number> {
+  dummyHead: ListNode<T>;
+  size: number;
+  constructor() {
+    this.dummyHead = new ListNode<T>(-1 as T);
+    this.size = 0;
+  }
+  getSize() {
+    return this.size;
+  }
+  isEmpty() {
+    return this.getSize() === 0;
+  }
+  add(index: number, val: T) {
+    if (index < 0 || index > this.size) throw new Error("errors");
+    let prev = this.dummyHead;
+    for (let i = 0; i < index; i++) {
+      prev = prev.next!;
+    }
+    const next = prev.next;
+    prev.next = new ListNode(val);
+    prev.next.next = next;
+    this.size++;
+  }
+  addFirst(val: T) {
+    this.add(0, val);
+  }
+  addLast(val: T) {
+    this.add(this.size, val);
+  }
+  get(index: number) {
+    if (index < 0 || index >= this.size) throw new Error("error");
+    let current = this.dummyHead.next!;
+    for (let i = 0; i < index; i++) {
+      current = current.next!;
+    }
+    return current.val;
+  }
+  getFirst() {
+    return this.get(0);
+  }
+  getLast() {
+    return this.get(this.size - 1);
+  }
+  set(index: number, val: T) {
+    if (index < 0 || index >= this.size) throw new Error("error");
+    let current = this.dummyHead.next!;
+    for (let i = 0; i < index; i++) {
+      current = current.next!;
+    }
+    current.val = val;
+  }
+  contains(val: T) {
+    let current = this.dummyHead.next;
+    while (current) {
+      if (current.val === val) return true;
+      current = current.next;
+    }
+    return false;
+  }
+  remove(index: number) {
+    if (index < 0 || index >= this.size) throw new Error("error");
+    let prev = this.dummyHead;
+    for (let i = 0; i < index; i++) {
+      prev = prev.next!;
+    }
+    const res = prev.next!;
+    prev.next = prev.next!.next;
+    this.size--;
+    return res.val;
+  }
+  removeFirst() {
+    return this.remove(0);
+  }
+  removeLast() {
+    return this.remove(this.size - 1);
+  }
+  removeElement(val: T) {
+    let prev = this.dummyHead;
+    while (prev.next) {
+      if (prev.next.val === val) {
+        break;
+      } else {
+        prev = prev.next;
+      }
+    }
+    if (prev.next) {
+      prev.next = prev.next.next;
+      this.size--;
+    }
+  }
+  toString() {
+    let res = "";
+    let current = this.dummyHead.next;
+    while (current) {
+      res += JSON.stringify(current.val) + "->";
+      current = current.next;
+    }
+    return res + "NULL";
+  }
+}
+
+export function removeElements(head: ListNode | null, target: number) {
+  while (head && head.val === target) {
+    head = head.next;
+  }
+  if (!head) return head;
+  let prev = head;
+  while (prev.next) {
+    if (prev.next.val === target) {
+      prev.next = prev.next.next;
+    } else {
+      prev = prev.next;
+    }
+  }
+  return head;
+}
+
+export function removeElements1(head: ListNode | null, target: number) {
+  const dummyHead = new ListNode(-1);
+  dummyHead.next = head;
+  let prev = dummyHead;
+  while (prev.next) {
+    if (prev.next.val === target) {
+      prev.next = prev.next.next;
+    } else {
+      prev = prev.next;
+    }
+  }
+  return dummyHead.next;
+}
+
+export function removeElements2(
+  head: ListNode | null,
+  target: number
+): ListNode | null {
+  if (!head) return head;
+  const res = removeElements2(head.next, target);
+  if (head.val === target) {
+    return res;
+  } else {
+    head.next = res;
+    return head;
+  }
+}
+
+export function reverse(head: ListNode | null) {
+  let prev = null;
+  let current = head;
+  while (current) {
+    const next = current.next;
+    current.next = prev;
+    prev = current;
+    current = next;
+  }
+  return prev;
+}
+
+export function reverse1(head: ListNode | null): ListNode | null {
+  if (!head || !head.next) return head;
+  const res = reverse1(head.next);
+  head.next.next = head;
+  head.next = null;
+  return res;
+}
+
 // todo
+
 // hot 93-96
 export function convertBst(root: TreeNode | null) {
   if (!root) return root;
