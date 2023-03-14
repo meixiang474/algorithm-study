@@ -210,70 +210,148 @@ export function reverse1(head: ListNode | null): ListNode | null {
   return res;
 }
 
-// todo
-
-// hot 93-96
-export function convertBst(root: TreeNode | null) {
-  if (!root) return root;
-  let sum = 0;
-  const dfs = (node: TreeNode) => {
-    if (node.right) dfs(node.right);
-    sum += node.val;
-    node.val = sum;
-    if (node.left) dfs(node.left);
-  };
-  dfs(root);
-  return root;
+export function addTwoNumbers(l1: ListNode | null, l2: ListNode | null) {
+  const res = new ListNode(-1);
+  let p1 = l1;
+  let p2 = l2;
+  let p3 = res;
+  let carry = 0;
+  while (p1 || p2) {
+    const n1 = p1 ? p1.val : 0;
+    const n2 = p2 ? p2.val : 0;
+    const sum = n1 + n2 + carry;
+    p3.next = new ListNode(sum % 10);
+    carry = Math.floor(sum / 10);
+    p3 = p3.next;
+    if (p1) p1 = p1.next;
+    if (p2) p2 = p2.next;
+  }
+  if (carry) p3.next = new ListNode(carry);
+  return res.next;
 }
 
-export function diameterOfBinaryTree(root: TreeNode | null) {
-  if (!root) return 0;
-  let res = 0;
-  const dfs = (node: TreeNode | null): number => {
-    if (!node) return 0;
-    const left = dfs(node.left);
-    const right = dfs(node.right);
-    res = Math.max(left + right + 1, res);
-    return Math.max(left, right) + 1;
-  };
-  dfs(root);
+export function fn(head: ListNode | null): ListNode | null {
+  if (!head || !head.next) return head;
+  const res = fn(head);
+  if (res && head.val === res.val) {
+    return res;
+  } else {
+    head.next = res;
+    return res;
+  }
+}
+
+export function fn1(head: ListNode | null) {
+  const res = new ListNode(-1);
+  res.next = head;
+  let prev = res;
+  while (prev.next && prev.next.next) {
+    if (prev.next.val === prev.next.next.val) {
+      prev.next = prev.next.next;
+    } else {
+      prev = prev.next;
+    }
+  }
+  return res.next;
+}
+
+export function fn2(head: ListNode | null) {
+  if (!head || !head.next) return false;
+  let slow: ListNode | null = head,
+    fast: ListNode | null = head;
+  while (slow && fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
+    if (slow === fast) return true;
+  }
+  return false;
+}
+
+export function fn3(head: ListNode | null) {
+  if (!head || !head.next) return true;
+  let slow: ListNode | null = head,
+    fast: ListNode | null = head;
+  while (slow && fast && fast.next) {
+    slow = slow.next;
+    fast = fast?.next.next;
+  }
+  if (fast) {
+    slow = slow!.next;
+  }
+  let prev = null;
+  let current = slow;
+  while (current) {
+    const next = current.next;
+    current.next = prev;
+    prev = current;
+    current = next;
+  }
+  let p1 = prev;
+  let p2: ListNode | null = head;
+  while (p1 && p2) {
+    if (p1.val !== p2.val) return false;
+    p1 = p1.next;
+    p2 = p2.next;
+  }
+  return true;
+}
+
+// hot 97-100
+export function mergeTrees(root1: TreeNode | null, root2: TreeNode | null) {
+  if (!root1) return root2;
+  if (!root2) return root1;
+  const res = new TreeNode(root1.val + root2.val);
+  res.left = mergeTrees(root1.left, root2.left);
+  res.right = mergeTrees(root2.left, root2.right);
   return res;
 }
 
-export function subarraySum(nums: number[], k: number) {
-  const map = new Map<number, number>();
-  map.set(0, 1);
-  let res = 0,
-    pre = 0;
-  for (let i = 0; i < nums.length; i++) {
-    pre += nums[i];
-    if (map.has(pre - k)) {
-      res += map.get(pre - k)!;
+export function leastInterval(tasks: string[], n: number) {
+  const map = new Map<string, number>();
+  for (let i = 0; i < tasks.length; i++) {
+    map.set(tasks[i], map.has(tasks[i]) ? map.get(tasks[i])! + 1 : 1);
+  }
+  const rest = Array.from(map).map((item) => item[1]);
+  const valid: number[] = new Array(rest.length).fill(1);
+  let time = 0;
+  for (let i = 0; i < tasks.length; i++) {
+    let minNextValid = Infinity;
+    for (let j = 0; j < valid.length; j++) {
+      if (rest[j] > 0) {
+        minNextValid = Math.min(minNextValid, valid[j]);
+      }
     }
-    map.set(pre, map.has(pre) ? map.get(pre)! + 1 : 1);
+    time = Math.max(time + 1, minNextValid);
+    let best = -1;
+    for (let j = 0; j < valid.length; j++) {
+      if (rest[j] > 0 && valid[j] <= time) {
+        if (best === -1 || rest[j] > rest[best]) {
+          best = j;
+        }
+      }
+    }
+    valid[best] = time + 1 + n;
+    rest[best] -= 1;
+  }
+  return time;
+}
+
+export function countSubstrings(s: string) {
+  let res = 0;
+  for (let i = 0; i < 2 * s.length - 1; i++) {
+    let l = Math.floor(i / 2);
+    let r = Math.floor(i / 2) + (i % 2);
+    while (l >= 0 && r < s.length && s[l] === s[r]) {
+      res++;
+      l--;
+      r++;
+    }
   }
   return res;
 }
 
-export function findUnsortedSubarray(nums: number[]) {
-  const isSorted = (nums: number[]) => {
-    for (let i = 1; i < nums.length; i++) {
-      const prev = nums[i - 1];
-      const current = nums[i];
-      if (prev > current) {
-        return false;
-      }
-    }
-    return true;
-  };
-  if (isSorted(nums)) return 0;
-  const sorted = [...nums].sort((a, b) => a - b);
-  let res = 0;
-  let left = 0;
-  let right = nums.length - 1;
-  while (sorted[left] !== nums[left]) left++;
-  while (sorted[right] !== nums[right]) right--;
-  return right - left + 1;
+export function dailyTemperatures(temperatures: number[]) {
+  // todo
 }
 
 // array 1 - 41
