@@ -20,28 +20,8 @@ export class ListNode<T = number> {
   }
 }
 
-// offer 15 16
-export function harmmingWeight(num: number) {
-  return num
-    .toString(2)
-    .split("")
-    .reduce((memo, current) => {
-      if (current === "1") memo++;
-      return memo;
-    }, 0);
-}
-
-export function myPow(x: number, n: number) {
-  const isNagitve = n < 0;
-  n = isNagitve ? -n : n;
-  const absPow = (x: number, n: number): number => {
-    if (n === 0) return 1;
-    if (n === 1) return x;
-    const res = absPow(x, Math.floor(n / 2));
-    return n % 2 === 0 ? res * res : res * res * x;
-  };
-  return isNagitve ? 1 / absPow(x, n) : absPow(x, n);
-}
+// offer 17 18
+// todo
 
 // linked list
 export class LinkedList<T = number> {
@@ -351,269 +331,126 @@ export function countSubstrings(s: string) {
 }
 
 export function dailyTemperatures(temperatures: number[]) {
-  // todo
-}
-
-// array 1 - 41
-export function twoSum(nums: number[], target: number) {
-  const map = new Map<number, number>();
-  for (let i = 0; i < nums.length; i++) {
-    const current = nums[i];
-    const rest = target - current;
-    if (map.has(rest)) return [i, map.get(rest)!];
-  }
-}
-
-export function maxArea(height: number[]) {
-  let res = 0,
-    l = 0,
-    r = height.length - 1;
-  while (l < r) {
-    const area = Math.min(height[l], height[r]) * (r - l);
-    res = Math.max(area, res);
-    if (height[l] > height[r]) r--;
-    else l++;
-  }
-  return res;
-}
-
-export function threeSum(nums: number[]) {
-  const res: number[][] = [];
-  nums.sort((a, b) => a - b);
-  for (let i = 0; i < nums.length - 2; i++) {
-    const current = nums[i];
-    if (i > 0 && current === nums[i - 1]) continue;
-    if (current > 0) break;
-    if (nums.length - i - 2 < 0) break;
-    let l = i + 1,
-      r = nums.length - 1;
-    while (l < r) {
-      const currentl = nums[l];
-      const currentr = nums[r];
-      const sum = current + currentl + currentr;
-      if (sum === 0) {
-        res.push([current, currentr, currentl]);
-        while (l < r) {
-          l++;
-          if (nums[l] !== currentl) break;
-        }
-        while (l < r) {
-          r--;
-          if (nums[r] !== currentr) break;
-        }
-      } else if (sum > 0) {
-        while (l < r) {
-          r--;
-          if (nums[r] !== currentr) break;
-        }
-      } else {
-        while (l < r) {
-          l++;
-          if (nums[l] !== currentl) break;
-        }
-      }
+  const res: number[] = new Array(temperatures.length).fill(0);
+  const stack: number[] = [];
+  for (let i = 0; i < temperatures.length; i++) {
+    const current = temperatures[i];
+    while (stack.length > 0 && current > stack[stack.length - 1]) {
+      const index = stack.pop()!;
+      res[index] = i - index;
     }
+    stack.push(i);
   }
   return res;
 }
 
-export function threeSumClosest(nums: number[], target: number) {
-  let res = 0;
-  let diff = Infinity;
-  nums.sort((a, b) => a - b);
-  for (let i = 0; i < nums.length - 2; i++) {
-    let isEqual = false;
-    const current = nums[i];
-    if (i > 0 && current === nums[i - 1]) continue;
-    if (nums.length - i - 2 < 0) break;
-    let l = i + 1,
-      r = nums.length - 1;
-    while (l < r) {
-      const left = nums[l];
-      const right = nums[r];
-      const sum = left + right + current;
-      const newDiff = Math.abs(sum - target);
-      if (newDiff < diff) {
-        diff = newDiff;
-        res = sum;
-        if (sum > target) {
-          while (l < r) {
-            r--;
-            if (nums[r] !== right) break;
-          }
-        } else if (sum < target) {
-          while (l < r) {
-            l++;
-            if (nums[l] !== left) break;
-          }
-        } else {
-          isEqual = true;
-          break;
-        }
-      } else {
-        if (sum > target) {
-          while (l < r) {
-            r--;
-            if (nums[r] !== right) break;
-          }
-        } else {
-          while (l < r) {
-            l++;
-            if (nums[l] !== left) break;
-          }
-        }
-      }
+// backtrack 1-5
+export function letterCombinations(digits: string) {
+  if (digits === "") return [];
+  const arr = [
+    "",
+    "",
+    "abc",
+    "def",
+    "ghi",
+    "jkl",
+    "mno",
+    "pqrs",
+    "tuv",
+    "wxyz",
+  ];
+  const res: string[] = [];
+  const dfs = (path: string, index: number) => {
+    if (index >= digits.length) {
+      res.push(path);
+      return;
     }
-    if (isEqual) break;
-  }
+    const current = arr[parseInt(digits[index])];
+    for (let i = 0; i < current.length; i++) {
+      dfs(path + current[i], index + 1);
+    }
+  };
+  dfs("", 0);
   return res;
 }
 
-export function fourSum(nums: number[], target: number) {
+export function generateParenthesis(n: number) {
+  if (n === 0) return [];
+  const res: string[] = [];
+  const dfs = (path: string, open: number, close: number) => {
+    if (path.length === 2 * n) {
+      res.push(path);
+      return;
+    }
+    if (open < n) {
+      dfs(path + "(", open + 1, close);
+    }
+    if (close < open) {
+      dfs(path + ")", open, close);
+    }
+  };
+  dfs("", 0, 0);
+  return res;
+}
+
+export function permuteUnique(nums: number[]) {
+  if (nums.length === 0) return [];
   nums.sort((a, b) => a - b);
   const res: number[][] = [];
-  for (let i = 0; i < nums.length - 3; i++) {
-    const current = nums[i];
-    if (i > 0 && nums[i - 1] === current) continue;
-    if (
-      current +
-        nums[nums.length - 1] +
-        nums[nums.length - 2] +
-        nums[nums.length - 3] <
-      target
-    )
-      continue;
-    if (current + nums[i + 1] + nums[i + 2] + nums[i + 3] > target) break;
-    for (let j = i + 1; j < nums.length - 2; j++) {
-      const currentj = nums[j];
-      if (j > i + 1 && nums[j - 1] === currentj) continue;
-      if (
-        current + currentj + nums[nums.length - 1] + nums[nums.length - 2] <
-        target
-      )
+  const set = new Set<number>();
+  const dfs = (path: number[]) => {
+    if (path.length === nums.length) {
+      res.push(path);
+      return;
+    }
+    for (let i = 0; i < nums.length; i++) {
+      if (i > 0 && nums[i] === nums[i - 1] && set.has(i - 1)) continue;
+      if (!set.has(i)) {
+        set.add(i);
+        dfs(path.concat(nums[i]));
+        set.delete(i);
+      }
+    }
+  };
+  dfs([]);
+  return res;
+}
+
+export function getPermutation(n: number, k: number) {
+  let groupNum = 1;
+  for (let i = 1; i <= n; i++) {
+    groupNum *= i;
+  }
+  const dfs = (path: number[]): string => {
+    if (path.length === n) {
+      return path.join("");
+    }
+    groupNum = groupNum / (n - path.length);
+    for (let i = 1; i <= n; i++) {
+      if (path.includes(i)) continue;
+      if (k > groupNum) {
+        k -= groupNum;
         continue;
-      if (current + currentj + nums[j + 1] + nums[j + 2] > target) break;
-      let l = j + 1,
-        r = nums.length - 1;
-      while (l < r) {
-        const left = nums[l];
-        const right = nums[r];
-        const sum = current + currentj + left + right;
-        if (sum === target) {
-          res.push([current, currentj, left, right]);
-          while (l < r) {
-            l++;
-            if (nums[l] !== left) break;
-          }
-          while (l < r) {
-            r--;
-            if (nums[r] !== right) break;
-          }
-        } else if (sum > target) {
-          while (l < r) {
-            r--;
-            if (nums[r] !== right) break;
-          }
-        } else {
-          while (l < r) {
-            l++;
-            if (nums[l] !== left) break;
-          }
-        }
       }
+      return dfs(path.concat(i));
     }
-    return res;
-  }
+    return "";
+  };
+  return dfs([]);
 }
 
-export function removeDuplicates(nums: number[]) {
-  let res = nums.length;
-  let i = 0;
-  while (i < res) {
-    if (i > 0 && nums[i - 1] === nums[i]) {
-      res--;
-      for (let j = i; j < res; j++) {
-        nums[j] = nums[j + 1];
-      }
-    } else {
-      i++;
-    }
-  }
-  return res;
-}
-
-export function removeElement(nums: number[], val: number) {
-  let res = nums.length;
-  let i = 0;
-  while (i < res) {
-    if (nums[i] === val) {
-      res--;
-      for (let j = i; j < res; j++) {
-        nums[j] = nums[j + 1];
-      }
-    } else {
-      i++;
-    }
-  }
-  return res;
-}
-
-export function combinationSum(nums: number[], target: number) {
+export function combine(n: number, k: number) {
   const res: number[][] = [];
-  const dfs = (path: number[], sum: number, index: number) => {
-    if (sum === target) {
+  const dfs = (path: number[], start: number) => {
+    if (path.length + n - start + 1 < k) return;
+    if (path.length === k) {
       res.push(path);
       return;
     }
-    if (index >= nums.length) return;
-    if (sum > target) return;
-    dfs(path, sum, index + 1);
-    dfs(path.concat(nums[index]), sum + nums[index], index);
+    for (let i = start; i <= n; i++) {
+      dfs(path.concat(i), i + 1);
+    }
   };
-  dfs([], 0, 0);
+  dfs([], 1);
   return res;
-}
-
-export function combineSum2(nums: number[], target: number) {
-  nums.sort((a, b) => a - b);
-  const res: number[][] = [];
-  const dfs = (path: number[], sum: number, index: number) => {
-    if (sum === target) {
-      res.push(path);
-      return;
-    }
-    if (index >= nums.length) return;
-    if (sum > target) {
-      return;
-    }
-    for (let i = index; i < nums.length; i++) {
-      if (i > index && nums[i - 1] === nums[i]) continue;
-      if (sum > target) return;
-      if (index >= nums.length) return;
-      for (let i = index; i < nums.length; i++) {
-        if (i > index && nums[i] === nums[i - 1]) continue;
-        dfs(path.concat(nums[i]), sum + nums[i], i + 1);
-      }
-    }
-    dfs([], 0, 0);
-    return res;
-  };
-}
-
-export function firstMissingPositive(nums: number[]) {
-  for (let i = 0; i < nums.length; i++) {
-    if (nums[i] <= 0) {
-      nums[i] = nums.length + 1;
-    }
-  }
-  for (let i = 0; i < nums.length; i++) {
-    const current = Math.abs(nums[i]);
-    if (current <= nums.length) {
-      nums[current - 1] = -Math.abs(nums[current - 1]);
-    }
-  }
-  for (let i = 0; i < nums.length; i++) {
-    if (nums[i] > 0) return i + 1;
-  }
-  return nums.length + 1;
 }
