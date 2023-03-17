@@ -102,85 +102,111 @@ export function reversePairs(nums: number[]) {
 export function reversePairs1(nums: number[]) {
   let res = 0;
   const sortArr = (arr: number[], l: number, r: number, temp: number[]) => {
-    if(l >= r) return
-    const mid = Math.floor(l + (r - l) / 2)
-    sortArr(arr, l, mid, temp)
-    sortArr(arr, mid + 1, r, temp)
-    if(arr[mid] > arr[mid + 1]) {
-      merge(arr, l, mid, r, temp)
+    if (l >= r) return;
+    const mid = Math.floor(l + (r - l) / 2);
+    sortArr(arr, l, mid, temp);
+    sortArr(arr, mid + 1, r, temp);
+    if (arr[mid] > arr[mid + 1]) {
+      merge(arr, l, mid, r, temp);
     }
-  }
-  const merge = (arr: number[], l: number, mid: number, r: number, temp: number[]) => {
-    // todo
-  }
-}
-
-// hot 97-100
-export function mergeTrees(root1: TreeNode | null, root2: TreeNode | null) {
-  if (!root1) return root2;
-  if (!root2) return root1;
-  const res = new TreeNode(root1.val + root2.val);
-  res.left = mergeTrees(root1.left, root2.left);
-  res.right = mergeTrees(root2.left, root2.right);
+  };
+  const merge = (
+    arr: number[],
+    l: number,
+    mid: number,
+    r: number,
+    temp: number[]
+  ) => {
+    for (let i = l; i <= r; i++) {
+      temp[i] = arr[i];
+    }
+    let i = l,
+      j = mid + 1;
+    for (let k = l; k <= r; k++) {
+      if (i > mid) {
+        arr[k] = temp[j];
+        j++;
+      } else if (j > r) {
+        arr[k] = temp[i];
+        i++;
+      } else if (temp[i] > temp[j]) {
+        arr[k] = temp[j];
+        j++;
+        res += mid - i + 1;
+      } else {
+        arr[k] = temp[i];
+        i++;
+      }
+    }
+  };
+  const arr = [...nums];
+  sortArr(arr, 0, arr.length - 1, [...nums]);
   return res;
 }
 
-export function leastInterval(tasks: string[], n: number) {
+export function merge(l1: ListNode | null, l2: ListNode | null) {
+  const res = new ListNode(-1);
+  let p1 = l1;
+  let p2 = l2;
+  let p3 = res;
+  while (p1 && p2) {
+    if (p1.val <= p2.val) {
+      p3.next = p1;
+      p1 = p1.next;
+    } else {
+      p3.next = p2;
+      p2 = p2.next;
+    }
+    p3 = p3.next;
+  }
+  if (p1) p3.next = p1;
+  if (p2) p3.next = p2;
+  return res.next;
+}
+
+// hot 1-4
+export function twoSum(nums: number[], target: number) {
+  const map = new Map<number, number>();
+  for (let i = 0; i < nums.length; i++) {
+    const rest = target - nums[i];
+    if (map.has(rest)) {
+      return [i, map.get(rest)!];
+    }
+    map.set(nums[i], i);
+  }
+}
+
+export function addTwoNumbers(l1: ListNode | null, l2: ListNode | null) {
+  const res = new ListNode(-1);
+  let p1 = l1;
+  let p2 = l2;
+  let p3 = res;
+  let carry = 0;
+  while (p1 || p2) {
+    const n1 = p1 ? p1.val : 0;
+    const n2 = p2 ? p2.val : 0;
+    const sum = n1 + n2 + carry;
+    carry = Math.floor(sum / 10);
+    p3.next = new ListNode(sum % 10);
+    p3 = p3.next;
+    if (p1) p1 = p1.next;
+    if (p2) p2 = p2.next;
+  }
+  if (carry) p3.next = new ListNode(carry);
+  return res.next;
+}
+
+export function lengthOfLongestSubstring(s: string) {
   const map = new Map<string, number>();
-  for (let i = 0; i < tasks.length; i++) {
-    map.set(tasks[i], map.has(tasks[i]) ? map.get(tasks[i])! + 1 : 1);
-  }
-  const rest = Array.from(map).map((item) => item[1]);
-  const valid: number[] = new Array(rest.length).fill(1);
-  let time = 0;
-  for (let i = 0; i < tasks.length; i++) {
-    let minNextValid = Infinity;
-    for (let j = 0; j < valid.length; j++) {
-      if (rest[j] > 0) {
-        minNextValid = Math.min(minNextValid, valid[j]);
-      }
-    }
-    time = Math.max(time + 1, minNextValid);
-    let best = -1;
-    for (let j = 0; j < valid.length; j++) {
-      if (rest[j] > 0 && valid[j] <= time) {
-        if (best === -1 || rest[j] > rest[best]) {
-          best = j;
-        }
-      }
-    }
-    valid[best] = time + 1 + n;
-    rest[best] -= 1;
-  }
-  return time;
-}
-
-export function countSubstrings(s: string) {
   let res = 0;
-  for (let i = 0; i < 2 * s.length - 1; i++) {
-    let l = Math.floor(i / 2);
-    let r = Math.floor(i / 2) + (i % 2);
-    while (l >= 0 && r < s.length && s[l] === s[r]) {
-      res++;
-      l--;
-      r++;
+  let l = 0,
+    r = 0;
+  while (r < s.length) {
+    const current = s[r];
+    if(map.has(current) && map.get(current)! >= l) {
+        // todo
     }
   }
-  return res;
-}
-
-export function dailyTemperatures(temperatures: number[]) {
-  const res: number[] = new Array(temperatures.length).fill(0);
-  const stack: number[] = [];
-  for (let i = 0; i < temperatures.length; i++) {
-    const current = temperatures[i];
-    while (stack.length > 0 && current > stack[stack.length - 1]) {
-      const index = stack.pop()!;
-      res[index] = i - index;
-    }
-    stack.push(i);
-  }
-  return res;
 }
 
 // backtrack 1-5
