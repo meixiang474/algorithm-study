@@ -20,30 +20,17 @@ export class ListNode<T = number> {
   }
 }
 
-// offer 17 18
-export function printNumbers(n: number) {
-  const end = 10 ** n - 1;
+// offer 21 22
+export function exchange(nums: number[]) {
   const res: number[] = [];
-  for (let i = 1; i <= end; i++) {
-    res.push(i);
+  for (const item of nums) {
+    if (item % 2 === 0) res.push(item);
+    else res.unshift(item);
   }
   return res;
 }
 
-export function deleteNode(head: ListNode | null, val: number) {
-  const dummyHead = new ListNode(-1);
-  dummyHead.next = head;
-  let prev = dummyHead;
-  while (prev.next) {
-    if (prev.next.val === val) {
-      prev.next = prev.next.next;
-      break;
-    } else {
-      prev = prev.next;
-    }
-  }
-  return dummyHead.next;
-}
+// todo
 
 // merge sort
 export function mergeSort(arr: number[]) {
@@ -203,119 +190,119 @@ export function lengthOfLongestSubstring(s: string) {
     r = 0;
   while (r < s.length) {
     const current = s[r];
-    if(map.has(current) && map.get(current)! >= l) {
-        // todo
+    if (map.has(current) && map.get(current)! >= l) {
+      l = map.get(current)! + 1;
+    }
+    res = Math.max(res, r - l + 1);
+    map.set(current, r);
+    r++;
+  }
+  return res;
+}
+
+export function findMedianSortedArrays(nums1: number[], nums2: number[]) {
+  const m = nums1.length;
+  const n = nums2.length;
+  const find = (nums1: number[], nums2: number[], k: number) => {
+    let index1 = 0,
+      index2 = 0;
+    while (true) {
+      if (index1 >= nums1.length) {
+        return nums2[index2 + k - 1];
+      }
+      if (index2 >= nums2.length) {
+        return nums1[(index1 = k - 1)];
+      }
+      const half = Math.floor(k / 2);
+      const newIndex1 = Math.min(nums1.length - 1, index1 + half - 1);
+      const newIndex2 = Math.min(nums2.length - 1, index2 + half - 1);
+      if (nums1[newIndex1] <= nums2[newIndex2]) {
+        k -= newIndex1 - index1 + 1;
+        index1 = newIndex1 + 1;
+      } else {
+        k -= newIndex2 - index2 + 1;
+        index2 = newIndex2 + 1;
+      }
+    }
+  };
+  if ((m + n) % 2 === 1) {
+    const k = Math.floor((m + n) / 2);
+    return find(nums1, nums2, k + 1);
+  } else {
+    const k = Math.floor((m + n) / 2);
+    return (find(nums1, nums2, k + 1), find(nums1, nums2, k)) / 2;
+  }
+}
+
+// binarysearch 1-5
+export function myPow(x: number, n: number) {
+  const isNegative = n < 0;
+  n = isNegative ? -n : n;
+  const absPow = (x: number, n: number): number => {
+    if (n === 0) return 1;
+    if (n === 1) return x;
+    const res = absPow(x, Math.floor(n / 2));
+    return n % 2 === 0 ? res * res : res * res * x;
+  };
+  return isNegative ? 1 / absPow(x, n) : absPow(x, n);
+}
+
+export function mySqrt(x: number) {
+  let l = 0,
+    r = x;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l + 1) / 2);
+    if (mid ** 2 <= x) {
+      l = mid;
+    } else {
+      r = mid - 1;
+    }
+  }
+  return l;
+}
+
+export function twoSum1(nums: number[], target: number) {
+  let l = 0,
+    r = nums.length - 1;
+  while (l < r) {
+    const sum = nums[l] + nums[r];
+    if (sum === target) return [l + 1, r + 1];
+    if (sum > target) {
+      l++;
+    } else {
+      r--;
     }
   }
 }
 
-// backtrack 1-5
-export function letterCombinations(digits: string) {
-  if (digits === "") return [];
-  const arr = [
-    "",
-    "",
-    "abc",
-    "def",
-    "ghi",
-    "jkl",
-    "mno",
-    "pqrs",
-    "tuv",
-    "wxyz",
-  ];
-  const res: string[] = [];
-  const dfs = (path: string, index: number) => {
-    if (index >= digits.length) {
-      res.push(path);
-      return;
-    }
-    const current = arr[parseInt(digits[index])];
-    for (let i = 0; i < current.length; i++) {
-      dfs(path + current[i], index + 1);
-    }
-  };
-  dfs("", 0);
-  return res;
-}
-
-export function generateParenthesis(n: number) {
-  if (n === 0) return [];
-  const res: string[] = [];
-  const dfs = (path: string, open: number, close: number) => {
-    if (path.length === 2 * n) {
-      res.push(path);
-      return;
-    }
-    if (open < n) {
-      dfs(path + "(", open + 1, close);
-    }
-    if (close < open) {
-      dfs(path + ")", open, close);
-    }
-  };
-  dfs("", 0, 0);
-  return res;
-}
-
-export function permuteUnique(nums: number[]) {
-  if (nums.length === 0) return [];
-  nums.sort((a, b) => a - b);
-  const res: number[][] = [];
-  const set = new Set<number>();
-  const dfs = (path: number[]) => {
-    if (path.length === nums.length) {
-      res.push(path);
-      return;
-    }
-    for (let i = 0; i < nums.length; i++) {
-      if (i > 0 && nums[i] === nums[i - 1] && set.has(i - 1)) continue;
-      if (!set.has(i)) {
-        set.add(i);
-        dfs(path.concat(nums[i]));
-        set.delete(i);
+export function minSubArrayLen(nums: number[], target: number) {
+  let l = 0,
+    r = 0,
+    res = 0,
+    sum = 0;
+  while (r < nums.length) {
+    const current = nums[r];
+    sum += current;
+    while (sum >= target) {
+      if (res === 0 || res > r - l + 1) {
+        res = r - l + 1;
       }
+      sum -= nums[l];
+      l++;
     }
-  };
-  dfs([]);
-  return res;
-}
-
-export function getPermutation(n: number, k: number) {
-  let groupNum = 1;
-  for (let i = 1; i <= n; i++) {
-    groupNum *= i;
+    r++;
   }
-  const dfs = (path: number[]): string => {
-    if (path.length === n) {
-      return path.join("");
-    }
-    groupNum = groupNum / (n - path.length);
-    for (let i = 1; i <= n; i++) {
-      if (path.includes(i)) continue;
-      if (k > groupNum) {
-        k -= groupNum;
-        continue;
-      }
-      return dfs(path.concat(i));
-    }
-    return "";
-  };
-  return dfs([]);
+  return res;
 }
 
-export function combine(n: number, k: number) {
-  const res: number[][] = [];
-  const dfs = (path: number[], start: number) => {
-    if (path.length + n - start + 1 < k) return;
-    if (path.length === k) {
-      res.push(path);
-      return;
-    }
-    for (let i = start; i <= n; i++) {
-      dfs(path.concat(i), i + 1);
-    }
+export function countNodes(root: TreeNode | null) {
+  if (!root) return 0;
+  let res = 0;
+  const dfs = (node: TreeNode) => {
+    res++;
+    if (node.left) dfs(node.left);
+    if (node.right) dfs(node.right);
   };
-  dfs([], 1);
+  dfs(root);
   return res;
 }
