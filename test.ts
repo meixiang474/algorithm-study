@@ -30,125 +30,58 @@ export function exchange(nums: number[]) {
   return res;
 }
 
-// todo
+export function getKthFromEnd(head: ListNode | null, k: number) {
+  if (!head) return null;
+  const arr: ListNode[] = [];
+  let current: ListNode | null = head;
+  while (current) {
+    arr.push(current);
+    current = current.next;
+  }
+  return arr[arr.length - k];
+}
 
-// merge sort
-export function mergeSort(arr: number[]) {
-  const sortArr = (arr: number[], l: number, r: number, temp: number[]) => {
+// quick sort
+export function quickSort(data: number[]) {
+  const sortArr = (data: number[], l: number, r: number) => {
     if (l >= r) return;
-    const mid = Math.floor(l + (r - l) / 2);
-    sortArr(arr, l, mid, temp);
-    sortArr(arr, mid + 1, r, temp);
-    if (arr[mid] > arr[mid + 1]) {
-      merge(arr, l, mid, r, temp);
-    }
+    const p = partition(data, l, r);
+    sortArr(data, l, p - 1);
+    sortArr(data, p + 1, r);
   };
-  const merge = (
-    arr: number[],
-    l: number,
-    mid: number,
-    r: number,
-    temp: number[]
-  ) => {
-    for (let i = l; i <= r; i++) {
-      temp[i] = arr[i];
-    }
-    let i = l,
-      j = mid + 1;
-    for (let k = l; k <= r; k++) {
-      if (i > mid) {
-        arr[k] = temp[j];
-        j++;
-      } else if (j > r) {
-        arr[k] = temp[i];
-        i++;
-      } else if (temp[i] > temp[j]) {
-        arr[k] = temp[j];
-        j++;
-      } else {
-        arr[k] = temp[i];
+  const getRandom = (l: number, r: number) =>
+    Math.floor(Math.random() * (r - l + 1) + l);
+  const swap = (arr: number[], i: number, j: number) =>
+    ([arr[i], arr[j]] = [arr[j], arr[i]]);
+  const partition = (data: number[], l: number, r: number) => {
+    const p = getRandom(l, r);
+    swap(data, l, p);
+    let i = l + 1,
+      j = r;
+    while (true) {
+      while (data[i] < data[l] && i <= j) {
         i++;
       }
-    }
-  };
-  const res = [...arr];
-  sortArr(res, 0, res.length - 1, [...arr]);
-  return res;
-}
-
-export function reversePairs(nums: number[]) {
-  let res = 0;
-  for (let i = 0; i < nums.length; i++) {
-    for (let j = i + 1; j < nums.length; j++) {
-      if (nums[i] > nums[j]) res++;
-    }
-  }
-  return res;
-}
-
-export function reversePairs1(nums: number[]) {
-  let res = 0;
-  const sortArr = (arr: number[], l: number, r: number, temp: number[]) => {
-    if (l >= r) return;
-    const mid = Math.floor(l + (r - l) / 2);
-    sortArr(arr, l, mid, temp);
-    sortArr(arr, mid + 1, r, temp);
-    if (arr[mid] > arr[mid + 1]) {
-      merge(arr, l, mid, r, temp);
-    }
-  };
-  const merge = (
-    arr: number[],
-    l: number,
-    mid: number,
-    r: number,
-    temp: number[]
-  ) => {
-    for (let i = l; i <= r; i++) {
-      temp[i] = arr[i];
-    }
-    let i = l,
-      j = mid + 1;
-    for (let k = l; k <= r; k++) {
-      if (i > mid) {
-        arr[k] = temp[j];
-        j++;
-      } else if (j > r) {
-        arr[k] = temp[i];
-        i++;
-      } else if (temp[i] > temp[j]) {
-        arr[k] = temp[j];
-        j++;
-        res += mid - i + 1;
-      } else {
-        arr[k] = temp[i];
-        i++;
+      while (data[j] > data[l] && i <= j) {
+        j--;
       }
+      if (i >= j) break;
+      swap(data, i, j);
+      i++;
+      j--;
     }
+    swap(data, l, j);
+    return j;
   };
-  const arr = [...nums];
-  sortArr(arr, 0, arr.length - 1, [...nums]);
+  const res = [...data];
+  sortArr(res, 0, res.length - 1);
   return res;
 }
 
-export function merge(l1: ListNode | null, l2: ListNode | null) {
-  const res = new ListNode(-1);
-  let p1 = l1;
-  let p2 = l2;
-  let p3 = res;
-  while (p1 && p2) {
-    if (p1.val <= p2.val) {
-      p3.next = p1;
-      p1 = p1.next;
-    } else {
-      p3.next = p2;
-      p2 = p2.next;
-    }
-    p3 = p3.next;
+export function quickSortThree(arr: number[]) {
+  const sortArr = (arr: number[], l: number, r: number) => {
+    // todo
   }
-  if (p1) p3.next = p1;
-  if (p2) p3.next = p2;
-  return res.next;
 }
 
 // hot 1-4
