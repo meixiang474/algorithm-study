@@ -80,91 +80,142 @@ export function quickSort(data: number[]) {
 
 export function quickSortThree(arr: number[]) {
   const sortArr = (arr: number[], l: number, r: number) => {
-    // todo
-  }
-}
-
-// hot 1-4
-export function twoSum(nums: number[], target: number) {
-  const map = new Map<number, number>();
-  for (let i = 0; i < nums.length; i++) {
-    const rest = target - nums[i];
-    if (map.has(rest)) {
-      return [i, map.get(rest)!];
+    if (l >= r) return;
+    const { left, right } = partition(arr, l, r);
+    sortArr(arr, l, left);
+    sortArr(arr, right, r);
+  };
+  const getRandom = (l: number, r: number) =>
+    Math.floor(Math.random() * (r - l + 1) + l);
+  const swap = (arr: number[], i: number, j: number) =>
+    ([arr[i], arr[j]] = [arr[j], arr[i]]);
+  const partition = (arr: number[], l: number, r: number) => {
+    const p = getRandom(l, r);
+    swap(arr, l, p);
+    let left = l,
+      right = r + 1,
+      i = l + 1;
+    while (i < right) {
+      if (arr[i] < arr[l]) {
+        left++;
+        swap(arr, i, left);
+        i++;
+      } else if (arr[i] > arr[l]) {
+        right--;
+        swap(arr, i, right);
+      } else {
+        i++;
+      }
     }
-    map.set(nums[i], i);
-  }
-}
-
-export function addTwoNumbers(l1: ListNode | null, l2: ListNode | null) {
-  const res = new ListNode(-1);
-  let p1 = l1;
-  let p2 = l2;
-  let p3 = res;
-  let carry = 0;
-  while (p1 || p2) {
-    const n1 = p1 ? p1.val : 0;
-    const n2 = p2 ? p2.val : 0;
-    const sum = n1 + n2 + carry;
-    carry = Math.floor(sum / 10);
-    p3.next = new ListNode(sum % 10);
-    p3 = p3.next;
-    if (p1) p1 = p1.next;
-    if (p2) p2 = p2.next;
-  }
-  if (carry) p3.next = new ListNode(carry);
-  return res.next;
-}
-
-export function lengthOfLongestSubstring(s: string) {
-  const map = new Map<string, number>();
-  let res = 0;
-  let l = 0,
-    r = 0;
-  while (r < s.length) {
-    const current = s[r];
-    if (map.has(current) && map.get(current)! >= l) {
-      l = map.get(current)! + 1;
-    }
-    res = Math.max(res, r - l + 1);
-    map.set(current, r);
-    r++;
-  }
+    swap(arr, l, left);
+    return {
+      left: left - 1,
+      right,
+    };
+  };
+  const res = [...arr];
+  sortArr(res, 0, res.length - 1);
   return res;
 }
 
-export function findMedianSortedArrays(nums1: number[], nums2: number[]) {
-  const m = nums1.length;
-  const n = nums2.length;
-  const find = (nums1: number[], nums2: number[], k: number) => {
-    let index1 = 0,
-      index2 = 0;
-    while (true) {
-      if (index1 >= nums1.length) {
-        return nums2[index2 + k - 1];
-      }
-      if (index2 >= nums2.length) {
-        return nums1[(index1 = k - 1)];
-      }
-      const half = Math.floor(k / 2);
-      const newIndex1 = Math.min(nums1.length - 1, index1 + half - 1);
-      const newIndex2 = Math.min(nums2.length - 1, index2 + half - 1);
-      if (nums1[newIndex1] <= nums2[newIndex2]) {
-        k -= newIndex1 - index1 + 1;
-        index1 = newIndex1 + 1;
-      } else {
-        k -= newIndex2 - index2 + 1;
-        index2 = newIndex2 + 1;
-      }
+export const sortColors = (nums: number[]) => {
+  const swap = (arr: number[], i: number, j: number) =>
+    ([arr[i], arr[j]] = [arr[j], arr[i]]);
+  let l = -1,
+    i = 0,
+    r = nums.length;
+  while (i < r) {
+    if (nums[i] === 0) {
+      l++;
+      swap(nums, l, i);
+      i++;
+    } else if (nums[i] === 2) {
+      r--;
+      swap(nums, r, i);
+    } else {
+      i++;
     }
-  };
-  if ((m + n) % 2 === 1) {
-    const k = Math.floor((m + n) / 2);
-    return find(nums1, nums2, k + 1);
-  } else {
-    const k = Math.floor((m + n) / 2);
-    return (find(nums1, nums2, k + 1), find(nums1, nums2, k)) / 2;
   }
+  return nums;
+};
+
+export const findKMax = (nums: number[], k: number) => {
+  k = nums.length - k;
+  const sortArr = (arr: number[], l: number, r: number): number => {
+    if (l === r) return arr[k];
+    const p = partition(arr, l, r);
+    if (p === k) return arr[k];
+    else if (p > k) return sortArr(arr, l, p - 1);
+    else return sortArr(arr, p + 1, r);
+  };
+  const getRandom = (l: number, r: number) =>
+    Math.floor(Math.random() * (r - l + 1) + l);
+  const swap = (arr: number[], i: number, j: number) =>
+    ([arr[i], arr[j]] = [arr[j], arr[i]]);
+  const partition = (arr: number[], l: number, r: number) => {
+    const p = getRandom(l, r);
+    swap(arr, l, p);
+    let i = l + 1,
+      j = r;
+    while (true) {
+      while (i <= j && arr[i] < arr[l]) {
+        i++;
+      }
+      while (i <= j && arr[j] > arr[l]) {
+        j--;
+      }
+      if (i >= j) break;
+      swap(arr, i, j);
+      i++;
+      j--;
+    }
+    swap(arr, l, j);
+    return j;
+  };
+  return sortArr([...nums], 0, nums.length - 1);
+};
+
+export const findKMin = (nums: number[], k: number) => {
+  if (k >= nums.length) return nums.slice();
+  const sortArr = (arr: number[], l: number, r: number): number[] => {
+    if (l >= r) return nums.slice(0, k);
+    const p = partition(arr, l, r);
+    if (p === k) return nums.slice(0, k);
+    else if (p > k) return sortArr(arr, l, p - 1);
+    else return sortArr(arr, p + 1, r);
+  };
+  const getRandom = (l: number, r: number) =>
+    Math.floor(Math.random() * (r - l + 1) + l);
+  const swap = (arr: number[], i: number, j: number) =>
+    ([arr[i], arr[j]] = [arr[j], arr[i]]);
+  const partition = (arr: number[], l: number, r: number) => {
+    const p = getRandom(l, r);
+    swap(arr, p, l);
+    let i = l + 1,
+      j = r;
+    while (true) {
+      while (i <= j && nums[i] < nums[l]) {
+        i++;
+      }
+      while (i <= j && nums[j] > nums[l]) {
+        j--;
+      }
+      if (i >= j) break;
+      swap(arr, i, j);
+      i++;
+      j--;
+    }
+    swap(arr, j, l);
+    return j;
+  };
+  return sortArr([...nums], 0, nums.length - 1);
+};
+
+// hot 5-8
+export const longestPalindrome = (s: string) => {
+  if(s.length === 1) return s;
+  const dp: boolean[][] = Array.from({length: s.length}, () => new Array(s.length).fill(false));
+  // todo
 }
 
 // binarysearch 1-5
