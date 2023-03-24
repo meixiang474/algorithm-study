@@ -213,80 +213,136 @@ export const findKMin = (nums: number[], k: number) => {
 
 // hot 5-8
 export const longestPalindrome = (s: string) => {
-  if(s.length === 1) return s;
-  const dp: boolean[][] = Array.from({length: s.length}, () => new Array(s.length).fill(false));
-  // todo
-}
-
-// binarysearch 1-5
-export function myPow(x: number, n: number) {
-  const isNegative = n < 0;
-  n = isNegative ? -n : n;
-  const absPow = (x: number, n: number): number => {
-    if (n === 0) return 1;
-    if (n === 1) return x;
-    const res = absPow(x, Math.floor(n / 2));
-    return n % 2 === 0 ? res * res : res * res * x;
-  };
-  return isNegative ? 1 / absPow(x, n) : absPow(x, n);
-}
-
-export function mySqrt(x: number) {
-  let l = 0,
-    r = x;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l + 1) / 2);
-    if (mid ** 2 <= x) {
-      l = mid;
-    } else {
-      r = mid - 1;
+  if (s.length === 1) return s;
+  const dp: boolean[][] = Array.from({ length: s.length }, () =>
+    new Array(s.length).fill(false)
+  );
+  for (let i = 0; i < s.length; i++) {
+    dp[i][i] = true;
+  }
+  let maxLength = 1;
+  let startIndex = 0;
+  for (let l = 2; l <= s.length; l++) {
+    for (let left = 0; left < s.length; left++) {
+      const right = left + l - 1;
+      if (right >= s.length) break;
+      if (s[left] !== s[right]) {
+        dp[left][right] = false;
+      } else {
+        if (right - left + 1 <= 3) {
+          dp[left][right] = true;
+        } else {
+          dp[left][right] = dp[left + 1][right - 1];
+        }
+      }
+      if (dp[left][right]) {
+        maxLength = l;
+        startIndex = left;
+      }
     }
   }
-  return l;
-}
+  return s.slice(startIndex, startIndex + maxLength);
+};
 
-export function twoSum1(nums: number[], target: number) {
+export const isMatch = (s: string, p: string): boolean => {
+  if (p.length === 0) return s.length === 0;
+  let match = false;
+  if (s.length > 0 && (s[0] === p[0] || p[0] === ".")) {
+    match = true;
+  }
+  if (p.length > 1 && p[1] === "*") {
+    return isMatch(s, p.slice(2)) || (match && isMatch(s.slice(1), p));
+  } else {
+    return match && isMatch(s.slice(1), p.slice(1));
+  }
+};
+
+export const maxArea = (nums: number[]) => {
+  let res = 0;
   let l = 0,
     r = nums.length - 1;
   while (l < r) {
-    const sum = nums[l] + nums[r];
-    if (sum === target) return [l + 1, r + 1];
-    if (sum > target) {
-      l++;
-    } else {
+    const left = nums[l];
+    const right = nums[r];
+    res = Math.max(Math.min(left, right) * (r - l), res);
+    if (left > right) {
       r--;
-    }
-  }
-}
-
-export function minSubArrayLen(nums: number[], target: number) {
-  let l = 0,
-    r = 0,
-    res = 0,
-    sum = 0;
-  while (r < nums.length) {
-    const current = nums[r];
-    sum += current;
-    while (sum >= target) {
-      if (res === 0 || res > r - l + 1) {
-        res = r - l + 1;
-      }
-      sum -= nums[l];
+    } else {
       l++;
     }
-    r++;
   }
   return res;
-}
+};
 
-export function countNodes(root: TreeNode | null) {
-  if (!root) return 0;
-  let res = 0;
-  const dfs = (node: TreeNode) => {
-    res++;
-    if (node.left) dfs(node.left);
-    if (node.right) dfs(node.right);
-  };
-  dfs(root);
+export const threeSum = (nums: number[]) => {
+  nums.sort((a, b) => a - b);
+  const res: number[][] = [];
+  for (let i = 0; i < nums.length - 2; i++) {
+    const current = nums[i];
+    if (i > 0 && current === nums[i - 1]) continue;
+    if (current > 0) break;
+    let l = i + 1,
+      r = nums.length - 1;
+    while (l < r) {
+      const currentl = nums[l];
+      const currentr = nums[r];
+      const sum = current + currentl + currentr;
+      if (sum === 0) {
+        res.push([current, currentl, currentr]);
+        while (l < r) {
+          l++;
+          if (nums[l] !== currentl) break;
+        }
+        while (l < r) {
+          r--;
+          if (nums[r] !== currentr) break;
+        }
+      } else if (sum > 0) {
+        while (l < r) {
+          r--;
+          if (nums[r] !== currentr) break;
+        }
+      } else {
+        while (l < r) {
+          l++;
+          if (nums[l] !== currentl) break;
+        }
+      }
+    }
+  }
   return res;
-}
+};
+
+// bfs 1-5
+export const isSymmestric = (root: TreeNode | null) => {
+  if (!root) return false;
+  const dfs = (p: TreeNode | null, q: TreeNode | null) => {
+    if (!p && !q) return true;
+    if (
+      p &&
+      q &&
+      p.val === q.val &&
+      dfs(p.left, q.right) &&
+      dfs(p.right, q.left)
+    )
+      return true;
+    return false;
+  };
+  return dfs(root.left, root.right);
+};
+
+export const levelOrder = (root: TreeNode | null) => {
+  if (!root) return [];
+  const queue: [TreeNode, number][] = [[root, 0]];
+  const res: number[][] = [];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    const arr = res[level] || (res[level] = []);
+    arr.push(current.val);
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
+  }
+  return res;
+};
+
+// todo
