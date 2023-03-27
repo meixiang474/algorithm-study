@@ -20,196 +20,37 @@ export class ListNode<T = number> {
   }
 }
 
-// offer 21 22
-export function exchange(nums: number[]) {
-  const res: number[] = [];
-  for (const item of nums) {
-    if (item % 2 === 0) res.push(item);
-    else res.unshift(item);
-  }
+// offer 24 25
+export const reverseList = (head: ListNode | null): ListNode | null => {
+  if (!head || !head.next) return head;
+  const res = reverseList(head.next);
+  head.next.next = head;
+  head.next = null;
   return res;
-}
+};
 
-export function getKthFromEnd(head: ListNode | null, k: number) {
-  if (!head) return null;
-  const arr: ListNode[] = [];
-  let current: ListNode | null = head;
-  while (current) {
-    arr.push(current);
-    current = current.next;
-  }
-  return arr[arr.length - k];
-}
-
-// quick sort
-export function quickSort(data: number[]) {
-  const sortArr = (data: number[], l: number, r: number) => {
-    if (l >= r) return;
-    const p = partition(data, l, r);
-    sortArr(data, l, p - 1);
-    sortArr(data, p + 1, r);
-  };
-  const getRandom = (l: number, r: number) =>
-    Math.floor(Math.random() * (r - l + 1) + l);
-  const swap = (arr: number[], i: number, j: number) =>
-    ([arr[i], arr[j]] = [arr[j], arr[i]]);
-  const partition = (data: number[], l: number, r: number) => {
-    const p = getRandom(l, r);
-    swap(data, l, p);
-    let i = l + 1,
-      j = r;
-    while (true) {
-      while (data[i] < data[l] && i <= j) {
-        i++;
-      }
-      while (data[j] > data[l] && i <= j) {
-        j--;
-      }
-      if (i >= j) break;
-      swap(data, i, j);
-      i++;
-      j--;
-    }
-    swap(data, l, j);
-    return j;
-  };
-  const res = [...data];
-  sortArr(res, 0, res.length - 1);
-  return res;
-}
-
-export function quickSortThree(arr: number[]) {
-  const sortArr = (arr: number[], l: number, r: number) => {
-    if (l >= r) return;
-    const { left, right } = partition(arr, l, r);
-    sortArr(arr, l, left);
-    sortArr(arr, right, r);
-  };
-  const getRandom = (l: number, r: number) =>
-    Math.floor(Math.random() * (r - l + 1) + l);
-  const swap = (arr: number[], i: number, j: number) =>
-    ([arr[i], arr[j]] = [arr[j], arr[i]]);
-  const partition = (arr: number[], l: number, r: number) => {
-    const p = getRandom(l, r);
-    swap(arr, l, p);
-    let left = l,
-      right = r + 1,
-      i = l + 1;
-    while (i < right) {
-      if (arr[i] < arr[l]) {
-        left++;
-        swap(arr, i, left);
-        i++;
-      } else if (arr[i] > arr[l]) {
-        right--;
-        swap(arr, i, right);
-      } else {
-        i++;
-      }
-    }
-    swap(arr, l, left);
-    return {
-      left: left - 1,
-      right,
-    };
-  };
-  const res = [...arr];
-  sortArr(res, 0, res.length - 1);
-  return res;
-}
-
-export const sortColors = (nums: number[]) => {
-  const swap = (arr: number[], i: number, j: number) =>
-    ([arr[i], arr[j]] = [arr[j], arr[i]]);
-  let l = -1,
-    i = 0,
-    r = nums.length;
-  while (i < r) {
-    if (nums[i] === 0) {
-      l++;
-      swap(nums, l, i);
-      i++;
-    } else if (nums[i] === 2) {
-      r--;
-      swap(nums, r, i);
+export const mergeTwoLists = (l1: ListNode | null, l2: ListNode | null) => {
+  const res = new ListNode(-1);
+  let p1 = l1;
+  let p2 = l2;
+  let p3 = res;
+  while (p1 && p2) {
+    if (p1.val < p2.val) {
+      p3.next = p1;
+      p1 = p1.next;
     } else {
-      i++;
+      p3.next = p2;
+      p2 = p2.next;
     }
+    p3 = p3.next;
   }
-  return nums;
+  if (p1) p3.next = p1;
+  if (p2) p3.next = p2;
+  return res.next;
 };
 
-export const findKMax = (nums: number[], k: number) => {
-  k = nums.length - k;
-  const sortArr = (arr: number[], l: number, r: number): number => {
-    if (l === r) return arr[k];
-    const p = partition(arr, l, r);
-    if (p === k) return arr[k];
-    else if (p > k) return sortArr(arr, l, p - 1);
-    else return sortArr(arr, p + 1, r);
-  };
-  const getRandom = (l: number, r: number) =>
-    Math.floor(Math.random() * (r - l + 1) + l);
-  const swap = (arr: number[], i: number, j: number) =>
-    ([arr[i], arr[j]] = [arr[j], arr[i]]);
-  const partition = (arr: number[], l: number, r: number) => {
-    const p = getRandom(l, r);
-    swap(arr, l, p);
-    let i = l + 1,
-      j = r;
-    while (true) {
-      while (i <= j && arr[i] < arr[l]) {
-        i++;
-      }
-      while (i <= j && arr[j] > arr[l]) {
-        j--;
-      }
-      if (i >= j) break;
-      swap(arr, i, j);
-      i++;
-      j--;
-    }
-    swap(arr, l, j);
-    return j;
-  };
-  return sortArr([...nums], 0, nums.length - 1);
-};
-
-export const findKMin = (nums: number[], k: number) => {
-  if (k >= nums.length) return nums.slice();
-  const sortArr = (arr: number[], l: number, r: number): number[] => {
-    if (l >= r) return nums.slice(0, k);
-    const p = partition(arr, l, r);
-    if (p === k) return nums.slice(0, k);
-    else if (p > k) return sortArr(arr, l, p - 1);
-    else return sortArr(arr, p + 1, r);
-  };
-  const getRandom = (l: number, r: number) =>
-    Math.floor(Math.random() * (r - l + 1) + l);
-  const swap = (arr: number[], i: number, j: number) =>
-    ([arr[i], arr[j]] = [arr[j], arr[i]]);
-  const partition = (arr: number[], l: number, r: number) => {
-    const p = getRandom(l, r);
-    swap(arr, p, l);
-    let i = l + 1,
-      j = r;
-    while (true) {
-      while (i <= j && nums[i] < nums[l]) {
-        i++;
-      }
-      while (i <= j && nums[j] > nums[l]) {
-        j--;
-      }
-      if (i >= j) break;
-      swap(arr, i, j);
-      i++;
-      j--;
-    }
-    swap(arr, j, l);
-    return j;
-  };
-  return sortArr([...nums], 0, nums.length - 1);
-};
+// binary search
+// todo
 
 // hot 5-8
 export const longestPalindrome = (s: string) => {
@@ -345,4 +186,53 @@ export const levelOrder = (root: TreeNode | null) => {
   return res;
 };
 
-// todo
+export const zigzagLevelOrder = (root: TreeNode | null) => {
+  if (!root) return [];
+  const queue: [TreeNode, number][] = [[root, 0]];
+  const res: number[][] = [];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    const arr = res[level] || (res[level] = []);
+    if (level % 2 === 0) {
+      arr.push(current.val);
+    } else {
+      arr.unshift(current.val);
+    }
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
+  }
+  return res;
+};
+
+export const levelOrderBottom = (root: TreeNode | null) => {
+  if (!root) return [];
+  const queue: [TreeNode, number][] = [[root, 0]];
+  const res: number[][] = [];
+  let currentLevel = -1;
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    if (currentLevel === level) {
+      const arr = res[0];
+      arr.push(current.val);
+    } else {
+      const arr = [];
+      arr.push(current.val);
+      res.unshift(arr);
+      currentLevel = level;
+    }
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
+  }
+  return res;
+};
+
+export const minDepth = (root: TreeNode | null) => {
+  if (!root) return 0;
+  const queue: [TreeNode, number][] = [[root, 1]];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    if (!current.left && !current.right) return level;
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
+  }
+};
