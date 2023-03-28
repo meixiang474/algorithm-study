@@ -50,109 +50,148 @@ export const mergeTwoLists = (l1: ListNode | null, l2: ListNode | null) => {
 };
 
 // binary search
-// todo
-
-// hot 5-8
-export const longestPalindrome = (s: string) => {
-  if (s.length === 1) return s;
-  const dp: boolean[][] = Array.from({ length: s.length }, () =>
-    new Array(s.length).fill(false)
-  );
-  for (let i = 0; i < s.length; i++) {
-    dp[i][i] = true;
-  }
-  let maxLength = 1;
-  let startIndex = 0;
-  for (let l = 2; l <= s.length; l++) {
-    for (let left = 0; left < s.length; left++) {
-      const right = left + l - 1;
-      if (right >= s.length) break;
-      if (s[left] !== s[right]) {
-        dp[left][right] = false;
-      } else {
-        if (right - left + 1 <= 3) {
-          dp[left][right] = true;
-        } else {
-          dp[left][right] = dp[left + 1][right - 1];
-        }
-      }
-      if (dp[left][right]) {
-        maxLength = l;
-        startIndex = left;
-      }
-    }
-  }
-  return s.slice(startIndex, startIndex + maxLength);
+export const binarySearch = (data: number[], target: number) => {
+  const searchData = (data: number[], l: number, r: number): number => {
+    if (l > r) return -1;
+    const mid = Math.floor(l + (r - l) / 2);
+    if (data[mid] === target) return mid;
+    else if (data[mid] > target) return searchData(data, l, mid - 1);
+    else return searchData(data, mid + 1, r);
+  };
+  return searchData(data, 0, data.length - 1);
 };
 
-export const isMatch = (s: string, p: string): boolean => {
-  if (p.length === 0) return s.length === 0;
-  let match = false;
-  if (s.length > 0 && (s[0] === p[0] || p[0] === ".")) {
-    match = true;
-  }
-  if (p.length > 1 && p[1] === "*") {
-    return isMatch(s, p.slice(2)) || (match && isMatch(s.slice(1), p));
-  } else {
-    return match && isMatch(s.slice(1), p.slice(1));
-  }
-};
-
-export const maxArea = (nums: number[]) => {
-  let res = 0;
+export const binarySearch1 = (data: number[], target: number) => {
   let l = 0,
-    r = nums.length - 1;
+    r = data.length - 1;
+  while (l <= r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    if (data[mid] === target) return mid;
+    else if (data[mid] > target) r = mid - 1;
+    else l = mid + 1;
+  }
+  return -1;
+};
+
+// > target 的第一个
+export const upper = (data: number[], target: number) => {
+  let l = 0,
+    r = data.length;
   while (l < r) {
-    const left = nums[l];
-    const right = nums[r];
-    res = Math.max(Math.min(left, right) * (r - l), res);
-    if (left > right) {
-      r--;
+    const mid = Math.floor(l + (r - l) / 2);
+    if (data[mid] <= target) {
+      l = mid + 1;
     } else {
-      l++;
+      r = mid;
     }
   }
+  return l;
+};
+
+// = target的最后一个或者 > target的第一个
+export const ceil = (data: number[], target: number) => {
+  const index = upper(data, target);
+  if (index - 1 >= 0 && data[index - 1] === target) return index - 1;
+  return index;
+};
+
+// = target第一个或者 > target第一个
+export const lowerCeil = (data: number[], target: number) => {
+  let l = 0,
+    r = data.length;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    if (data[mid] >= target) {
+      r = mid;
+    } else {
+      l = mid + 1;
+    }
+  }
+  return l;
+};
+
+// < target得第一个
+export const lower = (data: number[], target: number) => {
+  let l = -1,
+    r = data.length - 1;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l + 1) / 2);
+    if (data[mid] < target) {
+      l = mid;
+    } else {
+      r = mid - 1;
+    }
+  }
+  return l;
+};
+
+// = target的最后一个，< target的第一个
+export const upperFloor = (data: number[], target: number) => {
+  let l = -1,
+    r = data.length;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l + 1) / 2);
+    if (data[mid] <= target) {
+      l = mid;
+    } else {
+      r = mid - 1;
+    }
+  }
+  return l;
+};
+
+// < target得第一个，= target得第一个
+export const lowerFloor = (data: number[], target: number) => {
+  const index = lower(data, target);
+  if (index + 1 < data.length && data[index + 1] === target) return index + 1;
+  return index;
+};
+
+export const mySqrt = (x: number) => {
+  let l = 0,
+    r = x;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l + 1) / 2);
+    if (mid ** 2 <= x) {
+      l = mid;
+    } else {
+      r = mid - 1;
+    }
+  }
+  return l;
+};
+
+// hot 9 - 12
+export const letterCombinations = (digits: string) => {
+  if (!digits) return [];
+  const graph: Record<string, string[]> = {
+    "2": ["a", "b", "c"],
+    "3": ["d", "e", "f"],
+    "4": ["g", "h", "i"],
+    "5": ["j", "k", "l"],
+    "6": ["m", "n", "o"],
+    "7": ["p", "q", "r", "s"],
+    "8": ["t", "u", "v"],
+    "9": ["w", "x", "y", "z"],
+  };
+  const res: string[] = [];
+  const dfs = (path: string, index: number) => {
+    if (index >= digits.length) {
+      res.push(path);
+      return;
+    }
+    const arr = graph[digits[index]];
+    for (let item of arr) {
+      dfs(path + item, index + 1);
+    }
+  };
+  dfs("", 0);
   return res;
 };
 
-export const threeSum = (nums: number[]) => {
-  nums.sort((a, b) => a - b);
-  const res: number[][] = [];
-  for (let i = 0; i < nums.length - 2; i++) {
-    const current = nums[i];
-    if (i > 0 && current === nums[i - 1]) continue;
-    if (current > 0) break;
-    let l = i + 1,
-      r = nums.length - 1;
-    while (l < r) {
-      const currentl = nums[l];
-      const currentr = nums[r];
-      const sum = current + currentl + currentr;
-      if (sum === 0) {
-        res.push([current, currentl, currentr]);
-        while (l < r) {
-          l++;
-          if (nums[l] !== currentl) break;
-        }
-        while (l < r) {
-          r--;
-          if (nums[r] !== currentr) break;
-        }
-      } else if (sum > 0) {
-        while (l < r) {
-          r--;
-          if (nums[r] !== currentr) break;
-        }
-      } else {
-        while (l < r) {
-          l++;
-          if (nums[l] !== currentl) break;
-        }
-      }
-    }
-  }
-  return res;
-};
+export const removeNthFromEnd = (head: ListNode | null, n: number) => {
+  // todo
+}
 
 // bfs 1-5
 export const isSymmestric = (root: TreeNode | null) => {
