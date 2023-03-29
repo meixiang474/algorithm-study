@@ -190,88 +190,71 @@ export const letterCombinations = (digits: string) => {
 };
 
 export const removeNthFromEnd = (head: ListNode | null, n: number) => {
-  // todo
-}
+  if (!head) return null;
+  const dummyHead = new ListNode(-1);
+  dummyHead.next = head;
+  let current: ListNode | null = dummyHead;
+  const stack: ListNode[] = [];
+  while (current) {
+    stack.push(current);
+    current = current.next;
+  }
+  for (let i = 0; i < n; i++) {
+    stack.pop();
+  }
+  const prev = stack[stack.length - 1];
+  if (prev.next) {
+    prev.next = prev.next.next;
+  }
+  return dummyHead.next;
+};
 
-// bfs 1-5
-export const isSymmestric = (root: TreeNode | null) => {
-  if (!root) return false;
-  const dfs = (p: TreeNode | null, q: TreeNode | null) => {
-    if (!p && !q) return true;
-    if (
-      p &&
-      q &&
-      p.val === q.val &&
-      dfs(p.left, q.right) &&
-      dfs(p.right, q.left)
-    )
-      return true;
-    return false;
+export const isValid = (s: string) => {
+  if (s.length % 2 !== 0) return false;
+  const map = new Map<string, string>();
+  map.set("(", ")");
+  map.set("[", "]");
+  map.set("{", "}");
+  const stack: string[] = [];
+  for (const item of s) {
+    if (map.has(item)) {
+      stack.push(item);
+    } else {
+      const prev = stack.pop();
+      if (!prev || map.get(prev) !== item) return false;
+    }
+  }
+  return stack.length === 0;
+};
+
+export const mergeTwoLists1 = (l1: ListNode | null, l2: ListNode | null) => {
+  const res = new ListNode(-1);
+  let p1 = l1,
+    p2 = l2,
+    p3 = res;
+  while (p1 && p2) {
+    if (p1.val < p2.val) {
+      p3.next = p1;
+      p1 = p1.next;
+    } else {
+      p3.next = p2;
+      p2 = p2.next;
+    }
+    p3 = p3.next;
+  }
+  if (p1) p3.next = p1;
+  if (p2) p3.next = p2;
+  return res.next;
+};
+
+// dfs 1-5
+export const isValidBST = (root: TreeNode | null) => {
+  const dfs = (node: TreeNode | null, floor: number, ceil: number): boolean => {
+    if (!node) return false;
+    if (node.val <= floor || node.val >= ceil) return false;
+    return dfs(node.left, floor, node.val) && dfs(node.right, node.val, ceil);
   };
-  return dfs(root.left, root.right);
+  return dfs(root, -Infinity, Infinity);
 };
 
-export const levelOrder = (root: TreeNode | null) => {
-  if (!root) return [];
-  const queue: [TreeNode, number][] = [[root, 0]];
-  const res: number[][] = [];
-  while (queue.length) {
-    const [current, level] = queue.shift()!;
-    const arr = res[level] || (res[level] = []);
-    arr.push(current.val);
-    if (current.left) queue.push([current.left, level + 1]);
-    if (current.right) queue.push([current.right, level + 1]);
-  }
-  return res;
-};
-
-export const zigzagLevelOrder = (root: TreeNode | null) => {
-  if (!root) return [];
-  const queue: [TreeNode, number][] = [[root, 0]];
-  const res: number[][] = [];
-  while (queue.length) {
-    const [current, level] = queue.shift()!;
-    const arr = res[level] || (res[level] = []);
-    if (level % 2 === 0) {
-      arr.push(current.val);
-    } else {
-      arr.unshift(current.val);
-    }
-    if (current.left) queue.push([current.left, level + 1]);
-    if (current.right) queue.push([current.right, level + 1]);
-  }
-  return res;
-};
-
-export const levelOrderBottom = (root: TreeNode | null) => {
-  if (!root) return [];
-  const queue: [TreeNode, number][] = [[root, 0]];
-  const res: number[][] = [];
-  let currentLevel = -1;
-  while (queue.length) {
-    const [current, level] = queue.shift()!;
-    if (currentLevel === level) {
-      const arr = res[0];
-      arr.push(current.val);
-    } else {
-      const arr = [];
-      arr.push(current.val);
-      res.unshift(arr);
-      currentLevel = level;
-    }
-    if (current.left) queue.push([current.left, level + 1]);
-    if (current.right) queue.push([current.right, level + 1]);
-  }
-  return res;
-};
-
-export const minDepth = (root: TreeNode | null) => {
-  if (!root) return 0;
-  const queue: [TreeNode, number][] = [[root, 1]];
-  while (queue.length) {
-    const [current, level] = queue.shift()!;
-    if (!current.left && !current.right) return level;
-    if (current.left) queue.push([current.left, level + 1]);
-    if (current.right) queue.push([current.right, level + 1]);
-  }
-};
+// todo
