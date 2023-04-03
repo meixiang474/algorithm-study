@@ -20,34 +20,8 @@ export class ListNode<T = number> {
   }
 }
 
-// offer 24 25
-export const reverseList = (head: ListNode | null): ListNode | null => {
-  if (!head || !head.next) return head;
-  const res = reverseList(head.next);
-  head.next.next = head;
-  head.next = null;
-  return res;
-};
-
-export const mergeTwoLists = (l1: ListNode | null, l2: ListNode | null) => {
-  const res = new ListNode(-1);
-  let p1 = l1;
-  let p2 = l2;
-  let p3 = res;
-  while (p1 && p2) {
-    if (p1.val < p2.val) {
-      p3.next = p1;
-      p1 = p1.next;
-    } else {
-      p3.next = p2;
-      p2 = p2.next;
-    }
-    p3 = p3.next;
-  }
-  if (p1) p3.next = p1;
-  if (p2) p3.next = p2;
-  return res.next;
-};
+// offer 26 27
+// todo
 
 // binary search
 export const binarySearch = (data: number[], target: number) => {
@@ -257,4 +231,80 @@ export const isValidBST = (root: TreeNode | null) => {
   return dfs(root, -Infinity, Infinity);
 };
 
-// todo
+export const recoverTree = (root: TreeNode | null) => {
+  if (!root) return null;
+  const inorder = (node: TreeNode, nums: number[]) => {
+    if (node.left) inorder(node.left, nums);
+    nums.push(node.val);
+    if (node.right) inorder(node.right, nums);
+  };
+  const findTwo = (nums: number[]) => {
+    let x = null,
+      y = null;
+    for (let i = 0; i < nums.length - 1; i++) {
+      if (nums[i + 1] < nums[i]) {
+        y = i + 1;
+        if (x == null) x = i;
+      }
+    }
+    return [x, y] as [number, number];
+  };
+  const recover = (node: TreeNode, count: number, x: number, y: number) => {
+    if (count === 0) return;
+    if (node.val === x || node.val === y) {
+      node.val = node.val === x ? y : x;
+      count--;
+    }
+    if (node.left) recover(node.left, count, x, y);
+    if (node.right) recover(node.right, count, x, y);
+  };
+  const nums: number[] = [];
+  inorder(root, nums);
+  const [x, y] = findTwo(nums);
+  recover(root, 2, x, y);
+};
+
+export const isSameTree = (p: TreeNode | null, q: TreeNode | null) => {
+  if (!p && !q) return true;
+  if (
+    p &&
+    q &&
+    p.val === q.val &&
+    isSameTree(p.left, q.left) &&
+    isSameTree(p.right, q.right)
+  )
+    return true;
+  return false;
+};
+
+export const isSymmetric = (root: TreeNode | null) => {
+  if (!root) return true;
+  const compare = (p: TreeNode | null, q: TreeNode | null) => {
+    if (!p && !q) return true;
+    if (
+      p &&
+      q &&
+      p.val === q.val &&
+      compare(p.left, q.right) &&
+      compare(p.right, q.right)
+    )
+      return true;
+    return false;
+  };
+  return compare(root.left, root.right);
+};
+
+export const maxDepth = (root: TreeNode | null) => {
+  if (!root) return 0;
+  let res = 0;
+  const dfs = (node: TreeNode, level: number) => {
+    if (!node.left && !node.right) {
+      res = Math.max(res, level);
+      return;
+    }
+    if (node.left) dfs(node.left, level + 1);
+    if (node.right) dfs(node.right, level + 1);
+  };
+  dfs(root, 1);
+  return res;
+};

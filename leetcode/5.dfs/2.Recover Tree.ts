@@ -39,13 +39,13 @@ export default function recoverTree(root: TreeNode | null): void {
     x: number,
     y: number
   ) => {
+    if (count === 0) {
+      return;
+    }
     if (node) {
       if (node.val === x || node.val === y) {
         node.val = node.val === x ? y : x;
         count--;
-        if (count === 0) {
-          return;
-        }
       }
       recover(node.left, count, x, y);
       recover(node.right, count, x, y);
