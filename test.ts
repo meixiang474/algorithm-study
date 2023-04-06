@@ -1,4 +1,3 @@
-import { BST } from "./11.BST";
 import { Heap } from "./practice/week5/1.heap";
 export class TreeNode {
   val: number;
@@ -21,119 +20,82 @@ export class ListNode<T = number> {
 }
 
 // offer 26 27
-// todo
-
-// binary search
-export const binarySearch = (data: number[], target: number) => {
-  const searchData = (data: number[], l: number, r: number): number => {
-    if (l > r) return -1;
-    const mid = Math.floor(l + (r - l) / 2);
-    if (data[mid] === target) return mid;
-    else if (data[mid] > target) return searchData(data, l, mid - 1);
-    else return searchData(data, mid + 1, r);
+export const isSubstructure = (
+  A: TreeNode | null,
+  B: TreeNode | null
+): boolean => {
+  if (!A || !B) return false;
+  const dfs = (A: TreeNode | null, B: TreeNode | null): boolean => {
+    if (!B) return true;
+    if (!A || A.val !== B.val) return false;
+    return dfs(A.left, B.left) && dfs(A.right, B.right);
   };
-  return searchData(data, 0, data.length - 1);
+  return dfs(A, B) || isSubstructure(A.left, B) || isSubstructure(A.right, B);
 };
 
-export const binarySearch1 = (data: number[], target: number) => {
-  let l = 0,
-    r = data.length - 1;
-  while (l <= r) {
-    const mid = Math.floor(l + (r - l) / 2);
-    if (data[mid] === target) return mid;
-    else if (data[mid] > target) r = mid - 1;
-    else l = mid + 1;
-  }
-  return -1;
-};
-
-// > target 的第一个
-export const upper = (data: number[], target: number) => {
-  let l = 0,
-    r = data.length;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l) / 2);
-    if (data[mid] <= target) {
-      l = mid + 1;
-    } else {
-      r = mid;
+export const mirrorTree = (root: TreeNode | null) => {
+  if (!root) return null;
+  const res = new TreeNode(root.val);
+  const dfs = (node: TreeNode, res: TreeNode) => {
+    if (node.left) {
+      res.right = new TreeNode(node.left.val);
+      dfs(node.left, res.right);
     }
-  }
-  return l;
-};
-
-// = target的最后一个或者 > target的第一个
-export const ceil = (data: number[], target: number) => {
-  const index = upper(data, target);
-  if (index - 1 >= 0 && data[index - 1] === target) return index - 1;
-  return index;
-};
-
-// = target第一个或者 > target第一个
-export const lowerCeil = (data: number[], target: number) => {
-  let l = 0,
-    r = data.length;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l) / 2);
-    if (data[mid] >= target) {
-      r = mid;
-    } else {
-      l = mid + 1;
+    if (node.right) {
+      res.left = new TreeNode(node.right.val);
+      dfs(node.right, res.left);
     }
-  }
-  return l;
+  };
+  dfs(root, res);
+  return res;
 };
 
-// < target得第一个
-export const lower = (data: number[], target: number) => {
-  let l = -1,
-    r = data.length - 1;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l + 1) / 2);
-    if (data[mid] < target) {
-      l = mid;
-    } else {
-      r = mid - 1;
+// bst
+interface Visitor<T = number> {
+  visit: (val: T) => void;
+}
+
+export class TreeNode1<T = number> {
+  val: T;
+  left: TreeNode1<T> | null;
+  right: TreeNode1<T> | null;
+  constructor(val: T) {
+    this.val = val;
+    this.left = null;
+    this.right = null;
+  }
+}
+
+export class BST<T = number> {
+  root: TreeNode1<T> | null;
+  size: number;
+  constructor() {
+    this.root = null;
+    this.size = 0;
+  }
+  getSize() {
+    return this.size;
+  }
+  isEmpty() {
+    return this.getSize() === 0;
+  }
+  add(val: T) {
+    this.root = this.addNode(this.root, val);
+  }
+  addNode(node: TreeNode1<T> | null, val: T): TreeNode1<T> {
+    if (!node) {
+      this.size++;
+      return new TreeNode1(val);
     }
-  }
-  return l;
-};
-
-// = target的最后一个，< target的第一个
-export const upperFloor = (data: number[], target: number) => {
-  let l = -1,
-    r = data.length;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l + 1) / 2);
-    if (data[mid] <= target) {
-      l = mid;
-    } else {
-      r = mid - 1;
+    if (node.val < val) {
+      node.right = this.addNode(node.right, val);
+    } else if (node.val > val) {
+      node.left = this.addNode(node.left, val);
     }
+    return node;
   }
-  return l;
-};
-
-// < target得第一个，= target得第一个
-export const lowerFloor = (data: number[], target: number) => {
-  const index = lower(data, target);
-  if (index + 1 < data.length && data[index + 1] === target) return index + 1;
-  return index;
-};
-
-export const mySqrt = (x: number) => {
-  let l = 0,
-    r = x;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l + 1) / 2);
-    if (mid ** 2 <= x) {
-      l = mid;
-    } else {
-      r = mid - 1;
-    }
-  }
-  return l;
-};
+  // todo
+}
 
 // hot 9 - 12
 export const letterCombinations = (digits: string) => {
