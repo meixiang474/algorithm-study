@@ -94,8 +94,206 @@ export class BST<T = number> {
     }
     return node;
   }
-  // todo
+  contains(val: T) {
+    return this.containsNode(this.root, val);
+  }
+  containsNode(node: TreeNode1<T> | null, val: T): boolean {
+    if (!node) return false;
+    if (node.val === val) return true;
+    if (node.val > val) return this.containsNode(node.left, val);
+    return this.containsNode(node.right, val);
+  }
+  preOrder(visitor: Visitor<T>) {
+    this.preOrderNode(this.root, visitor);
+  }
+  preOrderNode(node: TreeNode1<T> | null, visitor: Visitor<T>) {
+    if (!node) return;
+    visitor.visit(node.val);
+    this.preOrderNode(node.left, visitor);
+    this.preOrderNode(node.right, visitor);
+  }
+  inOrder(visitor: Visitor<T>) {
+    this.inOrderNode(this.root, visitor);
+  }
+  inOrderNode(node: TreeNode1<T> | null, visitor: Visitor<T>) {
+    if (!node) return;
+    this.inOrderNode(node.left, visitor);
+    visitor.visit(node.val);
+    this.inOrderNode(node.right, visitor);
+  }
+  postOrder(visitor: Visitor<T>) {
+    this.postOrderNode(this.root, visitor);
+  }
+  postOrderNode(node: TreeNode1<T> | null, visitor: Visitor<T>) {
+    if (!node) return;
+    this.postOrderNode(node.left, visitor);
+    this.postOrderNode(node.right, visitor);
+    visitor.visit(node.val);
+  }
+  preOrderNR(visitor: Visitor<T>) {
+    if (!this.root) return;
+    const stack: TreeNode1<T>[] = [this.root];
+    while (stack.length) {
+      const current = stack.pop()!;
+      visitor.visit(current.val);
+      if (current.right) stack.push(current.right);
+      if (current.left) stack.push(current.left);
+    }
+  }
+  levelOrder(visitor: Visitor<T>) {
+    if (!this.root) return;
+    const queue: TreeNode1<T>[] = [this.root];
+    while (queue.length) {
+      const current = queue.shift()!;
+      visitor.visit(current.val);
+      if (current.left) queue.push(current.left);
+      if (current.right) queue.push(current.right);
+    }
+  }
+  minimum() {
+    if (!this.root) throw new Error("error");
+    const node = this.minimumNode(this.root);
+    return node.val;
+  }
+  minimumNode(node: TreeNode1<T>): TreeNode1<T> {
+    if (!node.left) return node;
+    return this.minimumNode(node.left);
+  }
+  maximum() {
+    if (!this.root) return;
+    const node = this.maximumNode(this.root);
+    return node.val;
+  }
+  maximumNode(node: TreeNode1<T>): TreeNode1<T> {
+    if (!node.right) return node;
+    return this.maximumNode(node.right);
+  }
+  removeMin() {
+    if (!this.root) throw new Error("error");
+    const { res, next } = this.removeMinNode(this.root);
+    this.root = next;
+    return res;
+  }
+  removeMinNode(node: TreeNode1<T>): { res: T; next: TreeNode1<T> | null } {
+    if (!node.left) {
+      this.size--;
+      const res = node.val;
+      const next = node.right;
+      return {
+        res,
+        next,
+      };
+    }
+    const { res, next } = this.removeMinNode(node.left);
+    node.left = next;
+    return {
+      res,
+      next: node,
+    };
+  }
+  removeMax() {
+    if (!this.root) throw new Error("error");
+    const { res, next } = this.removeMaxNode(this.root);
+    this.root = next;
+    return res;
+  }
+  removeMaxNode(node: TreeNode1<T>): { res: T; next: TreeNode1<T> | null } {
+    if (!node.right) {
+      this.size--;
+      const res = node.val;
+      const next = node.left;
+      return {
+        res,
+        next,
+      };
+    }
+    const { res, next } = this.removeMaxNode(node.right);
+    node.right = next;
+    return {
+      res,
+      next: node,
+    };
+  }
+  remove(val: T) {
+    this.root = this.removeNode(this.root, val);
+  }
+  removeNode(node: TreeNode1<T> | null, val: T): TreeNode1<T> | null {
+    if (!node) return null;
+    if (node.val < val) {
+      node.right = this.removeNode(node.right, val);
+      return node;
+    } else if (node.val > val) {
+      node.left = this.removeNode(node.left, val);
+      return node;
+    } else {
+      if (!node.left) {
+        this.size--;
+        return node.right;
+      }
+      if (!node.right) {
+        this.size--;
+        return node.left;
+      }
+      const successor = this.minimumNode(node.right);
+      successor.right = this.removeMinNode(node.right).next;
+      successor.left = node.left;
+      return successor;
+    }
+  }
 }
+
+export const maxDepth1 = (root: TreeNode | null) => {
+  if (!root) return 0;
+  let res = 0;
+  const dfs = (node: TreeNode, level: number) => {
+    if (!node.left && !node.right) {
+      res = Math.max(res, level);
+    }
+    if (node.left) dfs(node.left, level + 1);
+    if (node.right) dfs(node.right, level + 1);
+  };
+  dfs(root, 1);
+  return res;
+};
+
+export const minDepth = (root: TreeNode | null) => {
+  if (!root) return 0;
+  const queue: [TreeNode, number][] = [[root, 1]];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    if (!current.left && !current.right) return level;
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
+  }
+};
+
+export const levelOrder = (root: TreeNode | null) => {
+  if (!root) return [];
+  const queue: [TreeNode, number][] = [[root, 0]];
+  const res: number[][] = [];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    const arr = res[level] || (res[level] = []);
+    arr.push(current.val);
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
+  }
+  return res;
+};
+
+export const inOrderTraversal = (root: TreeNode | null) => {
+  if (!root) return [];
+  const res: number[] = [];
+  const dfs = (node: TreeNode) => {
+    if (node.left) dfs(node.left);
+    res.push(node.val);
+    if (node.right) dfs(node.right);
+  };
+  dfs(root);
+  return res;
+};
+
+// todo
 
 // hot 9 - 12
 export const letterCombinations = (digits: string) => {
