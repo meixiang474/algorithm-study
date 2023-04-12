@@ -293,94 +293,63 @@ export const inOrderTraversal = (root: TreeNode | null) => {
   return res;
 };
 
-// todo
-
-// hot 9 - 12
-export const letterCombinations = (digits: string) => {
-  if (!digits) return [];
-  const graph: Record<string, string[]> = {
-    "2": ["a", "b", "c"],
-    "3": ["d", "e", "f"],
-    "4": ["g", "h", "i"],
-    "5": ["j", "k", "l"],
-    "6": ["m", "n", "o"],
-    "7": ["p", "q", "r", "s"],
-    "8": ["t", "u", "v"],
-    "9": ["w", "x", "y", "z"],
-  };
-  const res: string[] = [];
-  const dfs = (path: string, index: number) => {
-    if (index >= digits.length) {
-      res.push(path);
-      return;
+export const inOrderTraversal1 = (root: TreeNode | null) => {
+  if (!root) return [];
+  const stack: TreeNode[] = [];
+  let p: TreeNode | null = root;
+  const res: number[] = [];
+  while (p || stack.length) {
+    while (p) {
+      stack.push(p);
+      p = p.left;
     }
-    const arr = graph[digits[index]];
-    for (let item of arr) {
-      dfs(path + item, index + 1);
-    }
-  };
-  dfs("", 0);
+    const current = stack.pop()!;
+    res.push(current.val);
+    p = current.right;
+  }
   return res;
 };
 
-export const removeNthFromEnd = (head: ListNode | null, n: number) => {
-  if (!head) return null;
-  const dummyHead = new ListNode(-1);
-  dummyHead.next = head;
-  let current: ListNode | null = dummyHead;
-  const stack: ListNode[] = [];
-  while (current) {
-    stack.push(current);
-    current = current.next;
-  }
-  for (let i = 0; i < n; i++) {
-    stack.pop();
-  }
-  const prev = stack[stack.length - 1];
-  if (prev.next) {
-    prev.next = prev.next.next;
-  }
-  return dummyHead.next;
+export const hasPathSum = (root: TreeNode | null, sum: number) => {
+  if (!root) return false;
+  let res = false;
+  const dfs = (node: TreeNode, currentSum: number) => {
+    if (!node.left && !node.right && currentSum === sum) {
+      res = true;
+      return;
+    }
+    if (node.left) dfs(node.left, currentSum + node.left.val);
+    if (node.right && !res) dfs(node.right, currentSum + node.right.val);
+  };
+  dfs(root, root.val);
+  return res;
 };
 
-export const isValid = (s: string) => {
-  if (s.length % 2 !== 0) return false;
-  const map = new Map<string, string>();
-  map.set("(", ")");
-  map.set("[", "]");
-  map.set("{", "}");
-  const stack: string[] = [];
-  for (const item of s) {
-    if (map.has(item)) {
-      stack.push(item);
+export const postOrderTraversal = (root: TreeNode | null) => {
+  if (!root) return [];
+  const res: number[] = [];
+  const stack: TreeNode[] = [];
+  let p: TreeNode | null = root;
+  let prevRight: TreeNode | null = null;
+  while (p || stack.length) {
+    while (p) {
+      stack.push(p);
+      p = p.left;
+    }
+    const current = stack.pop()!;
+    if (current.right && current.right !== prevRight) {
+      stack.push(current);
+      p = current.right;
     } else {
-      const prev = stack.pop();
-      if (!prev || map.get(prev) !== item) return false;
+      res.push(current.val);
+      prevRight = current;
     }
   }
-  return stack.length === 0;
+  return res;
 };
 
-export const mergeTwoLists1 = (l1: ListNode | null, l2: ListNode | null) => {
-  const res = new ListNode(-1);
-  let p1 = l1,
-    p2 = l2,
-    p3 = res;
-  while (p1 && p2) {
-    if (p1.val < p2.val) {
-      p3.next = p1;
-      p1 = p1.next;
-    } else {
-      p3.next = p2;
-      p2 = p2.next;
-    }
-    p3 = p3.next;
-  }
-  if (p1) p3.next = p1;
-  if (p2) p3.next = p2;
-  return res.next;
-};
-
+// hot 13 - 16
+// todo
 // dfs 1-5
 export const isValidBST = (root: TreeNode | null) => {
   const dfs = (node: TreeNode | null, floor: number, ceil: number): boolean => {
