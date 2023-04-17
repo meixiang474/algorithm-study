@@ -349,7 +349,89 @@ export const postOrderTraversal = (root: TreeNode | null) => {
 };
 
 // hot 13 - 16
-// todo
+export const generateParenthesis = (n: number) => {
+  const res: string[] = [];
+  const dfs = (path: string, open: number, close: number) => {
+    if (path.length >= 2 * n) {
+      res.push(path);
+      return;
+    }
+    if (open < n) {
+      dfs(path + "(", open + 1, close);
+    }
+    if (close < open) {
+      dfs(path + ")", open, close + 1);
+    }
+  };
+  dfs("", 0, 0);
+  return res;
+};
+
+export const mergeKLists = (lists: (ListNode | null)[]) => {
+  const merge = (
+    lists: (ListNode | null)[],
+    l: number,
+    r: number
+  ): ListNode | null => {
+    if (l === r) return lists[l];
+    if (l > r) return null;
+    const mid = Math.floor(l + (r - l) / 2);
+    return mergeTwoLists(merge(lists, l, mid), merge(lists, mid + 1, r));
+  };
+  const mergeTwoLists = (l1: ListNode | null, l2: ListNode | null) => {
+    const res = new ListNode(-1);
+    let p1 = l1,
+      p2 = l2,
+      p3 = res;
+    while (p1 && p2) {
+      if (p1.val < p2.val) {
+        p3.next = p1;
+        p1 = p1.next;
+      } else {
+        p3.next = p2;
+        p2 = p2.next;
+      }
+      p3 = p3.next;
+    }
+    if (p1) p3.next = p1;
+    if (p2) p3.next = p2;
+    return res.next;
+  };
+  return merge(lists, 0, lists.length - 1);
+};
+
+export const nextPermutation = (nums: number[]) => {
+  let left = -1;
+  let right = -1;
+  const swap = (arr: number[], i: number, j: number) =>
+    ([arr[i], arr[j]] = [arr[j], arr[i]]);
+  for (let i = nums.length - 2; i >= 0; i--) {
+    if (nums[i] < nums[i + 1]) {
+      left = i;
+      break;
+    }
+  }
+  if (left === -1) {
+    nums.reverse();
+    return;
+  }
+  for (let i = nums.length - 1; i >= left; i--) {
+    if (nums[i] > nums[left]) {
+      right = i;
+      break;
+    }
+  }
+  swap(nums, left, right);
+  const newNums = nums.slice(left + 1).reverse();
+  for (let i = left + 1; i < nums.length; i++) {
+    nums[i] = newNums[i - left - 1];
+  }
+};
+
+export const longestValidParentheses = (s: string) => {
+  // todo
+}
+
 // dfs 1-5
 export const isValidBST = (root: TreeNode | null) => {
   const dfs = (node: TreeNode | null, floor: number, ceil: number): boolean => {
