@@ -429,93 +429,25 @@ export const nextPermutation = (nums: number[]) => {
 };
 
 export const longestValidParentheses = (s: string) => {
-  // todo
-}
-
-// dfs 1-5
-export const isValidBST = (root: TreeNode | null) => {
-  const dfs = (node: TreeNode | null, floor: number, ceil: number): boolean => {
-    if (!node) return false;
-    if (node.val <= floor || node.val >= ceil) return false;
-    return dfs(node.left, floor, node.val) && dfs(node.right, node.val, ceil);
-  };
-  return dfs(root, -Infinity, Infinity);
-};
-
-export const recoverTree = (root: TreeNode | null) => {
-  if (!root) return null;
-  const inorder = (node: TreeNode, nums: number[]) => {
-    if (node.left) inorder(node.left, nums);
-    nums.push(node.val);
-    if (node.right) inorder(node.right, nums);
-  };
-  const findTwo = (nums: number[]) => {
-    let x = null,
-      y = null;
-    for (let i = 0; i < nums.length - 1; i++) {
-      if (nums[i + 1] < nums[i]) {
-        y = i + 1;
-        if (x == null) x = i;
+  if (s.length === 0) return 0;
+  const dp = new Array(s.length).fill(0);
+  for (let i = 1; i < s.length; i++) {
+    const current = s[i];
+    const prev = s[i - 1];
+    if (current === ")") {
+      if (prev === "(") {
+        dp[i] = (dp[i - 2] || 0) + 2;
+      } else {
+        if (s[i - dp[i - 1] - 1] === "(") {
+          dp[i] = dp[i - 1] + 2 + (dp[i - dp[i - 1] - 2] || 0);
+        }
       }
     }
-    return [x, y] as [number, number];
-  };
-  const recover = (node: TreeNode, count: number, x: number, y: number) => {
-    if (count === 0) return;
-    if (node.val === x || node.val === y) {
-      node.val = node.val === x ? y : x;
-      count--;
-    }
-    if (node.left) recover(node.left, count, x, y);
-    if (node.right) recover(node.right, count, x, y);
-  };
-  const nums: number[] = [];
-  inorder(root, nums);
-  const [x, y] = findTwo(nums);
-  recover(root, 2, x, y);
+  }
+  return Math.max(...dp);
 };
 
-export const isSameTree = (p: TreeNode | null, q: TreeNode | null) => {
-  if (!p && !q) return true;
-  if (
-    p &&
-    q &&
-    p.val === q.val &&
-    isSameTree(p.left, q.left) &&
-    isSameTree(p.right, q.right)
-  )
-    return true;
-  return false;
-};
-
-export const isSymmetric = (root: TreeNode | null) => {
-  if (!root) return true;
-  const compare = (p: TreeNode | null, q: TreeNode | null) => {
-    if (!p && !q) return true;
-    if (
-      p &&
-      q &&
-      p.val === q.val &&
-      compare(p.left, q.right) &&
-      compare(p.right, q.right)
-    )
-      return true;
-    return false;
-  };
-  return compare(root.left, root.right);
-};
-
-export const maxDepth = (root: TreeNode | null) => {
-  if (!root) return 0;
-  let res = 0;
-  const dfs = (node: TreeNode, level: number) => {
-    if (!node.left && !node.right) {
-      res = Math.max(res, level);
-      return;
-    }
-    if (node.left) dfs(node.left, level + 1);
-    if (node.right) dfs(node.right, level + 1);
-  };
-  dfs(root, 1);
-  return res;
-};
+// dp 1-5
+export function maxSubArr(nums: number[]) {
+  // todo
+}
