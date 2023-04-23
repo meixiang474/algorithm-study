@@ -1,4 +1,6 @@
 import { Heap } from "./practice/week5/1.heap";
+import { BST } from "./11.BST";
+import { LinkedList } from "./7.LinkedList";
 export class TreeNode {
   val: number;
   left: TreeNode | null;
@@ -66,7 +68,158 @@ export function spiralOrder(matrix: number[][]) {
 }
 
 // set map
-// todo
+export class BSTSet<T = number> {
+  bst: BST<T>;
+  constructor() {
+    this.bst = new BST();
+  }
+  getSize() {
+    return this.bst.getSize();
+  }
+  isEmpty() {
+    return this.bst.isEmpty();
+  }
+  add(val: T) {
+    this.bst.add(val);
+  }
+  contains(val: T) {
+    return this.bst.contains(val);
+  }
+  remove(val: T) {
+    this.bst.remove(val);
+  }
+}
+
+export class LinkedListSet<T = number> {
+  list: LinkedList<T>;
+  constructor() {
+    this.list = new LinkedList(-1 as any);
+  }
+  getSize() {
+    return this.list.getSize();
+  }
+  isEmpty() {
+    return this.list.isEmpty();
+  }
+  contains(val: T) {
+    return this.list.contains(val);
+  }
+  add(val: T) {
+    if (!this.contains(val)) {
+      this.list.addFirst(val);
+    }
+  }
+  remove(val: T) {
+    this.list.removeElement(val);
+  }
+}
+
+export function intersection(nums1: number[], nums2: number[]) {
+  return [...new Set(nums1)].filter((item) => nums2.includes(item));
+}
+
+export function uniqueMorse(words: string[]) {
+  const arr = [
+    ".-",
+    "-...",
+    "-.-.",
+    "-..",
+    ".",
+    "..-.",
+    "--.",
+    "....",
+    "..",
+    ".---",
+    "-.-",
+    ".-..",
+    "--",
+    "-.",
+    "---",
+    ".--.",
+    "--.-",
+    ".-.",
+    "...",
+    "-",
+    "..-",
+    "...-",
+    ".--",
+    "-..-",
+    "-.--",
+    "--..",
+  ];
+  const set = new Set<string>();
+  for (const item of words) {
+    const code = item.split("").reduce((memo, current) => {
+      return memo + arr[current.charCodeAt(0) - "a".charCodeAt(0)];
+    }, "");
+    set.add(code);
+  }
+  return set.size;
+}
+
+export class LinkedListMapNode<K = string, V = any> {
+  key: K | null;
+  value: V | null;
+  next: LinkedListMapNode<K, V> | null;
+  constructor(
+    key: K | null = null,
+    value: V | null = null,
+    next: LinkedListMapNode<K, V> | null = null
+  ) {
+    this.key = key;
+    this.value = value;
+    this.next = next;
+  }
+}
+
+export class LinkedListMap<K = string, V = any> {
+  dummyHead: LinkedListMapNode<K, V>;
+  size: number;
+  constructor() {
+    this.dummyHead = new LinkedListMapNode();
+    this.size = 0;
+  }
+  getSize() {
+    return this.size;
+  }
+  isEmpty() {
+    return this.getSize() === 0;
+  }
+  getNode(key: K) {
+    let current = this.dummyHead.next;
+    while (current) {
+      if (current.key === key) {
+        return current;
+      }
+      current = current.next;
+    }
+    return null;
+  }
+  contains(key: K) {
+    return this.getNode(key) != null;
+  }
+  get(key: K) {
+    const node = this.getNode(key);
+    return node == null ? null : node.value;
+  }
+  add(key: K, value: V) {
+    const node = this.getNode(key);
+    if (node == null) {
+      this.dummyHead.next = new LinkedListMapNode(
+        key,
+        value,
+        this.dummyHead.next
+      );
+      this.size++;
+    } else {
+      node.value = value;
+    }
+  }
+  set(key: K, value: V) {
+    const node = this.getNode(key);
+    // todo
+  }
+}
 
 // hot 13 - 16
 export const generateParenthesis = (n: number) => {
