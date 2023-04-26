@@ -361,109 +361,148 @@ export function intersection1(nums1: number[], nums2: number[]) {
 
 export function twoSum(nums: number[], target: number) {
   const map = new Map<number, number>();
-  for(let i = 0; i < nums.length; i++) {
-    // todo
+  for (let i = 0; i < nums.length; i++) {
+    const current = nums[i];
+    const rest = target - current;
+    if (map.has(rest)) {
+      return [map.get(rest)!, i];
+    }
+    map.set(current, i);
   }
 }
 
-// hot 13 - 16
-export const generateParenthesis = (n: number) => {
-  const res: string[] = [];
-  const dfs = (path: string, open: number, close: number) => {
-    if (path.length >= 2 * n) {
-      res.push(path);
-      return;
+export function fn(s: string) {
+  let l = 0,
+    r = 0;
+  const map = new Map<string, number>();
+  let res = 0;
+  while (r < s.length) {
+    const current = s[r];
+    if (map.has(current) && map.get(current)! >= l) {
+      l = map.get(current)! + 1;
     }
-    if (open < n) {
-      dfs(path + "(", open + 1, close);
-    }
-    if (close < open) {
-      dfs(path + ")", open, close + 1);
-    }
-  };
-  dfs("", 0, 0);
+    res = Math.max(res, r - l + 1);
+  }
   return res;
-};
+}
 
-export const mergeKLists = (lists: (ListNode | null)[]) => {
-  const merge = (
-    lists: (ListNode | null)[],
-    l: number,
-    r: number
-  ): ListNode | null => {
-    if (l === r) return lists[l];
-    if (l > r) return null;
-    const mid = Math.floor(l + (r - l) / 2);
-    return mergeTwoLists(merge(lists, l, mid), merge(lists, mid + 1, r));
-  };
-  const mergeTwoLists = (l1: ListNode | null, l2: ListNode | null) => {
-    const res = new ListNode(-1);
-    let p1 = l1,
-      p2 = l2,
-      p3 = res;
-    while (p1 && p2) {
-      if (p1.val < p2.val) {
-        p3.next = p1;
-        p1 = p1.next;
-      } else {
-        p3.next = p2;
-        p2 = p2.next;
+export function fn1(s: string, t: string) {
+  const map = new Map<string, number>();
+  for (let item of t) {
+    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
+  }
+  let needType = map.size;
+  let l = 0,
+    r = 0,
+    res = "";
+  while (r < s.length) {
+    const current = s[r];
+    if (map.has(current)) {
+      map.set(current, map.get(current)! - 1);
+      if (map.get(current) === 0) {
+        needType--;
       }
-      p3 = p3.next;
     }
-    if (p1) p3.next = p1;
-    if (p2) p3.next = p2;
-    return res.next;
-  };
-  return merge(lists, 0, lists.length - 1);
-};
-
-export const nextPermutation = (nums: number[]) => {
-  let left = -1;
-  let right = -1;
-  const swap = (arr: number[], i: number, j: number) =>
-    ([arr[i], arr[j]] = [arr[j], arr[i]]);
-  for (let i = nums.length - 2; i >= 0; i--) {
-    if (nums[i] < nums[i + 1]) {
-      left = i;
-      break;
-    }
-  }
-  if (left === -1) {
-    nums.reverse();
-    return;
-  }
-  for (let i = nums.length - 1; i >= left; i--) {
-    if (nums[i] > nums[left]) {
-      right = i;
-      break;
-    }
-  }
-  swap(nums, left, right);
-  const newNums = nums.slice(left + 1).reverse();
-  for (let i = left + 1; i < nums.length; i++) {
-    nums[i] = newNums[i - left - 1];
-  }
-};
-
-export const longestValidParentheses = (s: string) => {
-  if (s.length === 0) return 0;
-  const dp = new Array(s.length).fill(0);
-  for (let i = 1; i < s.length; i++) {
-    const current = s[i];
-    const prev = s[i - 1];
-    if (current === ")") {
-      if (prev === "(") {
-        dp[i] = (dp[i - 2] || 0) + 2;
-      } else {
-        if (s[i - dp[i - 1] - 1] === "(") {
-          dp[i] = dp[i - 1] + 2 + (dp[i - dp[i - 1] - 2] || 0);
+    while (needType === 0) {
+      const newRes = s.slice(l, r + 1);
+      if (!res || res.length > newRes.length) res = newRes;
+      const currentl = s[l];
+      if (map.has(currentl)) {
+        map.set(currentl, map.get(currentl)! + 1);
+        if (map.get(currentl) === 1) {
+          needType++;
         }
       }
+      l++;
+    }
+    r++;
+  }
+  return res;
+}
+
+export function intersectionTwo(nums1: number[], nums2: number[]) {
+  const map = new Map<number, number>();
+  for (let item of nums1) {
+    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
+  }
+  const res: number[] = [];
+  for (let item of nums2) {
+    if (map.has(item)) {
+      res.push(item);
+      map.set(item, map.get(item)! - 1);
+      if (map.get(item) === 0) {
+        map.delete(item);
+      }
     }
   }
-  return Math.max(...dp);
-};
+  return res;
+}
+
+// hot 17 - 20
+export function search(nums: number[], target: number) {
+  let l = 0,
+    r = nums.length - 1;
+  while (l <= r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    if (nums[mid] === target) return mid;
+    if (nums[mid] >= nums[l]) {
+      if (nums[l] === target) return l;
+      if (target > nums[l] && target < nums[mid]) {
+        r = mid - 1;
+      } else {
+        l = mid + 1;
+      }
+    } else {
+      if (nums[r] === target) return r;
+      if (target > nums[mid] && target < nums[r]) {
+        l = mid + 1;
+      } else {
+        r = mid - 1;
+      }
+    }
+  }
+  return -1;
+}
+
+export function searchRange(nums: number[], target: number) {
+  let l = 0,
+    r = nums.length - 1;
+  const res = [-1, -1];
+  while (l <= r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    if (nums[mid] > target) {
+      r = mid - 1;
+    } else if (nums[mid] < target) {
+      l = mid + 1;
+    } else {
+      if (nums[mid - 1] === target) {
+        r = mid - 1;
+      } else {
+        res[0] = mid;
+        break;
+      }
+    }
+  }
+  (l = 0), (r = nums.length - 1);
+  while (l <= r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    if (nums[mid] > target) {
+      r = mid - 1;
+    } else if (nums[mid] < target) {
+      l = mid + 1;
+    } else {
+      if (nums[mid + 1] === target) {
+        l = mid + 1;
+      } else {
+        res[1] = mid;
+        break;
+      }
+    }
+  }
+  return res;
+}
+
+// todo
 
 // dp 1-5
 export function maxSubArr(nums: number[]) {
