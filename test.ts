@@ -502,80 +502,65 @@ export function searchRange(nums: number[], target: number) {
   return res;
 }
 
+export function combinationSum(candidates: number[], target: number) {
+  const res: number[][] = [];
+  const dfs = (path: number[], sum: number, index: number) => {
+    if (sum === target) {
+      res.push(path);
+      return;
+    }
+    if (index >= candidates.length || sum > target) return;
+    dfs(path.concat(candidates[index]), sum + candidates[index], index);
+    dfs(path, sum, index + 1);
+  };
+  dfs([], 0, 0);
+  return res;
+}
+
+export function trap(heights: number[]) {
+  const left = [heights[0]];
+  for (let i = 1; i < heights.length; i++) {
+    left[i] = Math.max(left[i - 1], heights[i]);
+  }
+  const right = [heights[heights.length - 1]];
+  for (let i = heights.length - 2; i >= 0; i--) {
+    right[i] = Math.max(heights[i], right[i + 1]);
+  }
+  let res = 0;
+  for (let i = 0; i < heights.length; i++) {
+    res += Math.min(left[i], right[i]) - heights[i];
+  }
+  return res;
+}
+
+// hashtable 1-5
+export function twoSum1(nums: number[], target: number) {
+  const map = new Map<number, number>();
+  for (let i = 0; i < nums.length; i++) {
+    const current = nums[i];
+    const rest = target - current;
+    if (map.has(rest)) {
+      return [map.get(rest), i];
+    }
+    map.set(current, i);
+  }
+}
+
+export function longestSubstring(s: string) {
+  const map = new Map<string, number>();
+  let l = 0,
+    r = 0;
+  let res = 0;
+  while (r < s.length) {
+    const current = s[r];
+    if (map.has(current) && map.get(current)! >= l) {
+      l = map.get(current)! + 1;
+    }
+    res = Math.max(res, r - l + 1);
+    map.set(current, r);
+    r++;
+  }
+  return res;
+}
+
 // todo
-
-// dp 1-5
-export function maxSubArr(nums: number[]) {
-  const dp: number[] = [nums[0]];
-  for (let i = 1; i < nums.length; i++) {
-    dp[i] = Math.max(dp[i - 1] + nums[i], nums[i]);
-  }
-  return Math.max(...dp);
-}
-
-export function uniquePaths(m: number, n: number) {
-  if (m === 0 || n === 0) return 0;
-  const dp = Array.from({ length: m }, () => new Array(n).fill(0));
-  for (let r = 0; r < m; r++) {
-    dp[r][0] = 1;
-  }
-  for (let c = 0; c < n; c++) {
-    dp[0][c] = 1;
-  }
-  for (let r = 1; r < m; r++) {
-    for (let c = 1; c < n; c++) {
-      dp[r][c] = dp[r - 1][c] + dp[r][c - 1];
-    }
-  }
-  return dp[m - 1][n - 1];
-}
-
-export function uniquePathsTwo(grid: number[][]) {
-  if (grid.length === 0 || grid[0].length === 0) return 0;
-  const m = grid.length;
-  const n = grid[0].length;
-  const dp = Array.from({ length: m }, () => new Array(n).fill(0));
-  for (let r = 0; r < m; r++) {
-    if (grid[r][0] === 1) break;
-    dp[r][0] = 1;
-  }
-  for (let c = 0; c < n; c++) {
-    if (grid[0][c] === 1) break;
-    dp[0][c] = 1;
-  }
-  for (let r = 1; r < m; r++) {
-    for (let c = 1; c < n; c++) {
-      if (grid[r][c] === 1) continue;
-      dp[r][c] = dp[r - 1][c] + dp[r][c - 1];
-    }
-  }
-  return dp[m - 1][n - 1];
-}
-
-export function minPathSum(grid: number[][]) {
-  if (grid.length === 0 || grid[0].length === 0) return 0;
-  const m = grid.length;
-  const n = grid[0].length;
-  const dp = Array.from({ length: m }, () => new Array(n).fill(0));
-  dp[0][0] = grid[0][0];
-  for (let r = 1; r < m; r++) {
-    dp[r][0] = dp[r - 1][0] + grid[r][0];
-  }
-  for (let c = 1; c < n; c++) {
-    dp[0][c] = dp[0][c - 1] + grid[0][c];
-  }
-  for (let r = 1; r < m; r++) {
-    for (let c = 1; c < n; c++) {
-      dp[r][c] = Math.min(dp[r - 1][c], dp[r][c - 1]) + grid[r][c];
-    }
-  }
-  return dp[m - 1][n - 1];
-}
-
-export function climeStairs(n: number) {
-  const dp = [1, 1];
-  for (let i = 2; i <= n; i++) {
-    dp[i] = dp[i - 2] + dp[i - 1];
-  }
-  return dp[n];
-}
