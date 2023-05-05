@@ -17,7 +17,7 @@ export default function fourSum(nums: number[], target: number) {
       continue;
     }
     for (let j = i + 1; j < nums.length - 2; j++) {
-      if (j > i && nums[j - 1] === nums[j]) continue;
+      if (j > i + 1 && nums[j - 1] === nums[j]) continue;
       if (current + nums[j] + nums[j + 1] + nums[j + 2] > target) break;
       if (
         current + nums[j] + nums[nums.length - 1] + nums[nums.length - 2] <
