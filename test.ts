@@ -86,104 +86,130 @@ export function bfs(
   return res;
 }
 
-export function dfs(graph: Record<number, number[]>, visited: Set<number>, node: number) {
-  // todo
+export function dfs(
+  graph: Record<number, number[]>,
+  visited: Set<number>,
+  node: number
+) {
+  console.log(node);
+  visited.add(node);
+  graph[node].forEach((item) => {
+    if (!visited.has(item)) {
+      dfs(graph, visited, item);
+    }
+  });
 }
 
-// hot 17 - 20
-export function search(nums: number[], target: number) {
-  let l = 0,
-    r = nums.length - 1;
-  while (l <= r) {
-    const mid = Math.floor(l + (r - l) / 2);
-    if (nums[mid] === target) return mid;
-    if (nums[mid] >= nums[l]) {
-      if (nums[l] === target) return l;
-      if (target > nums[l] && target < nums[mid]) {
-        r = mid - 1;
-      } else {
-        l = mid + 1;
+export function fn(matrix: number[][]) {
+  if (matrix.length === 0 || matrix[0].length === 0) return [];
+  const m = matrix.length;
+  const n = matrix[0].length;
+  const flow1: boolean[][] = Array.from({ length: m }, () =>
+    new Array(n).fill(false)
+  );
+  const flow2: boolean[][] = Array.from({ length: m }, () =>
+    new Array(n).fill(false)
+  );
+  const dfs = (r: number, c: number, flow: boolean[][]) => {
+    flow[r][c] = true;
+    [
+      [r + 1, c],
+      [r - 1, c],
+      [r, c + 1],
+      [r, c - 1],
+    ].forEach(([nextR, nextC]) => {
+      if (
+        nextR >= 0 &&
+        nextR < m &&
+        nextC >= 0 &&
+        nextC < n &&
+        !flow[nextR][nextC] &&
+        matrix[nextR][nextC] >= matrix[r][c]
+      ) {
+        dfs(nextR, nextC, flow);
       }
-    } else {
-      if (nums[r] === target) return r;
-      if (target > nums[mid] && target < nums[r]) {
-        l = mid + 1;
-      } else {
-        r = mid - 1;
-      }
-    }
+    });
+  };
+  for (let r = 0; r < m; r++) {
+    dfs(r, 0, flow1);
+    dfs(r, n - 1, flow2);
   }
-  return -1;
-}
-
-export function searchRange(nums: number[], target: number) {
-  let l = 0,
-    r = nums.length - 1;
-  const res = [-1, -1];
-  while (l <= r) {
-    const mid = Math.floor(l + (r - l) / 2);
-    if (nums[mid] > target) {
-      r = mid - 1;
-    } else if (nums[mid] < target) {
-      l = mid + 1;
-    } else {
-      if (nums[mid - 1] === target) {
-        r = mid - 1;
-      } else {
-        res[0] = mid;
-        break;
-      }
-    }
+  for (let c = 0; c < n; c++) {
+    dfs(0, c, flow1);
+    dfs(m - 1, c, flow2);
   }
-  (l = 0), (r = nums.length - 1);
-  while (l <= r) {
-    const mid = Math.floor(l + (r - l) / 2);
-    if (nums[mid] > target) {
-      r = mid - 1;
-    } else if (nums[mid] < target) {
-      l = mid + 1;
-    } else {
-      if (nums[mid + 1] === target) {
-        l = mid + 1;
-      } else {
-        res[1] = mid;
-        break;
-      }
+  const res: number[][] = [];
+  for (let r = 0; r < m; r++) {
+    for (let c = 0; c < n; c++) {
+      if (flow1[r][c] && flow2[r][c]) res.push([r, c]);
     }
   }
   return res;
 }
 
-export function combinationSum(candidates: number[], target: number) {
+export class GraphNode {
+  val: number;
+  neighbours: GraphNode[];
+  constructor(val: number) {
+    this.val = val;
+    this.neighbours = [];
+  }
+}
+
+export function cloneGraph(node: GraphNode | null) {
+  if (!node) return null;
+  const map = new Map<GraphNode, GraphNode>();
+  const dfs = (node: GraphNode) => {
+    const newNode = new GraphNode(node.val);
+    map.set(node, newNode);
+    node.neighbours.forEach((item) => {
+      if (!map.has(item)) {
+        dfs(item);
+      }
+      newNode.neighbours.push(map.get(item)!);
+    });
+  };
+  dfs(node);
+  return map.get(node)!;
+}
+
+export function cloneGraph1(node: GraphNode | null) {
+  if (!node) return null;
+  const queue: GraphNode[] = [node];
+  const map = new Map<GraphNode, GraphNode>();
+  map.set(node, new GraphNode(node.val));
+  while (queue.length) {
+    const current = queue.shift()!;
+    current.neighbours.forEach((item) => {
+      if (!map.has(item)) {
+        map.set(item, new GraphNode(item.val));
+        queue.push(item);
+      }
+      map.get(current)?.neighbours.push(map.get(item)!);
+    });
+  }
+  return map.get(node)!;
+}
+
+// hot 21 - 24
+export function permute(nums: number[]) {
   const res: number[][] = [];
-  const dfs = (path: number[], sum: number, index: number) => {
-    if (sum === target) {
+  const dfs = (path: number[]) => {
+    if (path.length === nums.length) {
       res.push(path);
       return;
     }
-    if (index >= candidates.length || sum > target) return;
-    dfs(path.concat(candidates[index]), sum + candidates[index], index);
-    dfs(path, sum, index + 1);
+    for (let i = 0; i < nums.length; i++) {
+      if (!path.includes(nums[i])) {
+        dfs(path.concat(nums[i]));
+      }
+    }
   };
-  dfs([], 0, 0);
+  dfs([]);
   return res;
 }
 
-export function trap(heights: number[]) {
-  const left = [heights[0]];
-  for (let i = 1; i < heights.length; i++) {
-    left[i] = Math.max(left[i - 1], heights[i]);
-  }
-  const right = [heights[heights.length - 1]];
-  for (let i = heights.length - 2; i >= 0; i--) {
-    right[i] = Math.max(heights[i], right[i + 1]);
-  }
-  let res = 0;
-  for (let i = 0; i < heights.length; i++) {
-    res += Math.min(left[i], right[i]) - heights[i];
-  }
-  return res;
-}
+// todo
 
 // hashtable 1-5
 export function twoSum1(nums: number[], target: number) {
