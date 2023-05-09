@@ -209,132 +209,24 @@ export function permute(nums: number[]) {
   return res;
 }
 
-// todo
-
-// hashtable 1-5
-export function twoSum1(nums: number[], target: number) {
-  const map = new Map<number, number>();
-  for (let i = 0; i < nums.length; i++) {
-    const current = nums[i];
-    const rest = target - current;
-    if (map.has(rest)) {
-      return [map.get(rest), i];
+export function rotate(matrix: number[][]) {
+  const n = matrix.length;
+  for (let i = 0; i < Math.floor(n / 2); i++) {
+    for (let j = 0; j < Math.floor((n + 1) / 2); j++) {
+      const temp = matrix[i][j];
+      matrix[i][j] = matrix[n - j - 1][i];
+      matrix[n - j - 1][i] = matrix[n - i - 1][n - j - 1];
+      matrix[n - i - 1][n - j - 1] = matrix[j][n - i - 1];
+      matrix[j][n - i - 1] = temp;
     }
-    map.set(current, i);
   }
 }
 
-export function longestSubstring(s: string) {
-  const map = new Map<string, number>();
-  let l = 0,
-    r = 0;
-  let res = 0;
-  while (r < s.length) {
-    const current = s[r];
-    if (map.has(current) && map.get(current)! >= l) {
-      l = map.get(current)! + 1;
-    }
-    res = Math.max(res, r - l + 1);
-    map.set(current, r);
-    r++;
-  }
-  return res;
-}
-
-export function fourSum(nums: number[], target: number) {
-  nums.sort((a, b) => a - b);
-  const res: number[][] = [];
-  for (let i = 0; i < nums.length - 3; i++) {
-    const current = nums[i];
-    if (i > 0 && nums[i - 1] === current) continue;
-    if (current + nums[i + 1] + nums[i + 2] + nums[i + 3] > target) break;
-    if (
-      current +
-        nums[nums.length - 1] +
-        nums[nums.length - 2] +
-        nums[nums.length - 3] <
-      target
-    )
-      continue;
-    for (let j = i + 1; j < nums.length - 2; j++) {
-      const currentj = nums[j];
-      if (j > i + 1 && currentj === nums[j - 1]) continue;
-      if (currentj + nums[j + 1] + nums[j + 2] + nums[j + 3] > target) break;
-      if (
-        currentj +
-          nums[nums.length - 1] +
-          nums[nums.length - 2] +
-          nums[nums.length - 3] <
-        target
-      )
-        continue;
-      let l = j + 1,
-        r = nums.length - 1;
-      while (l < r) {
-        const currentl = nums[l];
-        const currentr = nums[r];
-        const sum = currentl + currentr + current + currentj;
-        if (sum === target) {
-          res.push([current, currentj, currentl, currentr]);
-          while (l < r) {
-            l++;
-            if (nums[l] !== currentl) continue;
-          }
-          while (l < r) {
-            r--;
-            if (nums[r] !== currentr) continue;
-          }
-        } else if (sum > target) {
-          while (l < r) {
-            r--;
-            if (nums[r] !== currentr) continue;
-          }
-        } else {
-          while (l < r) {
-            l++;
-            if (nums[l] !== currentl) continue;
-          }
-        }
-      }
-    }
-  }
-  return res;
-}
-
-export function isValidSudoku(board: string[][]) {
-  if (board.length === 0 || board[0].length === 0) return false;
-  const m = board.length;
-  const n = board[0].length;
-  const rows: number[][] = new Array(m).fill(0).map(() => new Array(9).fill(0));
-  const cols: number[][] = new Array(n).fill(0).map(() => new Array(9).fill(0));
-  const subs: number[][][] = new Array(3)
-    .fill(0)
-    .map(() => new Array(3).fill(0).map(() => new Array(9).fill(0)));
-  for (let r = 0; r < m; r++) {
-    for (let c = 0; c < n; c++) {
-      const current = board[r][c];
-      if (current !== ".") {
-        const index = parseInt(current);
-        rows[r][index]++;
-        cols[c][index]++;
-        subs[Math.floor(r / 3)][Math.floor(c / 3)][index]++;
-        if (
-          rows[r][index] > 1 ||
-          cols[c][index] > 1 ||
-          subs[Math.floor(r / 3)][Math.floor(c / 3)][index] > 1
-        )
-          return false;
-      }
-    }
-  }
-  return true;
-}
-
-export function groupAnagrams(strs: string[]) {
+export function groupAnagrams1(strs: string) {
   const map = new Map<string, string[]>();
   for (let item of strs) {
     const key = item.split("").sort().join("");
-    const arr = map.has(key) ? map.get(key)! : [];
+    const arr = map.get(key) || [];
     arr.push(item);
     if (!map.has(key)) map.set(key, arr);
   }
@@ -344,3 +236,71 @@ export function groupAnagrams(strs: string[]) {
   }
   return res;
 }
+
+export function maxSubarray(nums: number[]) {
+  const dp = [nums[0]];
+  for (let i = 1; i < nums.length; i++) {
+    dp[i] = dp[i - 1] > 0 ? dp[i - 1] + nums[i] : nums[i];
+  }
+  return Math.max(...dp);
+}
+
+// linkedlist 1-5
+export function addTwo(l1: ListNode | null, l2: ListNode | null) {
+  const l3 = new ListNode(-1);
+  let p1 = l1,
+    p2 = l2,
+    p3 = l3;
+  let carry = 0;
+  while (p1 || p2) {
+    const n1 = p1 ? p1.val : 0;
+    const n2 = p2 ? p2.val : 0;
+    const sum = n1 + n2 + carry;
+    carry = Math.floor(sum / 10);
+    p3.next = new ListNode(sum % 10);
+    p3 = p3.next;
+    if (p1) p1 = p1.next;
+    if (p2) p2 = p2.next;
+  }
+  if (carry) p3.next = new ListNode(carry);
+  return l3.next;
+}
+
+export function removeNthFromEnd(head: ListNode | null, n: number) {
+  const dummyHead = new ListNode(-1);
+  dummyHead.next = head;
+  let current: ListNode | null = dummyHead;
+  const stack: ListNode[] = [];
+  while (current) {
+    stack.push(current);
+    current = current.next;
+  }
+  for (let i = 0; i < n; i++) {
+    stack.pop();
+  }
+  const prev = stack[stack.length - 1];
+  if (prev) prev.next = prev.next?.next || null;
+  return dummyHead.next;
+}
+
+export function mergeTwoLists(l1: ListNode | null, l2: ListNode | null) {
+  const res = new ListNode(-1);
+  let p1 = l1,
+    p2 = l2,
+    p3 = res;
+  while (p1 && p2) {
+    if (p1.val <= p2.val) {
+      p3.next = p1;
+      p1 = p1.next;
+    } else {
+      p3.next = p2;
+      p2 = p2.next;
+    }
+    p3 = p3.next;
+  }
+  if (p1) p3.next = p1;
+  if (p2) p3.next = p2;
+  return res.next;
+}
+
+// todo
