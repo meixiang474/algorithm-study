@@ -86,61 +86,103 @@ export class MinHeap<T = number> {
       this.shiftUp(parentIndex);
     }
   }
-  // todo
+  pop() {
+    if (this.heap.length === 0) throw new Error("error");
+    if (this.heap.length === 1) return this.heap.pop();
+    const res = this.heap[0];
+    this.heap[0] = this.heap.pop()!;
+    this.shiftDown(0);
+    return res;
+  }
+  shiftDown(index: number) {
+    const leftIndex = this.getLeftIndex(index);
+    const rightIndex = this.getRightIndex(index);
+    if (
+      this.heap[leftIndex] != null &&
+      this.compare(this.heap[leftIndex], this.heap[index])
+    ) {
+      this.swap(leftIndex, index);
+      this.shiftDown(leftIndex);
+    }
+    if (
+      this.heap[rightIndex] != null &&
+      this.compare(this.heap[rightIndex], this.heap[index])
+    ) {
+      this.swap(rightIndex, index);
+      this.shiftDown(rightIndex);
+    }
+  }
+  peek() {
+    if (this.heap.length === 0) throw new Error("error");
+    return this.heap[0];
+  }
+  size() {
+    return this.heap.length;
+  }
 }
 
-// hot 21 - 24
-export function permute(nums: number[]) {
-  const res: number[][] = [];
-  const dfs = (path: number[]) => {
-    if (path.length === nums.length) {
-      res.push(path);
-      return;
+export function findKthLargest(nums: number[], k: number) {
+  const minHeap = new MinHeap();
+  for (let item of nums) {
+    minHeap.insert(item);
+    if (minHeap.size() > k) {
+      minHeap.pop();
     }
-    for (let i = 0; i < nums.length; i++) {
-      if (!path.includes(nums[i])) {
-        dfs(path.concat(nums[i]));
+  }
+  return minHeap.peek();
+}
+
+export function topKFrequent(nums: number[], k: number) {
+  const map = new Map<number, number>();
+  for (let item of nums) {
+    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
+  }
+  const heap = new MinHeap<{ value: number; key: number }>(
+    (a, b) => a.value < b.value
+  );
+  for (let [key, value] of map) {
+    heap.insert({ value, key });
+    if (heap.size() > k) heap.pop();
+  }
+  return heap.heap.map((item) => item.key);
+}
+
+export function mergeKLists1(lists: (ListNode | null)[]) {
+  const heap = new MinHeap<ListNode>((a, b) => a.val < b.val);
+  for (let item of lists) {
+    if (item) {
+      heap.insert(item);
+    }
+  }
+  const res = new ListNode(-1);
+  let p = res;
+  while (heap.size()) {
+    const current = heap.pop()!;
+    p.next = current;
+    p = p.next;
+    if (current.next) heap.insert(current.next);
+  }
+  return res.next;
+}
+
+// hot 25 - 28
+export function canJump(nums: number[]) {
+  let max = 0;
+  for (let i = 0; i < nums.length; i++) {
+    if (i <= max) {
+      max = Math.max(max, nums[i] + i);
+      if (max >= nums.length - 1) {
+        return true;
       }
     }
-  };
-  dfs([]);
-  return res;
+  }
+  return false;
 }
 
-export function rotate(matrix: number[][]) {
-  const n = matrix.length;
-  for (let i = 0; i < Math.floor(n / 2); i++) {
-    for (let j = 0; j < Math.floor((n + 1) / 2); j++) {
-      const temp = matrix[i][j];
-      matrix[i][j] = matrix[n - j - 1][i];
-      matrix[n - j - 1][i] = matrix[n - i - 1][n - j - 1];
-      matrix[n - i - 1][n - j - 1] = matrix[j][n - i - 1];
-      matrix[j][n - i - 1] = temp;
-    }
-  }
-}
-
-export function groupAnagrams1(strs: string) {
-  const map = new Map<string, string[]>();
-  for (let item of strs) {
-    const key = item.split("").sort().join("");
-    const arr = map.get(key) || [];
-    arr.push(item);
-    if (!map.has(key)) map.set(key, arr);
-  }
-  const res: string[][] = [];
-  for (let [, value] of map) {
-    res.push(value);
-  }
-  return res;
-}
-
-export function maxSubarray(nums: number[]) {
-  const dp = [nums[0]];
-  for (let i = 1; i < nums.length; i++) {
-    dp[i] = dp[i - 1] > 0 ? dp[i - 1] + nums[i] : nums[i];
-  }
-  return Math.max(...dp);
+export function mergeField(intervals: number[][]) {
+  intervals.sort((a, b) => a[0] - b[0]);
+  let prevEnd = -Infinity;
+  // todo
 }
 
 // linkedlist 1-5
