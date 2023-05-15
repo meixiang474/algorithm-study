@@ -8,7 +8,7 @@ export default function mergeField(intervals: number[][]) {
     const [start, end] = intervals[i];
     if (i > 0 && prevEnd >= start) {
       res.splice(res.length - 1, 1, [
-        res[res.length - 1][start],
+        res[res.length - 1][0],
         Math.max(prevEnd, end),
       ]);
     } else {

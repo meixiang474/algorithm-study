@@ -21,33 +21,8 @@ export class ListNode<T = number> {
   }
 }
 
-// offer 32-I 32-II
-export function levelOrder(root: TreeNode | null) {
-  if (!root) return [];
-  const res: number[] = [];
-  const queue: TreeNode[] = [root];
-  while (queue.length) {
-    const current = queue.shift()!;
-    res.push(current.val);
-    if (current.left) queue.push(current.left);
-    if (current.right) queue.push(current.right);
-  }
-  return res;
-}
-
-export function levelOrder1(root: TreeNode | null) {
-  if (!root) return [];
-  const res: number[][] = [];
-  const queue: [TreeNode, number][] = [[root, 0]];
-  while (queue.length) {
-    const [current, level] = queue.shift()!;
-    const arr = res[level] || (res[level] = []);
-    arr.push(current.val);
-    if (current.left) queue.push([current.left, level + 1]);
-    if (current.right) queue.push([current.right, level + 1]);
-  }
-  return res;
-}
+// offer 32-III 33
+// todo
 
 // heap
 export class MinHeap<T = number> {
@@ -182,15 +157,64 @@ export function canJump(nums: number[]) {
 export function mergeField(intervals: number[][]) {
   intervals.sort((a, b) => a[0] - b[0]);
   let prevEnd = -Infinity;
-  // todo
+  const res: number[][] = [];
+  for (let i = 0; i < intervals.length; i++) {
+    const [start, end] = intervals[i];
+    if (prevEnd >= start) {
+      res.splice(res.length - 1, 1, [
+        res[res.length - 1][0],
+        Math.max(prevEnd, end),
+      ]);
+    } else {
+      res.push(intervals[i]);
+    }
+    prevEnd = Math.max(prevEnd, end);
+  }
+  return res;
 }
 
-// linkedlist 1-5
+export function uniquePaths(m: number, n: number) {
+  const map = Array.from({ length: m }, () => new Array(n).fill(0));
+  for (let r = 0; r < m; r++) {
+    map[r][0] = 1;
+  }
+  for (let c = 0; c < n; c++) {
+    map[0][c] = 1;
+  }
+  for (let r = 1; r < m; r++) {
+    for (let c = 1; c < n; c++) {
+      map[r][c] = map[r - 1][c] + map[r][c - 1];
+    }
+  }
+  return map[m - 1][n - 1];
+}
+
+export function minPathSum(grid: number[][]) {
+  if (grid.length === 0 || grid[0].length === 0) return 0;
+  const m = grid.length;
+  const n = grid[0].length;
+  const dp: number[][] = Array.from({ length: m }, () => new Array(n).fill(0));
+  dp[0][0] = grid[0][0];
+  for (let r = 1; r < m; r++) {
+    dp[r][0] = dp[r - 1][0] + grid[r][0];
+  }
+  for (let c = 1; c < n; c++) {
+    dp[0][c] = dp[0][c - 1] + grid[0][c];
+  }
+  for (let r = 1; r < m; r++) {
+    for (let c = 1; c < n; c++) {
+      dp[r][c] = Math.min(dp[r - 1][c], dp[r][c - 1]) + grid[r][c];
+    }
+  }
+  return dp[m - 1][n - 1];
+}
+
+// math 1-5
 export function addTwo(l1: ListNode | null, l2: ListNode | null) {
-  const l3 = new ListNode(-1);
+  const res = new ListNode(-1);
   let p1 = l1,
     p2 = l2,
-    p3 = l3;
+    p3 = res;
   let carry = 0;
   while (p1 || p2) {
     const n1 = p1 ? p1.val : 0;
@@ -203,84 +227,66 @@ export function addTwo(l1: ListNode | null, l2: ListNode | null) {
     if (p2) p2 = p2.next;
   }
   if (carry) p3.next = new ListNode(carry);
-  return l3.next;
-}
-
-export function removeNthFromEnd(head: ListNode | null, n: number) {
-  const dummyHead = new ListNode(-1);
-  dummyHead.next = head;
-  let current: ListNode | null = dummyHead;
-  const stack: ListNode[] = [];
-  while (current) {
-    stack.push(current);
-    current = current.next;
-  }
-  for (let i = 0; i < n; i++) {
-    stack.pop();
-  }
-  const prev = stack[stack.length - 1];
-  if (prev) prev.next = prev.next?.next || null;
-  return dummyHead.next;
-}
-
-export function mergeTwoLists(l1: ListNode | null, l2: ListNode | null) {
-  const res = new ListNode(-1);
-  let p1 = l1,
-    p2 = l2,
-    p3 = res;
-  while (p1 && p2) {
-    if (p1.val <= p2.val) {
-      p3.next = p1;
-      p1 = p1.next;
-    } else {
-      p3.next = p2;
-      p2 = p2.next;
-    }
-    p3 = p3.next;
-  }
-  if (p1) p3.next = p1;
-  if (p2) p3.next = p2;
   return res.next;
 }
 
-export function mergeKLists(lists: (ListNode | null)[]) {
-  const merge = (
-    lists: (ListNode | null)[],
-    l: number,
-    r: number
-  ): ListNode | null => {
-    if (l === r) return lists[l];
-    if (l > r) return null;
-    const mid = Math.floor(l + (r - l) / 2);
-    return mergeTwoLists(merge(lists, l, mid), merge(lists, mid + 1, r));
+export function myPow(x: number, n: number) {
+  const isNegative = x < 0;
+  n = Math.abs(n);
+  const compute = (x: number, n: number): number => {
+    if (n === 0) return 1;
+    const res = compute(x, Math.floor(n / 2));
+    return n % 2 === 0 ? res * res : res * res * x;
   };
-  const mergeTwoLists = (l1: ListNode | null, l2: ListNode | null) => {
-    const res = new ListNode(-1);
-    let p1 = l1,
-      p2 = l2,
-      p3 = res;
-    while (p1 && p2) {
-      if (p1.val > p2.val) {
-        p3.next = p2;
-        p2 = p2.next;
-      } else {
-        p3.next = p1;
-        p1 = p1.next;
-      }
-      p3 = p3.next;
-    }
-    if (p1) p3.next = p1;
-    if (p2) p3.next = p2;
-    return res;
-  };
-  return merge(lists, 0, lists.length - 1);
+  return isNegative ? 1 / compute(x, n) : compute(x, n);
 }
 
-export function swapPairs(head: ListNode | null) {
-  if (!head || !head.next) return head;
-  const newHead = head.next;
-  const res = swapPairs(newHead.next);
-  newHead.next = head;
-  head.next = res;
-  return newHead;
+export function getPermutation(n: number, k: number) {
+  let groupNum = 1;
+  for (let i = 1; i <= n; i++) {
+    groupNum = groupNum * i;
+  }
+  const dfs = (path: number[]): string => {
+    if (path.length === n) return path.join("");
+    groupNum = groupNum / (n - path.length);
+    for (let i = 1; i <= n; i++) {
+      if (path.includes(i)) continue;
+      if (k > groupNum) {
+        k -= groupNum;
+      } else {
+        return dfs(path.concat(i));
+      }
+    }
+    return "";
+  };
+  return dfs([]);
+}
+
+export function sqrt(x: number) {
+  let l = 0,
+    r = x;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l + 1) / 2);
+    if (mid ** 2 > x) {
+      r = mid - 1;
+    } else {
+      l = mid;
+    }
+  }
+  return l;
+}
+
+export function isHappy(n: number) {
+  const compute = (n: number) =>
+    n
+      .toString()
+      .split("")
+      .reduce((memo, current) => memo + parseInt(current) ** 2, 0);
+  const set = new Set<number>();
+  while (!set.has(n)) {
+    if (n === 1) return true;
+    set.add(n);
+    n = compute(n);
+  }
+  return false;
 }

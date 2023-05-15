@@ -13,5 +13,5 @@ export default function uniquePaths(m: number, n: number) {
       dp[r][c] = dp[r - 1][c] + dp[r][c - 1];
     }
   }
-  return dp[m - 1][m - 1];
+  return dp[m - 1][n - 1];
 }
