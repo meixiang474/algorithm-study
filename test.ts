@@ -22,123 +22,58 @@ export class ListNode<T = number> {
 }
 
 // offer 32-III 33
+export function levelOrder(root: TreeNode | null) {
+  if (!root) return [];
+  const queue: [TreeNode, number][] = [[root, 0]];
+  const res: number[][] = [];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    const arr = res[level] || (res[level] = []);
+    if (level % 2 === 0) arr.push(current.val);
+    else arr.unshift(current.val);
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
+  }
+  return res;
+}
+
+export function verifyPostorder(postorder: number[]): boolean {
+  const upper = (nums: number[], target: number) => {
+    let l = 0,
+      r = nums.length;
+    while (l < r) {
+      const mid = Math.floor(l + (r - l) / 2);
+      if (nums[mid] > target) {
+        r = mid;
+      } else {
+        l = mid + 1;
+      }
+    }
+    return l;
+  };
+  const isTree = (postorder: number[], rootVal: number, rightIndex: number) => {
+    const left = postorder.slice(0, rightIndex);
+    const right = postorder.slice(rightIndex, -1);
+    return (
+      left.every((item) => item < rootVal) &&
+      right.every((item) => item > rootVal)
+    );
+  };
+  const rootVal = postorder[postorder.length - 1];
+  const rightIndex = upper(postorder.slice(0, -1), rootVal);
+  const flag = isTree(postorder, rootVal, rightIndex);
+  if (flag) {
+    return (
+      verifyPostorder(postorder.slice(0, rightIndex)) &&
+      verifyPostorder(postorder.slice(rightIndex, -1))
+    );
+  } else {
+    return false;
+  }
+}
+
+// fenzhi donggui tanxin huisu
 // todo
-
-// heap
-export class MinHeap<T = number> {
-  heap: T[];
-  constructor(compare?: (a: T, b: T) => boolean) {
-    this.heap = [];
-    this.compare = compare || this.compare;
-  }
-  compare(a: T, b: T) {
-    return a < b;
-  }
-  swap(i: number, j: number) {
-    [this.heap[i], this.heap[j]] = [this.heap[j], this.heap[i]];
-  }
-  insert(val: T) {
-    this.heap.push(val);
-    this.shiftUp(this.heap.length - 1);
-  }
-  getParentIndex(index: number) {
-    return Math.floor((index - 1) / 2);
-  }
-  getLeftIndex(index: number) {
-    return 2 * index + 1;
-  }
-  getRightIndex(index: number) {
-    return 2 * index + 2;
-  }
-  shiftUp(index: number) {
-    if (index === 0) return;
-    const parentIndex = this.getParentIndex(index);
-    if (
-      this.heap[parentIndex] != null &&
-      this.compare(this.heap[index], this.heap[parentIndex])
-    ) {
-      this.swap(index, parentIndex);
-      this.shiftUp(parentIndex);
-    }
-  }
-  pop() {
-    if (this.heap.length === 0) throw new Error("error");
-    if (this.heap.length === 1) return this.heap.pop();
-    const res = this.heap[0];
-    this.heap[0] = this.heap.pop()!;
-    this.shiftDown(0);
-    return res;
-  }
-  shiftDown(index: number) {
-    const leftIndex = this.getLeftIndex(index);
-    const rightIndex = this.getRightIndex(index);
-    if (
-      this.heap[leftIndex] != null &&
-      this.compare(this.heap[leftIndex], this.heap[index])
-    ) {
-      this.swap(leftIndex, index);
-      this.shiftDown(leftIndex);
-    }
-    if (
-      this.heap[rightIndex] != null &&
-      this.compare(this.heap[rightIndex], this.heap[index])
-    ) {
-      this.swap(rightIndex, index);
-      this.shiftDown(rightIndex);
-    }
-  }
-  peek() {
-    if (this.heap.length === 0) throw new Error("error");
-    return this.heap[0];
-  }
-  size() {
-    return this.heap.length;
-  }
-}
-
-export function findKthLargest(nums: number[], k: number) {
-  const minHeap = new MinHeap();
-  for (let item of nums) {
-    minHeap.insert(item);
-    if (minHeap.size() > k) {
-      minHeap.pop();
-    }
-  }
-  return minHeap.peek();
-}
-
-export function topKFrequent(nums: number[], k: number) {
-  const map = new Map<number, number>();
-  for (let item of nums) {
-    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
-  }
-  const heap = new MinHeap<{ value: number; key: number }>(
-    (a, b) => a.value < b.value
-  );
-  for (let [key, value] of map) {
-    heap.insert({ value, key });
-    if (heap.size() > k) heap.pop();
-  }
-  return heap.heap.map((item) => item.key);
-}
-
-export function mergeKLists1(lists: (ListNode | null)[]) {
-  const heap = new MinHeap<ListNode>((a, b) => a.val < b.val);
-  for (let item of lists) {
-    if (item) {
-      heap.insert(item);
-    }
-  }
-  const res = new ListNode(-1);
-  let p = res;
-  while (heap.size()) {
-    const current = heap.pop()!;
-    p.next = current;
-    p = p.next;
-    if (current.next) heap.insert(current.next);
-  }
-  return res.next;
-}
 
 // hot 25 - 28
 export function canJump(nums: number[]) {
