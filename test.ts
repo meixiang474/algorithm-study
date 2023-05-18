@@ -73,7 +73,105 @@ export function verifyPostorder(postorder: number[]): boolean {
 }
 
 // fenzhi donggui tanxin huisu
-// todo
+export function invertTree(root: TreeNode | null) {
+  if (!root) return root;
+  const dfs = (node: TreeNode) => {
+    const temp = node.left;
+    node.left = node.right;
+    node.right = temp;
+    if (node.left) dfs(node.left);
+    if (node.right) dfs(node.right);
+  };
+  dfs(root);
+  return root;
+}
+
+export function isSameTree(p: TreeNode | null, q: TreeNode | null) {
+  if (!p && !q) return true;
+  if (
+    p &&
+    q &&
+    p.val === q.val &&
+    isSameTree(p.left, q.left) &&
+    isSameTree(p.right, q.right)
+  )
+    return true;
+  return false;
+}
+
+export function fn(root: TreeNode | null) {
+  if (!root) return true;
+  const isMirror = (p: TreeNode | null, q: TreeNode | null) => {
+    if (!p && !q) return true;
+    if (
+      p &&
+      q &&
+      p.val === q.val &&
+      isMirror(p.left, q.right) &&
+      isMirror(p.right, q.left)
+    )
+      return true;
+    return false;
+  };
+  return isMirror(root.left, root.right);
+}
+
+export function climbStairs(n: number) {
+  const dp = [1, 1];
+  for (let i = 2; i <= n; i++) {
+    dp[i] = dp[i - 1] + dp[i - 2];
+  }
+  return dp[n];
+}
+
+export function rob(nums: number[]) {
+  if (nums.length === 0) return 0;
+  const dp = [nums[0], Math.max(nums[0], nums[1])];
+  for (let i = 2; i < nums.length; i++) {
+    dp[i] = Math.max(dp[i - 1], dp[i - 2] + nums[i]);
+  }
+  return dp[nums.length - 1];
+}
+
+export function rob2(nums: number[]) {
+  if (nums.length === 1) return nums[0];
+  const compute = (nums: number[]) => {
+    if (nums.length === 0) return 0;
+    const dp = [nums[0], Math.max(nums[0], nums[1])];
+    for (let i = 2; i < nums.length; i++) {
+      dp[i] = Math.max(dp[i - 1] + dp[i - 2] + nums[i]);
+    }
+    return dp[nums.length - 1];
+  };
+  return Math.max(compute(nums.slice(1)), compute(nums.slice(0, -1)));
+}
+
+export function findContentChildren(g: number[], s: number[]) {
+  g.sort((a, b) => a - b);
+  s.sort((a, b) => a - b);
+  let res = 0;
+  for (let item of s) {
+    if (item >= g[res]) res++;
+  }
+  return res;
+}
+
+export function maxProfit(prices: number[]) {
+  let res = 0;
+  for (let i = 1; i < prices.length; i++) {
+    if (prices[i] > prices[i - 1]) {
+      res += prices[i] - prices[i - 1];
+    }
+  }
+  return res;
+}
+
+export function permute(nums: number[]) {
+  const res: number[][] = [];
+  const dfs = (path: number[]) => {
+    // todo
+  }
+}
 
 // hot 25 - 28
 export function canJump(nums: number[]) {
