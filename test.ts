@@ -169,77 +169,53 @@ export function maxProfit(prices: number[]) {
 export function permute(nums: number[]) {
   const res: number[][] = [];
   const dfs = (path: number[]) => {
-    // todo
-  }
-}
-
-// hot 25 - 28
-export function canJump(nums: number[]) {
-  let max = 0;
-  for (let i = 0; i < nums.length; i++) {
-    if (i <= max) {
-      max = Math.max(max, nums[i] + i);
-      if (max >= nums.length - 1) {
-        return true;
+    if (path.length === nums.length) {
+      res.push(path);
+      return;
+    }
+    for (let i = 0; i < nums.length; i++) {
+      if (!path.includes(nums[i])) {
+        dfs(path.concat(nums[i]));
       }
     }
-  }
-  return false;
+  };
+  dfs([]);
+  return res;
 }
 
-export function mergeField(intervals: number[][]) {
-  intervals.sort((a, b) => a[0] - b[0]);
-  let prevEnd = -Infinity;
+export function subsets(nums: number[]) {
   const res: number[][] = [];
-  for (let i = 0; i < intervals.length; i++) {
-    const [start, end] = intervals[i];
-    if (prevEnd >= start) {
-      res.splice(res.length - 1, 1, [
-        res[res.length - 1][0],
-        Math.max(prevEnd, end),
-      ]);
-    } else {
-      res.push(intervals[i]);
+  const dfs = (path: number[], length: number, index: number) => {
+    if (path.length === length) {
+      res.push(path);
+      return;
     }
-    prevEnd = Math.max(prevEnd, end);
+    if (path.length + nums.length - index < length) return;
+    for (let i = index; i < nums.length; i++) {
+      dfs(path.concat(nums[i]), length, i + 1);
+    }
+  };
+  for (let i = 0; i <= nums.length; i++) {
+    dfs([], i, 0);
   }
   return res;
 }
 
-export function uniquePaths(m: number, n: number) {
-  const map = Array.from({ length: m }, () => new Array(n).fill(0));
-  for (let r = 0; r < m; r++) {
-    map[r][0] = 1;
+// hot 29 - 32
+export function climbStairs1(n: number) {
+  const dp = [1, 1];
+  for (let i = 2; i <= n; i++) {
+    dp[i] = dp[i - 1] + dp[i - 2];
   }
-  for (let c = 0; c < n; c++) {
-    map[0][c] = 1;
-  }
-  for (let r = 1; r < m; r++) {
-    for (let c = 1; c < n; c++) {
-      map[r][c] = map[r - 1][c] + map[r][c - 1];
-    }
-  }
-  return map[m - 1][n - 1];
+  return dp[n];
 }
 
-export function minPathSum(grid: number[][]) {
-  if (grid.length === 0 || grid[0].length === 0) return 0;
-  const m = grid.length;
-  const n = grid[0].length;
-  const dp: number[][] = Array.from({ length: m }, () => new Array(n).fill(0));
-  dp[0][0] = grid[0][0];
-  for (let r = 1; r < m; r++) {
-    dp[r][0] = dp[r - 1][0] + grid[r][0];
-  }
-  for (let c = 1; c < n; c++) {
-    dp[0][c] = dp[0][c - 1] + grid[0][c];
-  }
-  for (let r = 1; r < m; r++) {
-    for (let c = 1; c < n; c++) {
-      dp[r][c] = Math.min(dp[r - 1][c], dp[r][c - 1]) + grid[r][c];
-    }
-  }
-  return dp[m - 1][n - 1];
+export function minDistance(word1: string, word2: string) {
+  const m = word1.length;
+  const n = word2.length;
+  if(m * n === 0) return m + n;
+  const dp = Array.from({length: m + 1})
+  /// todo
 }
 
 // math 1-5
