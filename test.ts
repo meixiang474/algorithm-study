@@ -213,89 +213,80 @@ export function climbStairs1(n: number) {
 export function minDistance(word1: string, word2: string) {
   const m = word1.length;
   const n = word2.length;
-  if(m * n === 0) return m + n;
-  const dp = Array.from({length: m + 1})
-  /// todo
-}
-
-// math 1-5
-export function addTwo(l1: ListNode | null, l2: ListNode | null) {
-  const res = new ListNode(-1);
-  let p1 = l1,
-    p2 = l2,
-    p3 = res;
-  let carry = 0;
-  while (p1 || p2) {
-    const n1 = p1 ? p1.val : 0;
-    const n2 = p2 ? p2.val : 0;
-    const sum = n1 + n2 + carry;
-    carry = Math.floor(sum / 10);
-    p3.next = new ListNode(sum % 10);
-    p3 = p3.next;
-    if (p1) p1 = p1.next;
-    if (p2) p2 = p2.next;
+  if (m * n === 0) return m + n;
+  const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+  for (let i = 0; i <= m; i++) {
+    dp[i][0] = i;
   }
-  if (carry) p3.next = new ListNode(carry);
-  return res.next;
-}
-
-export function myPow(x: number, n: number) {
-  const isNegative = x < 0;
-  n = Math.abs(n);
-  const compute = (x: number, n: number): number => {
-    if (n === 0) return 1;
-    const res = compute(x, Math.floor(n / 2));
-    return n % 2 === 0 ? res * res : res * res * x;
-  };
-  return isNegative ? 1 / compute(x, n) : compute(x, n);
-}
-
-export function getPermutation(n: number, k: number) {
-  let groupNum = 1;
-  for (let i = 1; i <= n; i++) {
-    groupNum = groupNum * i;
+  for (let i = 0; i <= n; i++) {
+    dp[0][i] = i;
   }
-  const dfs = (path: number[]): string => {
-    if (path.length === n) return path.join("");
-    groupNum = groupNum / (n - path.length);
-    for (let i = 1; i <= n; i++) {
-      if (path.includes(i)) continue;
-      if (k > groupNum) {
-        k -= groupNum;
-      } else {
-        return dfs(path.concat(i));
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      const leftAdd = dp[i][j - 1] + 1;
+      const rightAdd = dp[i - 1][j] + 1;
+      let change = dp[i - 1][j - 1];
+      if (word1[i - 1] !== word2[j - 1]) change++;
+      dp[i][j] = Math.min(leftAdd, rightAdd, change);
+    }
+  }
+  return dp[m][n];
+}
+
+export function sortColors(colors: number[]) {
+  let l = -1,
+    r = colors.length,
+    i = 0;
+  const swap = (arr: number[], i: number, j: number) =>
+    ([arr[i], arr[j]] = [arr[j], arr[i]]);
+  while (i < r) {
+    if (colors[i] === 0) {
+      l++;
+      swap(colors, l, i);
+      i++;
+    } else if (colors[i] === 2) {
+      r--;
+      swap(colors, r, i);
+    } else {
+      i++;
+    }
+  }
+  return colors;
+}
+
+export function minWindow(s: string, t: string) {
+  const map = new Map<string, number>();
+  for (let item of t) {
+    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
+  }
+  let l = 0,
+    r = 0,
+    res = "";
+  let needType = map.size;
+  while (r < s.length) {
+    const currentr = s[r];
+    if (map.has(currentr)) {
+      map.set(currentr, map.get(currentr)! - 1);
+      if (map.get(currentr) === 0) {
+        needType--;
       }
     }
-    return "";
-  };
-  return dfs([]);
-}
-
-export function sqrt(x: number) {
-  let l = 0,
-    r = x;
-  while (l < r) {
-    const mid = Math.floor(l + (r - l + 1) / 2);
-    if (mid ** 2 > x) {
-      r = mid - 1;
-    } else {
-      l = mid;
+    while (needType === 0) {
+      const newRes = s.slice(l, r + 1);
+      if (!res || newRes.length < res.length) res = newRes;
+      const currentl = s[l];
+      if (map.has(currentl)) {
+        map.set(currentl, map.get(currentl)! + 1);
+        if (map.get(currentl) === 1) needType++;
+      }
+      l++;
     }
+    r++;
   }
-  return l;
+  return res;
 }
 
-export function isHappy(n: number) {
-  const compute = (n: number) =>
-    n
-      .toString()
-      .split("")
-      .reduce((memo, current) => memo + parseInt(current) ** 2, 0);
-  const set = new Set<number>();
-  while (!set.has(n)) {
-    if (n === 1) return true;
-    set.add(n);
-    n = compute(n);
-  }
-  return false;
+// sliding window 1-7
+export function longestSubstring(s: string) {
+  // todo
 }
