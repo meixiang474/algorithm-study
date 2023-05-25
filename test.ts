@@ -288,5 +288,81 @@ export function minWindow(s: string, t: string) {
 
 // sliding window 1-7
 export function longestSubstring(s: string) {
-  // todo
+  const map = new Map<string, number>();
+  let l = 0,
+    r = 0,
+    res = 0;
+  while (r < s.length) {
+    const current = s[r];
+    if (map.has(current) && map.get(current)! >= l) {
+      l = map.get(current)! + 1;
+    }
+    res = Math.max(res, r - l + 1);
+    r++;
+  }
+  return res;
 }
+
+export function charactorReplacement(s: string, k: number) {
+  const arr: number[] = new Array(26).fill(0);
+  let l = 0,
+    r = 0,
+    max = 0;
+  while (r < s.length) {
+    const current = s[r];
+    arr[current.charCodeAt(0) - "A".charCodeAt(0)]++;
+    max = Math.max(max, arr[current.charCodeAt(0) - "A".charCodeAt(0)]);
+    if (r - l + 1 - max > k) {
+      arr[s[l].charCodeAt(0) - "A".charCodeAt(0)]--;
+      l++;
+    }
+    r++;
+  }
+  return r - l;
+}
+
+export function checkInclusion(s1: string, s2: string) {
+  if (s1.length > s2.length) return false;
+  const arr1: number[] = new Array(26).fill(0);
+  const arr2: number[] = new Array(26).fill(0);
+  for (let i = 0; i < s1.length; i++) {
+    const current1 = s1[i];
+    const current2 = s2[i];
+    arr1[current1.charCodeAt(0) - "a".charCodeAt(0)];
+    arr2[current2.charCodeAt(0) - "a".charCodeAt(0)];
+  }
+  if (arr1.toString() === arr2.toString()) return true;
+  for (let i = s1.length; i < s2.length; i++) {
+    arr2[s2[i].charCodeAt(0) - "a".charCodeAt(0)]++;
+    arr2[s2[i - s1.length].charCodeAt(0) - "a".charCodeAt(0)]--;
+    if (arr2.toString() === arr2.toString()) return true;
+  }
+  return false;
+}
+
+export function maxTurbulence(nums: number[]) {
+  let res = 1,
+    l = 0,
+    r = 0;
+  while (r < nums.length - 1) {
+    const left = nums[l];
+    const right = nums[r];
+    if (l === r) {
+      if (left === nums[l + 1]) l++;
+      r++;
+    } else {
+      if (
+        (right > nums[r - 1] && right > nums[r + 1]) ||
+        (right < nums[r - 1] && right < nums[r + 1])
+      ) {
+        r++;
+      } else {
+        l = r;
+      }
+    }
+    res = Math.max(res, r - l + 1);
+  }
+  return res;
+}
+
+// todo
