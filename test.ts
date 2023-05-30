@@ -365,4 +365,24 @@ export function maxTurbulence(nums: number[]) {
   return res;
 }
 
-// todo
+export function longestOnes(nums: number[], k: number) {
+  let max = 0,
+    l = 0,
+    r = 0,
+    onesInWindow = 0;
+  while (r < nums.length) {
+    const current = nums[r];
+    if (current === 1) onesInWindow++;
+    max = Math.max(max, current);
+    if (r - l + 1 - max > k) {
+      l++;
+      onesInWindow--;
+    }
+    r++;
+  }
+  return r - l;
+}
+
+export function moveStones(nums: number[]) {
+  // todo
+}
