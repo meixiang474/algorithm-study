@@ -21,185 +21,85 @@ export class ListNode<T = number> {
   }
 }
 
-// offer 32-III 33
-export function levelOrder(root: TreeNode | null) {
+// offer 34 35
+export function pathSum(root: TreeNode | null, target: number) {
   if (!root) return [];
-  const queue: [TreeNode, number][] = [[root, 0]];
   const res: number[][] = [];
-  while (queue.length) {
-    const [current, level] = queue.shift()!;
-    const arr = res[level] || (res[level] = []);
-    if (level % 2 === 0) arr.push(current.val);
-    else arr.unshift(current.val);
-    if (current.left) queue.push([current.left, level + 1]);
-    if (current.right) queue.push([current.right, level + 1]);
-  }
-  return res;
-}
-
-export function verifyPostorder(postorder: number[]): boolean {
-  const upper = (nums: number[], target: number) => {
-    let l = 0,
-      r = nums.length;
-    while (l < r) {
-      const mid = Math.floor(l + (r - l) / 2);
-      if (nums[mid] > target) {
-        r = mid;
-      } else {
-        l = mid + 1;
-      }
-    }
-    return l;
-  };
-  const isTree = (postorder: number[], rootVal: number, rightIndex: number) => {
-    const left = postorder.slice(0, rightIndex);
-    const right = postorder.slice(rightIndex, -1);
-    return (
-      left.every((item) => item < rootVal) &&
-      right.every((item) => item > rootVal)
-    );
-  };
-  const rootVal = postorder[postorder.length - 1];
-  const rightIndex = upper(postorder.slice(0, -1), rootVal);
-  const flag = isTree(postorder, rootVal, rightIndex);
-  if (flag) {
-    return (
-      verifyPostorder(postorder.slice(0, rightIndex)) &&
-      verifyPostorder(postorder.slice(rightIndex, -1))
-    );
-  } else {
-    return false;
-  }
-}
-
-// fenzhi donggui tanxin huisu
-export function invertTree(root: TreeNode | null) {
-  if (!root) return root;
-  const dfs = (node: TreeNode) => {
-    const temp = node.left;
-    node.left = node.right;
-    node.right = temp;
-    if (node.left) dfs(node.left);
-    if (node.right) dfs(node.right);
-  };
-  dfs(root);
-  return root;
-}
-
-export function isSameTree(p: TreeNode | null, q: TreeNode | null) {
-  if (!p && !q) return true;
-  if (
-    p &&
-    q &&
-    p.val === q.val &&
-    isSameTree(p.left, q.left) &&
-    isSameTree(p.right, q.right)
-  )
-    return true;
-  return false;
-}
-
-export function fn(root: TreeNode | null) {
-  if (!root) return true;
-  const isMirror = (p: TreeNode | null, q: TreeNode | null) => {
-    if (!p && !q) return true;
-    if (
-      p &&
-      q &&
-      p.val === q.val &&
-      isMirror(p.left, q.right) &&
-      isMirror(p.right, q.left)
-    )
-      return true;
-    return false;
-  };
-  return isMirror(root.left, root.right);
-}
-
-export function climbStairs(n: number) {
-  const dp = [1, 1];
-  for (let i = 2; i <= n; i++) {
-    dp[i] = dp[i - 1] + dp[i - 2];
-  }
-  return dp[n];
-}
-
-export function rob(nums: number[]) {
-  if (nums.length === 0) return 0;
-  const dp = [nums[0], Math.max(nums[0], nums[1])];
-  for (let i = 2; i < nums.length; i++) {
-    dp[i] = Math.max(dp[i - 1], dp[i - 2] + nums[i]);
-  }
-  return dp[nums.length - 1];
-}
-
-export function rob2(nums: number[]) {
-  if (nums.length === 1) return nums[0];
-  const compute = (nums: number[]) => {
-    if (nums.length === 0) return 0;
-    const dp = [nums[0], Math.max(nums[0], nums[1])];
-    for (let i = 2; i < nums.length; i++) {
-      dp[i] = Math.max(dp[i - 1] + dp[i - 2] + nums[i]);
-    }
-    return dp[nums.length - 1];
-  };
-  return Math.max(compute(nums.slice(1)), compute(nums.slice(0, -1)));
-}
-
-export function findContentChildren(g: number[], s: number[]) {
-  g.sort((a, b) => a - b);
-  s.sort((a, b) => a - b);
-  let res = 0;
-  for (let item of s) {
-    if (item >= g[res]) res++;
-  }
-  return res;
-}
-
-export function maxProfit(prices: number[]) {
-  let res = 0;
-  for (let i = 1; i < prices.length; i++) {
-    if (prices[i] > prices[i - 1]) {
-      res += prices[i] - prices[i - 1];
-    }
-  }
-  return res;
-}
-
-export function permute(nums: number[]) {
-  const res: number[][] = [];
-  const dfs = (path: number[]) => {
-    if (path.length === nums.length) {
+  const dfs = (node: TreeNode, path: number[], sum: number) => {
+    if (sum === target && !node.left && !node.right) {
       res.push(path);
       return;
     }
-    for (let i = 0; i < nums.length; i++) {
-      if (!path.includes(nums[i])) {
-        dfs(path.concat(nums[i]));
-      }
+    if (node.left) {
+      dfs(node.left, path.concat(node.left.val), sum + node.left.val);
+    }
+    if (node.right) {
+      dfs(node.right, path.concat(node.right.val), sum + node.right.val);
     }
   };
-  dfs([]);
+  dfs(root, [root.val], root.val);
   return res;
 }
 
-export function subsets(nums: number[]) {
-  const res: number[][] = [];
-  const dfs = (path: number[], length: number, index: number) => {
-    if (path.length === length) {
-      res.push(path);
-      return;
-    }
-    if (path.length + nums.length - index < length) return;
-    for (let i = index; i < nums.length; i++) {
-      dfs(path.concat(nums[i]), length, i + 1);
-    }
-  };
-  for (let i = 0; i <= nums.length; i++) {
-    dfs([], i, 0);
+class RandomListNode {
+  val: number;
+  next: RandomListNode | null;
+  random: RandomListNode | null;
+  constructor(val: number) {
+    this.val = val;
+    this.next = null;
+    this.random = null;
   }
-  return res;
 }
+
+export function copyRandomList(list: RandomListNode | null) {
+  if (!list) return null;
+  const visited = new Map<
+    RandomListNode | null | undefined,
+    RandomListNode | null
+  >();
+  visited.set(null, null);
+  visited.set(undefined, null);
+  const dfs = (node: RandomListNode) => {
+    const newNode = new RandomListNode(node.val);
+    visited.set(node, newNode);
+    if (node.next && !visited.has(node.next)) {
+      dfs(node.next);
+    }
+    newNode.next = visited.get(node.next)!;
+    if (node.random && !visited.has(node.random)) {
+      dfs(node.random);
+    }
+    newNode.random = visited.get(node.random)!;
+  };
+  dfs(list);
+  return visited.get(list)!;
+}
+
+// priority queue shell sort
+export class PriorityQueue<T = number> {
+  maxHeap: Heap<T>;
+  constructor(compare?: (a: T, b: T) => boolean) {
+    this.maxHeap = new Heap("max", compare);
+  }
+  getSize() {
+    return this.maxHeap.size();
+  }
+  isEmpty() {
+    return this.getSize() === 0;
+  }
+  getFront() {
+    return this.maxHeap.peek();
+  }
+  enqueue(item: T) {
+    this.maxHeap.insert(item);
+  }
+  dequeue() {
+    if (this.isEmpty()) throw new Error("error");
+    return this.maxHeap.pop();
+  }
+}
+// todo
 
 // hot 29 - 32
 export function climbStairs1(n: number) {
@@ -408,6 +308,25 @@ export function moveStones(nums: number[]) {
   return [min, max];
 }
 
-export function maxSatisfied(customers: number[], grumpy: number, minutes: number) {
-  // todo
+export function maxSatisfied(
+  customers: number[],
+  grumpy: number[],
+  minutes: number
+) {
+  let total = 0;
+  for (let i = 0; i < grumpy.length; i++) {
+    if (grumpy[i] === 0) total += customers[i];
+  }
+  let increase = 0;
+  for (let i = 0; i < minutes; i++) {
+    increase += customers[i] * grumpy[i];
+  }
+  for (let i = minutes; i < grumpy.length; i++) {
+    const newIncrease =
+      increase -
+      customers[i - minutes] * grumpy[i - minutes] +
+      customers[i] * grumpy[i];
+    increase = Math.max(increase, newIncrease);
+  }
+  return total + increase;
 }
