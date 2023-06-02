@@ -99,91 +99,99 @@ export class PriorityQueue<T = number> {
     return this.maxHeap.pop();
   }
 }
-// todo
 
-// hot 29 - 32
-export function climbStairs1(n: number) {
-  const dp = [1, 1];
-  for (let i = 2; i <= n; i++) {
-    dp[i] = dp[i - 1] + dp[i - 2];
-  }
-  return dp[n];
-}
-
-export function minDistance(word1: string, word2: string) {
-  const m = word1.length;
-  const n = word2.length;
-  if (m * n === 0) return m + n;
-  const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
-  for (let i = 0; i <= m; i++) {
-    dp[i][0] = i;
-  }
-  for (let i = 0; i <= n; i++) {
-    dp[0][i] = i;
-  }
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      const leftAdd = dp[i][j - 1] + 1;
-      const rightAdd = dp[i - 1][j] + 1;
-      let change = dp[i - 1][j - 1];
-      if (word1[i - 1] !== word2[j - 1]) change++;
-      dp[i][j] = Math.min(leftAdd, rightAdd, change);
-    }
-  }
-  return dp[m][n];
-}
-
-export function sortColors(colors: number[]) {
-  let l = -1,
-    r = colors.length,
-    i = 0;
-  const swap = (arr: number[], i: number, j: number) =>
-    ([arr[i], arr[j]] = [arr[j], arr[i]]);
-  while (i < r) {
-    if (colors[i] === 0) {
-      l++;
-      swap(colors, l, i);
-      i++;
-    } else if (colors[i] === 2) {
-      r--;
-      swap(colors, r, i);
-    } else {
-      i++;
-    }
-  }
-  return colors;
-}
-
-export function minWindow(s: string, t: string) {
-  const map = new Map<string, number>();
-  for (let item of t) {
-    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
-  }
-  let l = 0,
-    r = 0,
-    res = "";
-  let needType = map.size;
-  while (r < s.length) {
-    const currentr = s[r];
-    if (map.has(currentr)) {
-      map.set(currentr, map.get(currentr)! - 1);
-      if (map.get(currentr) === 0) {
-        needType--;
+export function shellSort(nums: number[]) {
+  const res = [...nums];
+  let h = Math.floor(nums.length / 2);
+  while (h) {
+    for (let start = 0; start < h; start++) {
+      for (let i = start; i < res.length; i += h) {
+        let swapIndex = i;
+        const current = res[i];
+        for (let j = i - h; j >= 0; j -= h) {
+          if (res[j] > current) {
+            res[j + h] = res[j];
+            swapIndex = j;
+          } else {
+            break;
+          }
+        }
+        if (swapIndex !== i) res[swapIndex] = current;
       }
     }
-    while (needType === 0) {
-      const newRes = s.slice(l, r + 1);
-      if (!res || newRes.length < res.length) res = newRes;
-      const currentl = s[l];
-      if (map.has(currentl)) {
-        map.set(currentl, map.get(currentl)! + 1);
-        if (map.get(currentl) === 1) needType++;
-      }
-      l++;
-    }
-    r++;
+    h = Math.floor(h / 2);
   }
   return res;
+}
+
+export function shellSort1(nums: number[]) {
+  const res = [...nums];
+  let h = Math.floor(res.length / 2);
+  while (h) {
+    for (let i = h; i < res.length; i++) {
+      let swapIndex = i;
+      const current = res[i];
+      for (let j = i - h; j >= 0; j -= h) {
+        if (res[j] > current) {
+          res[j + h] = res[j];
+          swapIndex = j;
+        } else {
+          break;
+        }
+      }
+      if (swapIndex !== i) res[swapIndex] = current;
+    }
+    h = Math.floor(h / 2);
+  }
+  return res;
+}
+
+export function shellSort2(nums: number[]) {
+  const res = [...nums];
+  let h = Math.floor(res.length / 2);
+  while (h < res.length) {
+    h = h * 3 + 1;
+  }
+  while (h) {
+    for (let i = h; i < res.length; i++) {
+      let swapIndex = i;
+      const current = res[i];
+      for (let j = i - h; j >= 0; j -= h) {
+        if (res[j] > current) {
+          res[j + h] = res[j];
+          swapIndex = j;
+        } else {
+          break;
+        }
+      }
+      if (swapIndex !== i) res[swapIndex] = current;
+    }
+    h = Math.floor(h / 3);
+  }
+  return res;
+}
+
+// hot 33 - 36
+export function subsets(nums: number[]) {
+  const res: number[][] = [];
+  const dfs = (path: number[], index: number, length: number) => {
+    if (path.length === length) {
+      res.push(path);
+      return;
+    }
+    if (path.length + nums.length - index < length) return;
+    for (let i = index; i < nums.length; i++) {
+      dfs(path.concat(nums[i]), i + 1, length);
+    }
+  };
+  for (let i = 0; i <= nums.length; i++) {
+    dfs([], 0, i);
+  }
+  return res;
+}
+
+export function exist(board: string[][], word: string) {
+  // todo
 }
 
 // sliding window 1-7
