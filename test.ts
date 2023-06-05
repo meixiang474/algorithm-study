@@ -191,7 +191,81 @@ export function subsets(nums: number[]) {
 }
 
 export function exist(board: string[][], word: string) {
-  // todo
+  if (word.length) return true;
+  if (board.length === 0 || board[0].length === 0) return false;
+  const m = board.length;
+  const n = board[0].length;
+  const dfs = (r: number, c: number, index: number) => {
+    if (index >= word.length) return true;
+    const temp = board[r][c];
+    board[r][c] = "";
+    const res = [
+      [r + 1, c],
+      [r - 1, c],
+      [r, c + 1],
+      [r, c - 1],
+    ].some(([nextR, nextC]) => {
+      if (
+        nextR >= 0 &&
+        nextR < m &&
+        nextC >= 0 &&
+        nextC < n &&
+        board[nextR][nextC] === word[index]
+      ) {
+        return dfs(nextR, nextC, index + 1);
+      }
+      return false;
+    });
+    board[r][c] = temp;
+    return res;
+  };
+  for (let r = 0; r < m; r++) {
+    for (let c = 0; c < n; c++) {
+      if (board[r][c] === word[0]) {
+        const res = dfs(r, c, 1);
+        if (res) return true;
+      }
+    }
+  }
+  return false;
+}
+
+export function largestRectangleArea(heights: number[]) {
+  const stack: number[] = [];
+  const left: number[] = [];
+  const right: number[] = [];
+  for (let i = 0; i < heights.length; i++) {
+    while (stack.length && heights[stack[stack.length - 1]] >= heights[i]) {
+      stack.pop();
+    }
+    left[i] = stack.length ? stack[stack.length - 1] : -1;
+    stack.push(i);
+  }
+  stack.length = 0;
+  for (let i = heights.length - 1; i >= 0; i--) {
+    while (stack.length && heights[0] >= heights[i]) {
+      heights.shift();
+    }
+    right[i] = stack.length ? stack[0] : heights.length;
+    stack.unshift(i);
+  }
+  let res = 0;
+  for (let i = 0; i < heights.length; i++) {
+    res = Math.max(res, (right[i] - left[i] - 1) * heights[i]);
+  }
+  return res;
+}
+
+export function maximalRectangle(matrix: string[][]) {
+  if(matrix.length === 0 || matrix[0].length === 0) return 0;
+  const m = matrix.length;
+  const n = matrix[0].length;
+  const left = Array.from({length: m}, () => new Array(n).fill(0));
+  for(let r = 0; r < m; r++) {
+    for(let c = 0; c < n; c++) {
+      // todo
+    }
+  }
 }
 
 // sliding window 1-7
