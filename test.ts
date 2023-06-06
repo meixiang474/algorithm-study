@@ -257,158 +257,32 @@ export function largestRectangleArea(heights: number[]) {
 }
 
 export function maximalRectangle(matrix: string[][]) {
-  if(matrix.length === 0 || matrix[0].length === 0) return 0;
+  if (matrix.length === 0 || matrix[0].length === 0) return 0;
   const m = matrix.length;
   const n = matrix[0].length;
-  const left = Array.from({length: m}, () => new Array(n).fill(0));
-  for(let r = 0; r < m; r++) {
-    for(let c = 0; c < n; c++) {
-      // todo
+  const left = Array.from({ length: m }, () => new Array(n).fill(0));
+  for (let r = 0; r < m; r++) {
+    for (let c = 0; c < n; c++) {
+      if (matrix[r][c] === "0") continue;
+      left[r][c] = c > 0 ? left[r][c - 1] + 1 : 1;
     }
   }
-}
-
-// sliding window 1-7
-export function longestSubstring(s: string) {
-  const map = new Map<string, number>();
-  let l = 0,
-    r = 0,
-    res = 0;
-  while (r < s.length) {
-    const current = s[r];
-    if (map.has(current) && map.get(current)! >= l) {
-      l = map.get(current)! + 1;
-    }
-    res = Math.max(res, r - l + 1);
-    r++;
-  }
-  return res;
-}
-
-export function charactorReplacement(s: string, k: number) {
-  const arr: number[] = new Array(26).fill(0);
-  let l = 0,
-    r = 0,
-    max = 0;
-  while (r < s.length) {
-    const current = s[r];
-    arr[current.charCodeAt(0) - "A".charCodeAt(0)]++;
-    max = Math.max(max, arr[current.charCodeAt(0) - "A".charCodeAt(0)]);
-    if (r - l + 1 - max > k) {
-      arr[s[l].charCodeAt(0) - "A".charCodeAt(0)]--;
-      l++;
-    }
-    r++;
-  }
-  return r - l;
-}
-
-export function checkInclusion(s1: string, s2: string) {
-  if (s1.length > s2.length) return false;
-  const arr1: number[] = new Array(26).fill(0);
-  const arr2: number[] = new Array(26).fill(0);
-  for (let i = 0; i < s1.length; i++) {
-    const current1 = s1[i];
-    const current2 = s2[i];
-    arr1[current1.charCodeAt(0) - "a".charCodeAt(0)];
-    arr2[current2.charCodeAt(0) - "a".charCodeAt(0)];
-  }
-  if (arr1.toString() === arr2.toString()) return true;
-  for (let i = s1.length; i < s2.length; i++) {
-    arr2[s2[i].charCodeAt(0) - "a".charCodeAt(0)]++;
-    arr2[s2[i - s1.length].charCodeAt(0) - "a".charCodeAt(0)]--;
-    if (arr2.toString() === arr2.toString()) return true;
-  }
-  return false;
-}
-
-export function maxTurbulence(nums: number[]) {
-  let res = 1,
-    l = 0,
-    r = 0;
-  while (r < nums.length - 1) {
-    const left = nums[l];
-    const right = nums[r];
-    if (l === r) {
-      if (left === nums[l + 1]) l++;
-      r++;
-    } else {
-      if (
-        (right > nums[r - 1] && right > nums[r + 1]) ||
-        (right < nums[r - 1] && right < nums[r + 1])
-      ) {
-        r++;
-      } else {
-        l = r;
+  let res = 0;
+  for (let r = 0; r < m; r++) {
+    for (let c = 0; c < n; c++) {
+      if (left[r][c] === 0) continue;
+      let width = left[r][c];
+      let area = width;
+      for (let i = r - 1; i >= 0; i--) {
+        if (left[i][c] === 0) break;
+        width = Math.min(width, left[i][c]);
+        area = Math.max(area, width * (r - i + 1));
       }
+      res = Math.max(res, area);
     }
-    res = Math.max(res, r - l + 1);
   }
   return res;
 }
 
-export function longestOnes(nums: number[], k: number) {
-  let max = 0,
-    l = 0,
-    r = 0,
-    onesInWindow = 0;
-  while (r < nums.length) {
-    const current = nums[r];
-    if (current === 1) onesInWindow++;
-    max = Math.max(max, current);
-    if (r - l + 1 - max > k) {
-      l++;
-      onesInWindow--;
-    }
-    r++;
-  }
-  return r - l;
-}
-
-export function moveStones(nums: number[]) {
-  nums.sort((a, b) => a - b);
-  const n = nums.length;
-  const max =
-    nums[n - 1] -
-    nums[0] +
-    1 -
-    n -
-    Math.min(nums[n - 1] - nums[n - 2] - 1, nums[1] - nums[0] - 1);
-  let min = Infinity;
-  let l = 0,
-    r = 0;
-  for (let l = 0; l < n; l++) {
-    while (r + 1 < n && nums[r + 1] - nums[l] + 1 <= n) {
-      r++;
-    }
-    let res = n - r + l - 1;
-    if (r - l + 1 === n - 1 && nums[r] - nums[l] + 1 === n - 1) {
-      res = 2;
-    }
-    min = Math.min(res, min);
-  }
-  return [min, max];
-}
-
-export function maxSatisfied(
-  customers: number[],
-  grumpy: number[],
-  minutes: number
-) {
-  let total = 0;
-  for (let i = 0; i < grumpy.length; i++) {
-    if (grumpy[i] === 0) total += customers[i];
-  }
-  let increase = 0;
-  for (let i = 0; i < minutes; i++) {
-    increase += customers[i] * grumpy[i];
-  }
-  for (let i = minutes; i < grumpy.length; i++) {
-    const newIncrease =
-      increase -
-      customers[i - minutes] * grumpy[i - minutes] +
-      customers[i] * grumpy[i];
-    increase = Math.max(increase, newIncrease);
-  }
-  return total + increase;
-}
+// sort 1-5
+// todo
