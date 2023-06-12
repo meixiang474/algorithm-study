@@ -21,155 +21,58 @@ export class ListNode<T = number> {
   }
 }
 
-// offer 34 35
-export function pathSum(root: TreeNode | null, target: number) {
-  if (!root) return [];
-  const res: number[][] = [];
-  const dfs = (node: TreeNode, path: number[], sum: number) => {
-    if (sum === target && !node.left && !node.right) {
+// offer 36 38
+export function treeToDoublyList(root: TreeNode | null) {
+  if (!root) return null;
+  const res: TreeNode[] = [];
+  const dfs = (node: TreeNode) => {
+    if (node.left) dfs(node.left);
+    res.push(node);
+    if (node.right) dfs(node.right);
+  };
+  let head: TreeNode | null = null;
+  let tail: TreeNode | null = null;
+  for (let i = 0; i < res.length; i++) {
+    if (i === 0) {
+      head = tail = res[i];
+      head.left = tail;
+      tail.right = head;
+    } else {
+      let prev = tail;
+      tail!.right = res[i];
+      tail = tail!.right;
+      tail.left = prev;
+      tail.right = head;
+      head!.left = tail;
+    }
+  }
+  return head;
+}
+
+export function permutation(s: string) {
+  s.split("").sort().join("");
+  const map = new Map<number, boolean>();
+  const res: string[] = [];
+  const dfs = (path: string) => {
+    if (path.length === s.length) {
       res.push(path);
       return;
     }
-    if (node.left) {
-      dfs(node.left, path.concat(node.left.val), sum + node.left.val);
-    }
-    if (node.right) {
-      dfs(node.right, path.concat(node.right.val), sum + node.right.val);
+    for (let i = 0; i < s.length; i++) {
+      if (i > 0 && s[i] === s[i - 1] && map.get(i - 1)) continue;
+      if (!map.get(i)) {
+        map.set(i, true);
+        dfs(path + s[i]);
+        map.set(i, false);
+      }
     }
   };
-  dfs(root, [root.val], root.val);
+  dfs("");
   return res;
 }
 
-class RandomListNode {
-  val: number;
-  next: RandomListNode | null;
-  random: RandomListNode | null;
-  constructor(val: number) {
-    this.val = val;
-    this.next = null;
-    this.random = null;
-  }
-}
-
-export function copyRandomList(list: RandomListNode | null) {
-  if (!list) return null;
-  const visited = new Map<
-    RandomListNode | null | undefined,
-    RandomListNode | null
-  >();
-  visited.set(null, null);
-  visited.set(undefined, null);
-  const dfs = (node: RandomListNode) => {
-    const newNode = new RandomListNode(node.val);
-    visited.set(node, newNode);
-    if (node.next && !visited.has(node.next)) {
-      dfs(node.next);
-    }
-    newNode.next = visited.get(node.next)!;
-    if (node.random && !visited.has(node.random)) {
-      dfs(node.random);
-    }
-    newNode.random = visited.get(node.random)!;
-  };
-  dfs(list);
-  return visited.get(list)!;
-}
-
-// priority queue shell sort
-export class PriorityQueue<T = number> {
-  maxHeap: Heap<T>;
-  constructor(compare?: (a: T, b: T) => boolean) {
-    this.maxHeap = new Heap("max", compare);
-  }
-  getSize() {
-    return this.maxHeap.size();
-  }
-  isEmpty() {
-    return this.getSize() === 0;
-  }
-  getFront() {
-    return this.maxHeap.peek();
-  }
-  enqueue(item: T) {
-    this.maxHeap.insert(item);
-  }
-  dequeue() {
-    if (this.isEmpty()) throw new Error("error");
-    return this.maxHeap.pop();
-  }
-}
-
-export function shellSort(nums: number[]) {
-  const res = [...nums];
-  let h = Math.floor(nums.length / 2);
-  while (h) {
-    for (let start = 0; start < h; start++) {
-      for (let i = start; i < res.length; i += h) {
-        let swapIndex = i;
-        const current = res[i];
-        for (let j = i - h; j >= 0; j -= h) {
-          if (res[j] > current) {
-            res[j + h] = res[j];
-            swapIndex = j;
-          } else {
-            break;
-          }
-        }
-        if (swapIndex !== i) res[swapIndex] = current;
-      }
-    }
-    h = Math.floor(h / 2);
-  }
-  return res;
-}
-
-export function shellSort1(nums: number[]) {
-  const res = [...nums];
-  let h = Math.floor(res.length / 2);
-  while (h) {
-    for (let i = h; i < res.length; i++) {
-      let swapIndex = i;
-      const current = res[i];
-      for (let j = i - h; j >= 0; j -= h) {
-        if (res[j] > current) {
-          res[j + h] = res[j];
-          swapIndex = j;
-        } else {
-          break;
-        }
-      }
-      if (swapIndex !== i) res[swapIndex] = current;
-    }
-    h = Math.floor(h / 2);
-  }
-  return res;
-}
-
-export function shellSort2(nums: number[]) {
-  const res = [...nums];
-  let h = Math.floor(res.length / 2);
-  while (h < res.length) {
-    h = h * 3 + 1;
-  }
-  while (h) {
-    for (let i = h; i < res.length; i++) {
-      let swapIndex = i;
-      const current = res[i];
-      for (let j = i - h; j >= 0; j -= h) {
-        if (res[j] > current) {
-          res[j + h] = res[j];
-          swapIndex = j;
-        } else {
-          break;
-        }
-      }
-      if (swapIndex !== i) res[swapIndex] = current;
-    }
-    h = Math.floor(h / 3);
-  }
-  return res;
-}
+// segment tree
+// todo
 
 // hot 33 - 36
 export function subsets(nums: number[]) {
@@ -304,4 +207,104 @@ export function mergeField(intervals: number[][]) {
   return res;
 }
 
-// todo
+export function insertField(intervals: number[][], newInterval: number[]) {
+  intervals.push(newInterval);
+  intervals.sort((a, b) => a[0] - b[0]);
+  const res: number[][] = [];
+  let prevEnd = -Infinity;
+  for (let i = 0; i < intervals.length; i++) {
+    const [start, end] = intervals[i];
+    if (i > 0 && prevEnd >= start) {
+      res.splice(res.length - 1, 1, [
+        res[res.length - 1][0],
+        Math.max(prevEnd, end),
+      ]);
+    } else {
+      res.push(intervals[i]);
+    }
+    prevEnd = Math.max(prevEnd, end);
+  }
+  return res;
+}
+
+export function sortColors(colors: number[]) {
+  let left = -1,
+    right = colors.length,
+    i = 0;
+  const swap = (nums: number[], i: number, j: number) =>
+    ([nums[i], nums[j]] = [nums[j], nums[i]]);
+  while (i < right) {
+    if (colors[i] === 0) {
+      left++;
+      swap(colors, left, i);
+      i++;
+    } else if (colors[i] === 2) {
+      right--;
+      swap(colors, right, i);
+    } else {
+      i++;
+    }
+  }
+}
+
+export function insertionSortList(head: ListNode | null) {
+  if (!head || !head.next) return head;
+  const dummyHead = new ListNode(-1);
+  dummyHead.next = head;
+  let lastSorted = head;
+  let current: ListNode | null = head.next;
+  while (current) {
+    if (lastSorted.val <= current.val) {
+      lastSorted = current;
+      current = current.next;
+    } else {
+      let prev = dummyHead;
+      while (prev.next) {
+        if (prev.next.val >= current.val) break;
+        prev = prev.next;
+      }
+      const next: ListNode | null = current.next;
+      const insertCurrent = prev.next;
+      prev.next = current;
+      current.next = insertCurrent;
+      current = next;
+      lastSorted.next = next;
+    }
+  }
+  return dummyHead.next;
+}
+
+export function sortList(head: ListNode | null) {
+  if (!head || !head.next) return head;
+  let slow: ListNode | null = head,
+    fast: ListNode | null = head;
+  while (slow && fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
+  }
+  const next = slow!.next;
+  slow!.next = null;
+  const l1 = sortList(head);
+  const l2 = sortList(next);
+  const dummyHead = new ListNode(-1);
+  let p1 = l1,
+    p2 = l2,
+    p3 = dummyHead;
+  while (p1 && p2) {
+    if (p1.val < p2.val) {
+      p3.next = p1;
+      p1 = p1.next;
+    } else {
+      p3.next = p2;
+      p2 = p2.next;
+    }
+    p3 = p3.next;
+  }
+  if (p1) {
+    p3.next = p1;
+  }
+  if (p2) {
+    p3.next = p2;
+  }
+  return dummyHead.next;
+}
