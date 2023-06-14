@@ -72,7 +72,82 @@ export function permutation(s: string) {
 }
 
 // segment tree
-// todo
+export class SegmentTree<T = any> {
+  data: T[];
+  tree: (T | null)[];
+  merge: (a: T, b: T) => T;
+  constructor(arr: T[], merge: (a: T, b: T) => T) {
+    this.data = [...arr];
+    this.tree = new Array(4 * this.data.length).fill(null);
+    this.merge = merge;
+    this.buildSegmentTree(0, 0, this.data.length - 1);
+  }
+  buildSegmentTree(treeIndex: number, l: number, r: number) {
+    if (l > r) return;
+    if (l === r) {
+      this.tree[treeIndex] = this.data[l];
+      return;
+    }
+    const leftIndex = this.leftChild(treeIndex);
+    const rightIndex = this.rightChild(treeIndex);
+    const mid = Math.floor(l + (r - l) / 2);
+    this.buildSegmentTree(leftIndex, l, mid);
+    this.buildSegmentTree(rightIndex, mid + 1, r);
+    this.tree[treeIndex] = this.merge(
+      this.tree[leftIndex]!,
+      this.tree[rightIndex]!
+    );
+  }
+  getSize() {
+    return this.data.length;
+  }
+  get(index: number) {
+    if (index < 0 || index >= this.data.length) throw new Error("error");
+    return this.data[index];
+  }
+  leftChild(index: number) {
+    return 2 * index + 1;
+  }
+  rightChild(index: number) {
+    return 2 * index + 1;
+  }
+  query(l: number, r: number) {
+    if (
+      l < 0 ||
+      l >= this.data.length ||
+      r < 0 ||
+      r >= this.data.length ||
+      l > r
+    )
+      throw new Error("errorr");
+    return this.queryNode(0, 0, this.data.length - 1, l, r);
+  }
+  queryNode(
+    treeIndex: number,
+    l: number,
+    r: number,
+    queryl: number,
+    queryr: number
+  ): T {
+    if (l === queryl && r === queryr) {
+      return this.tree[treeIndex]!;
+    }
+    const leftIndex = this.leftChild(treeIndex);
+    const rightIndex = this.rightChild(treeIndex);
+    const mid = Math.floor(l + (r - l) / 2);
+    if (queryl >= mid + 1) {
+      return this.queryNode(rightIndex, mid + 1, r, queryl, queryr);
+    }
+    if (queryr <= mid) {
+      return this.queryNode(leftIndex, l, mid, queryl, queryr);
+    }
+    return this.merge(
+      this.queryNode(leftIndex, l, mid, queryl, mid),
+      this.queryNode(rightIndex, mid + 1, r, mid + 1, queryr)
+    );
+  }
+  // todo
+}
 
 // hot 33 - 36
 export function subsets(nums: number[]) {
