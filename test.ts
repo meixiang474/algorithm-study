@@ -282,120 +282,115 @@ export class NumArray2 {
   }
 }
 
-// todo
-
-// hot 33 - 36
-export function subsets(nums: number[]) {
-  const res: number[][] = [];
-  const dfs = (path: number[], index: number, length: number) => {
-    if (path.length === length) {
-      res.push(path);
+export class NumArray3 {
+  data: number[];
+  tree: (number | null)[];
+  constructor(nums: number[]) {
+    this.data = [...nums];
+    this.tree = new Array(this.data.length * 4).fill(null);
+    this.buildSegmentTree(0, 0, this.data.length - 1);
+  }
+  getLeftIndex(index: number) {
+    return 2 * index + 1;
+  }
+  getRightIndex(index: number) {
+    return 2 * index + 2;
+  }
+  buildSegmentTree(treeIndex: number, l: number, r: number) {
+    if (l > r) return;
+    if (l === r) {
+      this.tree[treeIndex] = this.data[l];
       return;
     }
-    if (path.length + nums.length - index < length) return;
-    for (let i = index; i < nums.length; i++) {
-      dfs(path.concat(nums[i]), i + 1, length);
+    const leftIndex = this.getLeftIndex(treeIndex);
+    const rightIndex = this.getRightIndex(treeIndex);
+    const mid = Math.floor(l + (r - l) / 2);
+    this.buildSegmentTree(leftIndex, l, mid);
+    this.buildSegmentTree(rightIndex, mid + 1, r);
+    this.tree[treeIndex] = this.merge(
+      this.tree[leftIndex]!,
+      this.tree[rightIndex]!
+    );
+  }
+  merge(a: number, b: number) {
+    return a + b;
+  }
+  sumRange(left: number, right: number) {
+    if (
+      left < 0 ||
+      left >= this.data.length ||
+      right < 0 ||
+      right >= this.data.length
+    )
+      throw new Error("error");
+    return this.query(0, 0, this.data.length - 1, left, right);
+  }
+  query(
+    treeIndex: number,
+    l: number,
+    r: number,
+    queryl: number,
+    queryr: number
+  ): number {
+    if (l === queryl && r === queryr) return this.tree[treeIndex]!;
+    const leftIndex = this.getLeftIndex(treeIndex);
+    const rightIndex = this.getRightIndex(treeIndex);
+    const mid = Math.floor(l + (r - l) / 2);
+    if (queryl >= mid + 1) {
+      return this.query(rightIndex, mid + 1, r, queryl, queryr);
     }
-  };
-  for (let i = 0; i <= nums.length; i++) {
-    dfs([], 0, i);
+    if (queryr <= mid) {
+      return this.query(leftIndex, l, mid, queryl, queryr);
+    }
+    return this.merge(
+      this.query(leftIndex, l, mid, queryl, mid),
+      this.query(rightIndex, mid + 1, r, mid + 1, queryr)
+    );
+  }
+  update(index: number, val: number) {
+    if (index < 0 || index >= this.data.length) throw new Error("error");
+    this.data[index] = val;
+    this.set(0, 0, this.data.length - 1, index, val);
+  }
+  set(treeIndex: number, l: number, r: number, index: number, val: number) {
+    if (l === r) {
+      this.tree[treeIndex] = val;
+      return;
+    }
+    const mid = Math.floor(l + (r - l) / 2);
+    const leftIndex = this.getLeftIndex(treeIndex);
+    const rightIndex = this.getRightIndex(treeIndex);
+    if (index >= mid + 1) {
+      this.set(rightIndex, mid + 1, r, index, val);
+    } else {
+      this.set(leftIndex, l, mid, index, val);
+    }
+    this.tree[treeIndex] = this.merge(
+      this.tree[leftIndex]!,
+      this.tree[rightIndex]!
+    );
+  }
+}
+
+// hot 37 - 40
+export function inorderTraversal(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  let p: TreeNode | null = root;
+  const stack: TreeNode[] = [];
+  while (p || stack.length) {
+    while (p) {
+      stack.push(p);
+      p = p.left;
+    }
+    const current = stack.pop()!;
+    res.push(current.val);
+    p = current.right;
   }
   return res;
 }
 
-export function exist(board: string[][], word: string) {
-  if (word.length) return true;
-  if (board.length === 0 || board[0].length === 0) return false;
-  const m = board.length;
-  const n = board[0].length;
-  const dfs = (r: number, c: number, index: number) => {
-    if (index >= word.length) return true;
-    const temp = board[r][c];
-    board[r][c] = "";
-    const res = [
-      [r + 1, c],
-      [r - 1, c],
-      [r, c + 1],
-      [r, c - 1],
-    ].some(([nextR, nextC]) => {
-      if (
-        nextR >= 0 &&
-        nextR < m &&
-        nextC >= 0 &&
-        nextC < n &&
-        board[nextR][nextC] === word[index]
-      ) {
-        return dfs(nextR, nextC, index + 1);
-      }
-      return false;
-    });
-    board[r][c] = temp;
-    return res;
-  };
-  for (let r = 0; r < m; r++) {
-    for (let c = 0; c < n; c++) {
-      if (board[r][c] === word[0]) {
-        const res = dfs(r, c, 1);
-        if (res) return true;
-      }
-    }
-  }
-  return false;
-}
-
-export function largestRectangleArea(heights: number[]) {
-  const stack: number[] = [];
-  const left: number[] = [];
-  const right: number[] = [];
-  for (let i = 0; i < heights.length; i++) {
-    while (stack.length && heights[stack[stack.length - 1]] >= heights[i]) {
-      stack.pop();
-    }
-    left[i] = stack.length ? stack[stack.length - 1] : -1;
-    stack.push(i);
-  }
-  stack.length = 0;
-  for (let i = heights.length - 1; i >= 0; i--) {
-    while (stack.length && heights[0] >= heights[i]) {
-      heights.shift();
-    }
-    right[i] = stack.length ? stack[0] : heights.length;
-    stack.unshift(i);
-  }
-  let res = 0;
-  for (let i = 0; i < heights.length; i++) {
-    res = Math.max(res, (right[i] - left[i] - 1) * heights[i]);
-  }
-  return res;
-}
-
-export function maximalRectangle(matrix: string[][]) {
-  if (matrix.length === 0 || matrix[0].length === 0) return 0;
-  const m = matrix.length;
-  const n = matrix[0].length;
-  const left = Array.from({ length: m }, () => new Array(n).fill(0));
-  for (let r = 0; r < m; r++) {
-    for (let c = 0; c < n; c++) {
-      if (matrix[r][c] === "0") continue;
-      left[r][c] = c > 0 ? left[r][c - 1] + 1 : 1;
-    }
-  }
-  let res = 0;
-  for (let r = 0; r < m; r++) {
-    for (let c = 0; c < n; c++) {
-      if (left[r][c] === 0) continue;
-      let width = left[r][c];
-      let area = width;
-      for (let i = r - 1; i >= 0; i--) {
-        if (left[i][c] === 0) break;
-        width = Math.min(width, left[i][c]);
-        area = Math.max(area, width * (r - i + 1));
-      }
-      res = Math.max(res, area);
-    }
-  }
-  return res;
-}
+// todo
 
 // sort 1-5
 export function mergeField(intervals: number[][]) {
