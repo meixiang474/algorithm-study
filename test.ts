@@ -21,54 +21,94 @@ export class ListNode<T = number> {
   }
 }
 
-// offer 36 38
-export function treeToDoublyList(root: TreeNode | null) {
-  if (!root) return null;
-  const res: TreeNode[] = [];
-  const dfs = (node: TreeNode) => {
-    if (node.left) dfs(node.left);
-    res.push(node);
-    if (node.right) dfs(node.right);
-  };
-  let head: TreeNode | null = null;
-  let tail: TreeNode | null = null;
-  for (let i = 0; i < res.length; i++) {
-    if (i === 0) {
-      head = tail = res[i];
-      head.left = tail;
-      tail.right = head;
-    } else {
-      let prev = tail;
-      tail!.right = res[i];
-      tail = tail!.right;
-      tail.left = prev;
-      tail.right = head;
-      head!.left = tail;
-    }
+// offer 39 40
+export function majorityElement(nums: number[]) {
+  const map = new Map<number, number>();
+  for (let item of nums) {
+    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
+    if (map.get(item)! > nums.length / 2) return item;
   }
-  return head;
 }
 
-export function permutation(s: string) {
-  s.split("").sort().join("");
-  const map = new Map<number, boolean>();
-  const res: string[] = [];
-  const dfs = (path: string) => {
-    if (path.length === s.length) {
-      res.push(path);
-      return;
-    }
-    for (let i = 0; i < s.length; i++) {
-      if (i > 0 && s[i] === s[i - 1] && map.get(i - 1)) continue;
-      if (!map.get(i)) {
-        map.set(i, true);
-        dfs(path + s[i]);
-        map.set(i, false);
-      }
+export function getLeastNumbers(nums: number[], k: number) {
+  const arr = [...nums];
+  if (k >= arr.length) return arr;
+  const sortArr = (arr: number[], l: number, r: number): number[] => {
+    if (l >= r) return arr.slice(0, k);
+    const p = partition(arr, l, r);
+    if (p === k) {
+      return arr.slice(0, k);
+    } else if (p > k) {
+      return sortArr(arr, l, p - 1);
+    } else {
+      return sortArr(arr, p + 1, r);
     }
   };
-  dfs("");
-  return res;
+  const getRandom = (l: number, r: number) =>
+    Math.floor(Math.random() * (r - l + 1) + l);
+  const swap = (arr: number[], i: number, j: number) =>
+    ([arr[i], arr[j]] = [arr[j], arr[i]]);
+  const partition = (arr: number[], l: number, r: number) => {
+    const p = getRandom(l, r);
+    swap(arr, l, p);
+    let i = l + 1,
+      j = r;
+    while (true) {
+      while (i <= j && arr[i] < arr[l]) {
+        i++;
+      }
+      while (i <= j && arr[j] > arr[l]) {
+        j--;
+      }
+      if (i >= j) break;
+      swap(arr, i, j);
+      i++;
+      j--;
+    }
+    swap(arr, l, j);
+    return j;
+  };
+  return sortArr(arr, 0, arr.length - 1);
+}
+
+export class TrieNode {
+  isWord: boolean;
+  next: Map<string, TrieNode>;
+  constructor(isWord: boolean = false) {
+    this.isWord = isWord;
+    this.next = new Map();
+  }
+}
+
+export class Trie {
+  root: TrieNode;
+  size: number;
+  constructor() {
+    this.root = new TrieNode();
+    this.size = 0;
+  }
+  add(word: string) {
+    let current = this.root;
+    for (let item of word) {
+      if (!current.next.has(item)) {
+        current.next.set(item, new TrieNode());
+      }
+      current = current.next.get(item)!;
+    }
+    if (!current.isWord) {
+      current.isWord = true;
+      this.size++;
+    }
+  }
+  contains(word: string) {
+    let current = this.root;
+    for (let item of word) {
+      if (!current.next.has(item)) return false;
+      current = current.next.get(item)!;
+    }
+    return current.isWord;
+  }
+  // todo
 }
 
 // segment tree
@@ -390,126 +430,117 @@ export function inorderTraversal(root: TreeNode | null) {
   return res;
 }
 
-// todo
-
-// sort 1-5
-export function mergeField(intervals: number[][]) {
-  intervals.sort((a, b) => a[0] - b[0]);
-  const res: number[][] = [];
-  let prevEnd = -Infinity;
-  for (let i = 0; i < intervals.length; i++) {
-    const [start, end] = intervals[i];
-    if (i > 0 && prevEnd >= start) {
-      res.splice(res.length - 1, 1, [
-        res[res.length - 1][0],
-        Math.max(prevEnd, end),
-      ]);
-    } else {
-      res.push([start, end]);
+export function numTrees(n: number) {
+  const dp = [1, 1];
+  for (let i = 2; i <= n; i++) {
+    if (dp[i] == null) dp[i] = 0;
+    for (let j = 1; j <= i; j++) {
+      dp[i] += dp[j - 1] * dp[i - j];
     }
-    prevEnd = Math.max(prevEnd, end);
+  }
+  return dp[n];
+}
+
+export function isValidBST(root: TreeNode | null) {
+  if (!root) return true;
+  const dfs = (node: TreeNode, floor: number, ceil: number): boolean => {
+    if (node.val <= floor || node.val >= ceil) return false;
+    return (
+      (!node.left || dfs(node.left, floor, node.val)) &&
+      (!node.right || dfs(node.right, node.val, ceil))
+    );
+  };
+  return dfs(root, -Infinity, Infinity);
+}
+
+export function isSymmetric(root: TreeNode | null) {
+  if (!root) return true;
+  const dfs = (p: TreeNode | null, q: TreeNode | null) => {
+    if (!p && !q) return true;
+    if (
+      p &&
+      q &&
+      p.val === q.val &&
+      dfs(p.left, q.right) &&
+      dfs(p.right, q.left)
+    )
+      return true;
+    return false;
+  };
+  return dfs(root.left, root.right);
+}
+
+// stack 1-5
+export function isValid(s: string) {
+  const stack: string[] = [];
+  const map = new Map<string, string>();
+  map.set("(", ")");
+  map.set("[", "]");
+  map.set("{", "}");
+  for (let item of s) {
+    if (map.has(item)) {
+      stack.push(item);
+    } else {
+      const prev = stack.pop();
+      if (!prev || map.get(prev) !== item) return false;
+    }
+  }
+  return stack.length === 0;
+}
+
+export function simplifyPath(path: string) {
+  const dirs = path.split("/");
+  const stack: string[] = [];
+  for (let item of dirs) {
+    if (item === "." || item === "") continue;
+    if (item === "..") {
+      stack.pop();
+    }
+    stack.push(item);
+  }
+  return "/" + stack.join("/");
+}
+
+export function inorderTraversal1(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  const stack: TreeNode[] = [];
+  let p: TreeNode | null = root;
+  while (p || stack.length) {
+    while (p) {
+      stack.push(p);
+      p = p.left;
+    }
+    const current = stack.pop()!;
+    res.push(current.val);
+    p = current.right;
   }
   return res;
 }
 
-export function insertField(intervals: number[][], newInterval: number[]) {
-  intervals.push(newInterval);
-  intervals.sort((a, b) => a[0] - b[0]);
+export function zigzagLevelOrder(root: TreeNode | null) {
+  if (!root) return [];
+  const queue: [TreeNode, number][] = [[root, 0]];
   const res: number[][] = [];
-  let prevEnd = -Infinity;
-  for (let i = 0; i < intervals.length; i++) {
-    const [start, end] = intervals[i];
-    if (i > 0 && prevEnd >= start) {
-      res.splice(res.length - 1, 1, [
-        res[res.length - 1][0],
-        Math.max(prevEnd, end),
-      ]);
-    } else {
-      res.push(intervals[i]);
-    }
-    prevEnd = Math.max(prevEnd, end);
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    const arr = res[level] || (res[level] = []);
+    level % 2 === 0 ? arr.push(current.val) : arr.unshift(current.val);
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
   }
   return res;
 }
 
-export function sortColors(colors: number[]) {
-  let left = -1,
-    right = colors.length,
-    i = 0;
-  const swap = (nums: number[], i: number, j: number) =>
-    ([nums[i], nums[j]] = [nums[j], nums[i]]);
-  while (i < right) {
-    if (colors[i] === 0) {
-      left++;
-      swap(colors, left, i);
-      i++;
-    } else if (colors[i] === 2) {
-      right--;
-      swap(colors, right, i);
-    } else {
-      i++;
-    }
+export function preorderTraversal(root: TreeNode | null) {
+  if (!root) return [];
+  const stack: TreeNode[] = [root];
+  const res: number[] = [];
+  while (stack.length) {
+    const current = stack.pop()!;
+    res.push(current.val);
+    if (current.right) stack.push(current.right);
+    if (current.left) stack.push(current.left);
   }
-}
-
-export function insertionSortList(head: ListNode | null) {
-  if (!head || !head.next) return head;
-  const dummyHead = new ListNode(-1);
-  dummyHead.next = head;
-  let lastSorted = head;
-  let current: ListNode | null = head.next;
-  while (current) {
-    if (lastSorted.val <= current.val) {
-      lastSorted = current;
-      current = current.next;
-    } else {
-      let prev = dummyHead;
-      while (prev.next) {
-        if (prev.next.val >= current.val) break;
-        prev = prev.next;
-      }
-      const next: ListNode | null = current.next;
-      const insertCurrent = prev.next;
-      prev.next = current;
-      current.next = insertCurrent;
-      current = next;
-      lastSorted.next = next;
-    }
-  }
-  return dummyHead.next;
-}
-
-export function sortList(head: ListNode | null) {
-  if (!head || !head.next) return head;
-  let slow: ListNode | null = head,
-    fast: ListNode | null = head;
-  while (slow && fast && fast.next) {
-    slow = slow.next;
-    fast = fast.next.next;
-  }
-  const next = slow!.next;
-  slow!.next = null;
-  const l1 = sortList(head);
-  const l2 = sortList(next);
-  const dummyHead = new ListNode(-1);
-  let p1 = l1,
-    p2 = l2,
-    p3 = dummyHead;
-  while (p1 && p2) {
-    if (p1.val < p2.val) {
-      p3.next = p1;
-      p1 = p1.next;
-    } else {
-      p3.next = p2;
-      p2 = p2.next;
-    }
-    p3 = p3.next;
-  }
-  if (p1) {
-    p3.next = p1;
-  }
-  if (p2) {
-    p3.next = p2;
-  }
-  return dummyHead.next;
+  return res;
 }
