@@ -8,7 +8,7 @@ export default function strStr(haystack: string, needle: string) {
   while (index < haystack.length) {
     if (haystack.length - index < needle.length) break;
     const current = haystack[index];
-    if (current === needle[index]) {
+    if (current === needle[0]) {
       let flag = true;
       for (let i = index + 1; i < index + needle.length; i++) {
         if (haystack[i] !== needle[i - index]) {

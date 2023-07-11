@@ -80,6 +80,7 @@ export class TrieNode {
   }
 }
 
+// trie
 export class Trie {
   root: TrieNode;
   size: number;
@@ -108,375 +109,211 @@ export class Trie {
     }
     return current.isWord;
   }
-  // todo
-}
-
-// segment tree
-export class SegmentTree<T = any> {
-  data: T[];
-  tree: (T | null)[];
-  merge: (a: T, b: T) => T;
-  constructor(arr: T[], merge: (a: T, b: T) => T) {
-    this.data = [...arr];
-    this.tree = new Array(4 * this.data.length).fill(null);
-    this.merge = merge;
-    this.buildSegmentTree(0, 0, this.data.length - 1);
-  }
-  buildSegmentTree(treeIndex: number, l: number, r: number) {
-    if (l > r) return;
-    if (l === r) {
-      this.tree[treeIndex] = this.data[l];
-      return;
+  isPrefix(prefix: string) {
+    let current = this.root;
+    for (let item of prefix) {
+      if (!current.next.has(item)) return false;
+      current = current.next.get(item)!;
     }
-    const leftIndex = this.leftChild(treeIndex);
-    const rightIndex = this.rightChild(treeIndex);
-    const mid = Math.floor(l + (r - l) / 2);
-    this.buildSegmentTree(leftIndex, l, mid);
-    this.buildSegmentTree(rightIndex, mid + 1, r);
-    this.tree[treeIndex] = this.merge(
-      this.tree[leftIndex]!,
-      this.tree[rightIndex]!
-    );
-  }
-  getSize() {
-    return this.data.length;
-  }
-  get(index: number) {
-    if (index < 0 || index >= this.data.length) throw new Error("error");
-    return this.data[index];
-  }
-  leftChild(index: number) {
-    return 2 * index + 1;
-  }
-  rightChild(index: number) {
-    return 2 * index + 1;
-  }
-  query(l: number, r: number) {
-    if (
-      l < 0 ||
-      l >= this.data.length ||
-      r < 0 ||
-      r >= this.data.length ||
-      l > r
-    )
-      throw new Error("errorr");
-    return this.queryNode(0, 0, this.data.length - 1, l, r);
-  }
-  queryNode(
-    treeIndex: number,
-    l: number,
-    r: number,
-    queryl: number,
-    queryr: number
-  ): T {
-    if (l === queryl && r === queryr) {
-      return this.tree[treeIndex]!;
-    }
-    const leftIndex = this.leftChild(treeIndex);
-    const rightIndex = this.rightChild(treeIndex);
-    const mid = Math.floor(l + (r - l) / 2);
-    if (queryl >= mid + 1) {
-      return this.queryNode(rightIndex, mid + 1, r, queryl, queryr);
-    }
-    if (queryr <= mid) {
-      return this.queryNode(leftIndex, l, mid, queryl, queryr);
-    }
-    return this.merge(
-      this.queryNode(leftIndex, l, mid, queryl, mid),
-      this.queryNode(rightIndex, mid + 1, r, mid + 1, queryr)
-    );
-  }
-  set(index: number, val: T) {
-    if (index < 0 || index >= this.data.length) throw new Error("error");
-    this.data[index] = val;
-    this.setNode(0, 0, this.data.length - 1, index, val);
-  }
-  setNode(treeIndex: number, l: number, r: number, index: number, val: T) {
-    if (l === r) {
-      this.tree[treeIndex] = val;
-      return;
-    }
-    const leftIndex = this.leftChild(treeIndex);
-    const rightIndex = this.rightChild(treeIndex);
-    const mid = Math.floor(l + (r - l) / 2);
-    if (index >= mid + 1) {
-      this.setNode(rightIndex, mid + 1, r, index, val);
-    }
-    if (index <= mid) {
-      this.setNode(leftIndex, l, mid, index, val);
-    }
-    this.tree[treeIndex] = this.merge(
-      this.tree[leftIndex]!,
-      this.tree[rightIndex]!
-    );
-  }
-  toString() {
-    let res = "[";
-    for (let i = 0; i < this.tree.length; i++) {
-      res += JSON.stringify(this.tree[i]) + ",";
-    }
-    return res.slice(0, -1) + "]";
+    return true;
   }
 }
 
-export class NumArray {
-  data: number[];
-  tree: (number | null)[];
-  constructor(nums: number[]) {
-    this.data = [...nums];
-    this.tree = new Array(4 * this.data.length).fill(null);
-    this.buildSegmentTree(0, 0, this.data.length - 1);
+export class WordDictionary {
+  root: TrieNode;
+  constructor() {
+    this.root = new TrieNode();
   }
-  buildSegmentTree(treeIndex: number, l: number, r: number) {
-    if (l > r) return;
-    if (l === r) {
-      this.tree[treeIndex] = this.data[l];
-      return;
+  addWord(word: string) {
+    let current = this.root;
+    for (let item of word) {
+      if (!current.next.has(item)) {
+        current.next.set(item, new TrieNode());
+      }
+      current = current.next.get(item)!;
     }
-    const leftIndex = this.getLeftIndex(treeIndex);
-    const rightIndex = this.getRightIndex(treeIndex);
-    const mid = Math.floor(l + (r - l) / 2);
-    this.buildSegmentTree(leftIndex, l, mid);
-    this.buildSegmentTree(rightIndex, mid + 1, r);
-    this.tree[treeIndex] = this.merge(
-      this.tree[leftIndex]!,
-      this.tree[rightIndex]!
-    );
+    current.isWord = true;
   }
-  merge(a: number, b: number) {
-    return a + b;
+  search(word: string) {
+    return this.match(this.root, word, 0);
   }
-  getLeftIndex(index: number) {
-    return 2 * index + 1;
-  }
-  getRightIndex(index: number) {
-    return 2 * index + 2;
-  }
-  sumRange(left: number, right: number) {
-    if (
-      left < 0 ||
-      left >= this.data.length ||
-      right < 0 ||
-      right >= this.data.length
-    )
-      throw new Error("error");
-    return this.query(0, 0, this.data.length - 1, left, right);
-  }
-  query(
-    treeIndex: number,
-    l: number,
-    r: number,
-    queryl: number,
-    queryr: number
-  ): number {
-    if (l === queryl && r === queryr) {
-      return this.tree[treeIndex]!;
-    }
-    const leftIndex = this.getLeftIndex(treeIndex);
-    const rightIndex = this.getRightIndex(treeIndex);
-    const mid = Math.floor(l + (r - l) / 2);
-    if (queryl >= mid + 1) {
-      return this.query(rightIndex, mid + 1, r, queryl, queryr);
-    }
-    if (queryr <= mid) {
-      return this.query(leftIndex, l, mid, queryl, queryr);
-    }
-    return this.merge(
-      this.query(leftIndex, l, mid, queryl, mid),
-      this.query(rightIndex, mid + 1, r, mid + 1, queryr)
-    );
-  }
-}
-
-export class NumArray1 {
-  sums: number[];
-  constructor(nums: number[]) {
-    this.sums = new Array(nums.length + 1).fill(0);
-    for (let i = 1; i < this.sums.length; i++) {
-      this.sums[i] = this.sums[i - 1] + nums[i - 1];
-    }
-  }
-  sumRange(left: number, right: number) {
-    return this.sums[right + 1] - this.sums[left];
-  }
-}
-
-export class NumArray2 {
-  data: number[];
-  sums: number[];
-  constructor(nums: number[]) {
-    this.data = [...nums];
-    this.sums = new Array(this.data.length + 1).fill(0);
-    for (let i = 1; i < this.sums.length; i++) {
-      this.sums[i] = this.sums[i - 1] + this.data[i - 1];
-    }
-  }
-  sumRange(left: number, right: number) {
-    return this.sums[right + 1] - this.sums[left];
-  }
-  update(index: number, val: number) {
-    this.data[index] = val;
-    for (let i = index + 1; i < this.sums.length; i++) {
-      this.sums[i] = this.sums[i - 1] + this.data[i - 1];
-    }
-  }
-}
-
-export class NumArray3 {
-  data: number[];
-  tree: (number | null)[];
-  constructor(nums: number[]) {
-    this.data = [...nums];
-    this.tree = new Array(this.data.length * 4).fill(null);
-    this.buildSegmentTree(0, 0, this.data.length - 1);
-  }
-  getLeftIndex(index: number) {
-    return 2 * index + 1;
-  }
-  getRightIndex(index: number) {
-    return 2 * index + 2;
-  }
-  buildSegmentTree(treeIndex: number, l: number, r: number) {
-    if (l > r) return;
-    if (l === r) {
-      this.tree[treeIndex] = this.data[l];
-      return;
-    }
-    const leftIndex = this.getLeftIndex(treeIndex);
-    const rightIndex = this.getRightIndex(treeIndex);
-    const mid = Math.floor(l + (r - l) / 2);
-    this.buildSegmentTree(leftIndex, l, mid);
-    this.buildSegmentTree(rightIndex, mid + 1, r);
-    this.tree[treeIndex] = this.merge(
-      this.tree[leftIndex]!,
-      this.tree[rightIndex]!
-    );
-  }
-  merge(a: number, b: number) {
-    return a + b;
-  }
-  sumRange(left: number, right: number) {
-    if (
-      left < 0 ||
-      left >= this.data.length ||
-      right < 0 ||
-      right >= this.data.length
-    )
-      throw new Error("error");
-    return this.query(0, 0, this.data.length - 1, left, right);
-  }
-  query(
-    treeIndex: number,
-    l: number,
-    r: number,
-    queryl: number,
-    queryr: number
-  ): number {
-    if (l === queryl && r === queryr) return this.tree[treeIndex]!;
-    const leftIndex = this.getLeftIndex(treeIndex);
-    const rightIndex = this.getRightIndex(treeIndex);
-    const mid = Math.floor(l + (r - l) / 2);
-    if (queryl >= mid + 1) {
-      return this.query(rightIndex, mid + 1, r, queryl, queryr);
-    }
-    if (queryr <= mid) {
-      return this.query(leftIndex, l, mid, queryl, queryr);
-    }
-    return this.merge(
-      this.query(leftIndex, l, mid, queryl, mid),
-      this.query(rightIndex, mid + 1, r, mid + 1, queryr)
-    );
-  }
-  update(index: number, val: number) {
-    if (index < 0 || index >= this.data.length) throw new Error("error");
-    this.data[index] = val;
-    this.set(0, 0, this.data.length - 1, index, val);
-  }
-  set(treeIndex: number, l: number, r: number, index: number, val: number) {
-    if (l === r) {
-      this.tree[treeIndex] = val;
-      return;
-    }
-    const mid = Math.floor(l + (r - l) / 2);
-    const leftIndex = this.getLeftIndex(treeIndex);
-    const rightIndex = this.getRightIndex(treeIndex);
-    if (index >= mid + 1) {
-      this.set(rightIndex, mid + 1, r, index, val);
+  match(node: TrieNode, word: string, index: number): boolean {
+    if (index === word.length) return node.isWord;
+    const current = word[index];
+    if (current !== ".") {
+      if (!node.next.has(current)) return false;
+      return this.match(node.next.get(current)!, word, index + 1);
     } else {
-      this.set(leftIndex, l, mid, index, val);
+      for (let [, item] of node.next) {
+        const res = this.match(item, word, index + 1);
+        if (res) return res;
+      }
+      return false;
     }
-    this.tree[treeIndex] = this.merge(
-      this.tree[leftIndex]!,
-      this.tree[rightIndex]!
-    );
   }
 }
 
-// hot 37 - 40
-export function inorderTraversal(root: TreeNode | null) {
-  if (!root) return [];
-  const res: number[] = [];
-  let p: TreeNode | null = root;
-  const stack: TreeNode[] = [];
-  while (p || stack.length) {
-    while (p) {
-      stack.push(p);
-      p = p.left;
+export class TrieNode1 {
+  value: number;
+  next: Map<string, TrieNode1>;
+  constructor(value: number = 0) {
+    this.value = value;
+    this.next = new Map();
+  }
+}
+
+export class MapSum {
+  root: TrieNode1;
+  constructor() {
+    this.root = new TrieNode1();
+  }
+  insert(key: string, value: number) {
+    let current = this.root;
+    for (let item of key) {
+      if (!current.next.has(item)) {
+        current.next.set(item, new TrieNode1());
+      }
+      current = current.next.get(item)!;
     }
-    const current = stack.pop()!;
-    res.push(current.val);
-    p = current.right;
+    current.value = value;
+  }
+  sum(prefix: string) {
+    let current = this.root;
+    for (let item of prefix) {
+      if (!current.next.has(item)) return 0;
+      current = current.next.get(item)!;
+    }
+    this.sumNode(current);
+  }
+  sumNode(node: TrieNode1) {
+    let res = node.value;
+    for (let [, item] of node.next) {
+      res += this.sumNode(item);
+    }
+    return res;
+  }
+}
+
+// hot 41 - 44
+export function levelOrder(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[][] = [];
+  const queue: [TreeNode, number][] = [[root, 0]];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    const arr = res[level] || (res[level] = []);
+    arr.push(current.val);
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
   }
   return res;
 }
 
-export function numTrees(n: number) {
-  const dp = [1, 1];
-  for (let i = 2; i <= n; i++) {
-    if (dp[i] == null) dp[i] = 0;
-    for (let j = 1; j <= i; j++) {
-      dp[i] += dp[j - 1] * dp[i - j];
+export function maxDepth(root: TreeNode | null) {
+  if (!root) return 0;
+  let res = 0;
+  const dfs = (node: TreeNode, level: number) => {
+    if (!node.left && !node.right) res = Math.max(res, level);
+    if (node.left) dfs(node.left, level + 1);
+    if (node.right) dfs(node.right, level + 1);
+  };
+  dfs(root, 1);
+  return res;
+}
+
+export function buildTree(
+  preorder: number[],
+  inorder: number[]
+): TreeNode | null {
+  if (preorder.length === 0 || inorder.length === 0) return null;
+  const rootValue = preorder[0];
+  const rootIndex = inorder.indexOf(rootValue);
+  const rootNode = new TreeNode(rootValue);
+  rootNode.left = buildTree(
+    preorder.slice(1, rootIndex + 1),
+    inorder.slice(0, rootIndex)
+  );
+  rootNode.right = buildTree(
+    preorder.slice(rootIndex + 1),
+    inorder.slice(rootIndex + 1)
+  );
+  return rootNode;
+}
+
+export function flatten(root: TreeNode | null) {
+  if (!root) return null;
+  const dummyHead = new TreeNode(-1);
+  let p = dummyHead;
+  const dfs = (node: TreeNode) => {
+    const left = node.left;
+    const right = node.right;
+    node.left = null;
+    node.right = null;
+    p.right = node;
+    p = p.right;
+    if (left) {
+      dfs(left);
     }
+    if (right) {
+      dfs(right);
+    }
+  };
+  dfs(root);
+}
+
+// string 1 - 5
+export function longestSubstring(s: string) {
+  let l = 0,
+    r = 0;
+  const map = new Map<string, number>();
+  let res = 0;
+  while (r < s.length) {
+    const current = s[r];
+    if (map.has(current) && map.get(current)! >= l) {
+      l = map.get(current)! + 1;
+    }
+    res = Math.max(res, r - l + 1);
+    map.set(current, r);
+    r++;
   }
-  return dp[n];
+  return res;
 }
 
-export function isValidBST(root: TreeNode | null) {
-  if (!root) return true;
-  const dfs = (node: TreeNode, floor: number, ceil: number): boolean => {
-    if (node.val <= floor || node.val >= ceil) return false;
-    return (
-      (!node.left || dfs(node.left, floor, node.val)) &&
-      (!node.right || dfs(node.right, node.val, ceil))
-    );
+export function letterCombinations(digits: string) {
+  if (digits === "") return "";
+  const map: Record<string, string[]> = {
+    "2": ["a", "b", "c"],
+    "3": ["d", "e", "f"],
+    "4": ["g", "h", "i"],
+    "5": ["j", "k", "l"],
+    "6": ["m", "n", "o"],
+    "7": ["p", "q", "r", "s"],
+    "8": ["t", "u", "v"],
+    "9": ["w", "x", "y", "z"],
   };
-  return dfs(root, -Infinity, Infinity);
-}
-
-export function isSymmetric(root: TreeNode | null) {
-  if (!root) return true;
-  const dfs = (p: TreeNode | null, q: TreeNode | null) => {
-    if (!p && !q) return true;
-    if (
-      p &&
-      q &&
-      p.val === q.val &&
-      dfs(p.left, q.right) &&
-      dfs(p.right, q.left)
-    )
-      return true;
-    return false;
+  const res: string[] = [];
+  const dfs = (path: string, index: number) => {
+    if (index >= digits.length) {
+      res.push(path);
+      return;
+    }
+    const current = digits[index];
+    const arr = map[current];
+    for (let item of arr) {
+      dfs(path + item, index + 1);
+    }
   };
-  return dfs(root.left, root.right);
+  dfs("", 0);
+  return res;
 }
 
-// stack 1-5
 export function isValid(s: string) {
-  const stack: string[] = [];
+  if (s.length % 2 !== 0) return false;
   const map = new Map<string, string>();
   map.set("(", ")");
   map.set("[", "]");
   map.set("{", "}");
+  const stack: string[] = [];
   for (let item of s) {
     if (map.has(item)) {
       stack.push(item);
@@ -488,59 +325,4 @@ export function isValid(s: string) {
   return stack.length === 0;
 }
 
-export function simplifyPath(path: string) {
-  const dirs = path.split("/");
-  const stack: string[] = [];
-  for (let item of dirs) {
-    if (item === "." || item === "") continue;
-    if (item === "..") {
-      stack.pop();
-    }
-    stack.push(item);
-  }
-  return "/" + stack.join("/");
-}
-
-export function inorderTraversal1(root: TreeNode | null) {
-  if (!root) return [];
-  const res: number[] = [];
-  const stack: TreeNode[] = [];
-  let p: TreeNode | null = root;
-  while (p || stack.length) {
-    while (p) {
-      stack.push(p);
-      p = p.left;
-    }
-    const current = stack.pop()!;
-    res.push(current.val);
-    p = current.right;
-  }
-  return res;
-}
-
-export function zigzagLevelOrder(root: TreeNode | null) {
-  if (!root) return [];
-  const queue: [TreeNode, number][] = [[root, 0]];
-  const res: number[][] = [];
-  while (queue.length) {
-    const [current, level] = queue.shift()!;
-    const arr = res[level] || (res[level] = []);
-    level % 2 === 0 ? arr.push(current.val) : arr.unshift(current.val);
-    if (current.left) queue.push([current.left, level + 1]);
-    if (current.right) queue.push([current.right, level + 1]);
-  }
-  return res;
-}
-
-export function preorderTraversal(root: TreeNode | null) {
-  if (!root) return [];
-  const stack: TreeNode[] = [root];
-  const res: number[] = [];
-  while (stack.length) {
-    const current = stack.pop()!;
-    res.push(current.val);
-    if (current.right) stack.push(current.right);
-    if (current.left) stack.push(current.left);
-  }
-  return res;
-}
+// todo
