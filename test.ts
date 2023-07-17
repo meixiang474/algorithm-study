@@ -112,54 +112,130 @@ class MyArray<T> {
     return false;
   }
   find(val: T) {
-    // todo
+    for (let i = 0; i < this.size; i++) {
+      if (this.data[i] === val) return i;
+    }
+    return -1;
+  }
+  remove(index: number) {
+    if (index < 0 || index >= this.size) throw new Error("error");
+    const res = this.data[index];
+    for (let i = index; i < this.size; i++) {
+      this.data[i] = this.data[i + 1];
+    }
+    this.size--;
+    if (
+      this.size <= Math.floor(this.getCapacity() / 2) &&
+      Math.floor(this.getCapacity() / 2) !== 0
+    ) {
+      this.resize(Math.floor(this.getCapacity() / 2));
+    }
+    return res;
+  }
+  removeFirst() {
+    return this.remove(0);
+  }
+  removeLast() {
+    return this.remove(this.size - 1);
+  }
+  removeElement(val: T) {
+    const index = this.find(val);
+    if (index !== -1) {
+      this.remove(index);
+      return true;
+    }
+    return false;
+  }
+  set(index: number, val: T) {
+    if (index < 0 || index >= this.size) throw new Error("error");
+    this.data[index] = val;
+  }
+  toString() {
+    let res = `MyArray: capacity=${this.getCapacity()}, size=${this.getSize()}\r\n`;
+    res += "[";
+    for (let i = 0; i < this.size; i++) {
+      res += JSON.stringify(this.data[i]) + ",";
+    }
+    res = res.slice(0, -1) + "]";
+    return res;
   }
 }
 
-// hot 45 - 48
-export function maxProfit(prices: number[]) {
-  let profit = 0;
-  for (let i = 0; i < prices.length - 1; i++) {
-    if (prices[i + 1] > prices[i]) profit += prices[i + 1] - prices[i];
-  }
-  return profit;
-}
-
-export function maxPathSum(root: TreeNode | null) {
-  if (!root) return 0;
-  let res = -Infinity;
-  const dfs = (node: TreeNode): number => {
-    const left = Math.max(node.left ? dfs(node.left) : 0, 0);
-    const right = Math.max(node.right ? dfs(node.right) : 0, 0);
-    res = Math.max(res, left + right + node.val);
-    return Math.max(left, right, 0) + node.val;
-  };
-  dfs(root);
-  return res;
-}
-
-export function longestConsecutive(nums: number[]) {
-  const set = new Set<number>();
-  for (let item of nums) {
-    set.add(item);
-  }
-  let res = 0;
-  for (let item of nums) {
-    if (!set.has(item - 1)) {
-      let length = 1;
-      let current = item;
-      while (set.has(current + 1)) {
-        length++;
-        current++;
+// hot 49 - 52
+export function wordBreak(s: string, wordDict: string[]) {
+  const dp = [true];
+  const set = new Set(wordDict);
+  for (let i = 1; i <= s.length; i++) {
+    dp[i] = false;
+    for (let j = 0; j < i; j++) {
+      if (dp[j] && set.has(s.slice(j, i))) {
+        dp[i] = true;
+        break;
       }
-      res = Math.max(res, length);
     }
   }
-  return res;
+  return dp[s.length];
 }
 
-export function singleNumber(nums: number[]) {
-  return nums.reduce((a, b) => (a ^= b));
+export function hasCycle(head: ListNode | null) {
+  let slow: ListNode | null = head;
+  let fast: ListNode | null = head;
+  while (slow && fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
+    if (slow === fast) return true;
+  }
+  return false;
+}
+
+export function detectCycle(head: ListNode | null) {
+  let slow = head;
+  let fast = head;
+  let hasCycle = false;
+  while (slow && fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
+    if (slow === fast) {
+      hasCycle = true;
+      break;
+    }
+  }
+  if (!hasCycle) return null;
+  let p = head;
+  while (p && slow) {
+    if (p === slow) return p;
+    p = p.next;
+    slow = slow.next;
+  }
+}
+
+export class DLinkedListNode {
+  key: number;
+  value: number;
+  next: DLinkedListNode | null;
+  prev: DLinkedListNode | null;
+  constructor(key: number, value: number) {
+    this.key = key;
+    this.value = value;
+    this.next = null;
+    this.prev = null;
+  }
+}
+
+export class LRUCache {
+  capacity: number;
+  size: number;
+  head: DLinkedListNode;
+  tail: DLinkedListNode;
+  cache: Map<number, DLinkedListNode>
+  constructor(capacity: number) {
+    this.capacity = capacity;
+    this.size = 0;
+    this.head = new DLinkedListNode(-1, -1);
+    this.tail = new DLinkedListNode(-1, -1);
+    this.cache = new Map();
+  } 
+  // todo
 }
 
 // tree 1 - 5
