@@ -227,96 +227,137 @@ export class LRUCache {
   size: number;
   head: DLinkedListNode;
   tail: DLinkedListNode;
-  cache: Map<number, DLinkedListNode>
+  cache: Map<number, DLinkedListNode>;
   constructor(capacity: number) {
     this.capacity = capacity;
     this.size = 0;
     this.head = new DLinkedListNode(-1, -1);
     this.tail = new DLinkedListNode(-1, -1);
+    this.head.next = this.tail;
+    this.tail.prev = this.head;
     this.cache = new Map();
-  } 
-  // todo
+  }
+  get(key: number) {
+    const cacheNode = this.cache.get(key);
+    if (!cacheNode) return -1;
+    this.moveToHead(cacheNode);
+    return cacheNode.value;
+  }
+  removeNode(node: DLinkedListNode) {
+    node.prev!.next = node.next;
+    node.next!.prev = node.prev;
+  }
+  addToHead(node: DLinkedListNode) {
+    node.next = this.head.next;
+    this.head.next = node;
+    node.prev = this.head;
+    node.next!.prev = node;
+  }
+  moveToHead(node: DLinkedListNode) {
+    this.removeNode(node);
+    this.addToHead(node);
+  }
+  put(key: number, value: number) {
+    const cacheNode = this.cache.get(key);
+    if (!cacheNode) {
+      const node = new DLinkedListNode(key, value);
+      this.addToHead(node);
+      this.cache.set(key, node);
+      this.size++;
+      if (this.size > this.capacity) {
+        const tail = this.tail.prev!;
+        this.removeNode(tail);
+        this.cache.delete(tail.key);
+        this.size--;
+      }
+    } else {
+      cacheNode.value = value;
+      this.removeNode(cacheNode);
+    }
+  }
 }
 
-// tree 1 - 5
-export function inorderTraversal(root: TreeNode | null) {
-  if (!root) return [];
-  const stack: TreeNode[] = [];
-  let p: TreeNode | null = root;
-  const res: number[] = [];
-  while (p || stack.length) {
-    while (p) {
-      stack.push(p);
-      p = p.left;
+// two pointers 1 - 5
+export function longestSubstring(s: string) {
+  let res = 0;
+  const map = new Map<string, number>();
+  let l = 0,
+    r = 0;
+  while (r < s.length) {
+    const currentr = s[r];
+    if (map.has(currentr) && map.get(currentr)! >= l) {
+      l = map.get(currentr)! + 1;
     }
-    const current = stack.pop()!;
-    res.push(current.val);
-    p = current.right;
+    res = Math.max(res, r - l + 1);
+    map.set(currentr, r);
+    r++;
   }
   return res;
 }
 
-export function inorderTraversal1(root: TreeNode | null) {
-  if (!root) return [];
-  const res: number[] = [];
-  const dfs = (node: TreeNode) => {
-    if (node.left) dfs(node.left);
-    res.push(node.val);
-    if (node.right) dfs(node.right);
-  };
-  dfs(root);
+export function maxArea(nums: number[]) {
+  let l = 0,
+    r = nums.length - 1;
+  let res = 0;
+  while (l < r) {
+    const left = nums[l];
+    const right = nums[r];
+    res = Math.min(left, right) * (r - l);
+    if (left < right) {
+      l++;
+    } else {
+      r--;
+    }
+  }
   return res;
 }
 
-export function numTrees(n: number) {
-  const dp = [1, 1];
-  for (let i = 2; i <= n; i++) {
-    if (dp[i] == null) dp[i] = 0;
-    for (let j = 1; j <= i; j++) {
-      dp[i] = dp[i] + dp[j - 1] * dp[i - j];
+export function threeSum(nums: number[]) {
+  nums.sort((a, b) => a - b);
+  const res: number[][] = [];
+  for (let i = 0; i < nums.length - 2; i++) {
+    const current = nums[i];
+    if (current + nums[i + 1] + nums[i + 2] > 0) break;
+    if (i > 0 && current === nums[i - 1]) continue;
+    if (current + nums[nums.length - 2] + nums[nums.length - 1] < 0) break;
+    let l = i + 1,
+      r = nums.length - 1;
+    while (l < r) {
+      const left = nums[l];
+      const right = nums[r];
+      const sum = left + right + current;
+      if (sum === 0) {
+        res.push([current, left, right]);
+        while (l < r) {
+          l++;
+          if (nums[l] !== left) break;
+        }
+        while (l < r) {
+          r--;
+          if (nums[r] !== right) break;
+        }
+      } else if (sum > 0) {
+        while (l < r) {
+          l++;
+          if (nums[l] !== left) break;
+        }
+      } else {
+        while (l < r) {
+          r--;
+          if (nums[r] !== right) break;
+        }
+      }
     }
   }
-  return dp[n];
+  return res;
 }
 
-export function isValidBST(root: TreeNode | null) {
-  if (!root) return true;
-  const dfs = (node: TreeNode, floor: number, ceil: number): boolean => {
-    if (node.val <= floor || node.val >= ceil) return false;
-    return (
-      (!node.left || dfs(node.left, floor, node.val)) &&
-      (!node.right || dfs(node.right, node.val, ceil))
-    );
-  };
-  return dfs(root, -Infinity, Infinity);
-}
-
-export function isSameTree(p: TreeNode | null, q: TreeNode | null) {
-  if (!p && !q) return true;
-  if (
-    p &&
-    q &&
-    p.val === q.val &&
-    isSameTree(p.left, q.left) &&
-    isSameTree(p.right, q.right)
-  )
-    return true;
-  return false;
-}
-
-export function isSymmetric(root: TreeNode | null) {
-  if (!root) return true;
-  const compare = (p: TreeNode | null, q: TreeNode | null) => {
-    if (!p && !q) return true;
-    if (
-      p &&
-      q &&
-      p.val === q.val &&
-      compare(p.left, q.right) &&
-      compare(p.right, q.left)
-    )
-      return true;
-    return false;
-  };
-  return compare(root.left, root.right);
+export function threeSumClosest(nums: number[], target: number) {
+  nums.sort((a, b) => a - b);
+  let res = 0;
+  let diff = Infinity;
+  for(let i = 0; i < nums.length - 2; i++) {
+    const current = nums[i];
+    // todo
+  }
 }
