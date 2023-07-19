@@ -21,143 +21,96 @@ export class ListNode<T = number> {
   }
 }
 
-// offer 46 47
-export function translateNum(num: number) {
-  const numStr = num.toString();
-  const dp = [1, 1];
-  for (let i = 2; i <= numStr.length; i++) {
-    if (
-      parseFloat(numStr.slice(i - 2, i)) > 25 ||
-      parseFloat(numStr.slice(i - 2, i)) < 10
-    ) {
-      dp[i] = dp[i - 1];
-    } else {
-      dp[i] = dp[i - 1] + dp[i - 2];
+// offer 48 49
+export function lengthOfLongestSubstring(s: string) {
+  const map = new Map<string, number>();
+  let res = 0;
+  let l = 0,
+    r = 0;
+  while (r < s.length) {
+    const current = s[r];
+    if (map.has(current) && map.get(current)! >= l) {
+      l = map.get(current)! + 1;
     }
+    res = Math.max(res, r - l + 1);
+    map.set(current, r);
+    r++;
   }
-  return dp[numStr.length];
+  return res;
 }
 
-export function maxValue(grid: number[][]) {
-  if (grid.length === 0 || grid[0].length === 0) return 0;
-  const m = grid.length;
-  const n = grid[0].length;
-  const dp: number[][] = Array.from({ length: m }, () => new Array(n).fill(0));
-  for (let r = 0; r < m; r++) {
-    for (let c = 0; c < n; c++) {
-      if (r === 0 && c === 0) {
-        dp[r][c] = grid[r][c];
-      } else if (r === 0) {
-        dp[r][c] = dp[r][c - 1] + grid[r][c];
-      } else if (c === 0) {
-        dp[r][c] = dp[r - 1][c] + grid[r][c];
-      } else {
-        dp[r][c] = Math.max(dp[r - 1][c], dp[r][c - 1]) + grid[r][c];
-      }
-    }
+export function nthUglyNumber(n: number) {
+  const dp = [1];
+  let a = 0;
+  let b = 0;
+  let c = 0;
+  for (let i = 1; i < n; i++) {
+    const n1 = dp[a] * 2;
+    const n2 = dp[b] * 3;
+    const n3 = dp[c] * 5;
+    dp[i] = Math.min(n1, n2, n3);
+    if (dp[i] === n1) a++;
+    if (dp[i] === n2) b++;
+    if (dp[i] === n3) c++;
   }
-  return dp[m - 1][n - 1];
+  return dp[n - 1];
 }
 
-// array
-class MyArray<T> {
-  data: (T | null)[];
-  size: number;
-  constructor(capacity = 10) {
-    this.data = new Array(capacity).fill(null);
-    this.size = 0;
+// stack
+export class Stack<T> {
+  items: T[];
+  constructor() {
+    this.items = [];
   }
-  getCapacity() {
-    return this.data.length;
+  push(item: T) {
+    this.items.push(item);
+  }
+  pop() {
+    if (this.items.length === 0) throw new Error("error");
+    return this.items.pop()!;
+  }
+  peek() {
+    if (this.items.length === 0) throw new Error("error");
+    return this.items[this.items.length - 1];
   }
   getSize() {
-    return this.size;
+    return this.items.length;
   }
-  resize(newCapacity: number) {
-    const newData: (T | null)[] = new Array(newCapacity).fill(null);
-    for (let i = 0; i < this.size; i++) {
-      newData[i] = this.data[i];
-    }
-    this.data = newData;
-  }
-  add(index: number, val: T) {
-    if (index < 0 || index > this.size) throw new Error("error");
-    if (this.getCapacity() >= this.size) this.resize(2 * this.getCapacity());
-    for (let i = this.size; i > index; i--) {
-      this.data[i] = this.data[i - 1];
-    }
-    this.data[index] = val;
-    this.size++;
-  }
-  addFirst(val: T) {
-    this.add(0, val);
-  }
-  addLast(val: T) {
-    this.add(this.size, val);
-  }
-  get(index: number) {
-    if (index < 0 || index >= this.size) throw new Error("error");
-    return this.data[index];
-  }
-  getFirst() {
-    return this.get(0);
-  }
-  getLast() {
-    return this.get(this.size - 1);
-  }
-  contains(val: T) {
-    for (let i = 0; i < this.size; i++) {
-      if (this.data[i] === val) return true;
-    }
-    return false;
-  }
-  find(val: T) {
-    for (let i = 0; i < this.size; i++) {
-      if (this.data[i] === val) return i;
-    }
-    return -1;
-  }
-  remove(index: number) {
-    if (index < 0 || index >= this.size) throw new Error("error");
-    const res = this.data[index];
-    for (let i = index; i < this.size; i++) {
-      this.data[i] = this.data[i + 1];
-    }
-    this.size--;
-    if (
-      this.size <= Math.floor(this.getCapacity() / 2) &&
-      Math.floor(this.getCapacity() / 2) !== 0
-    ) {
-      this.resize(Math.floor(this.getCapacity() / 2));
-    }
-    return res;
-  }
-  removeFirst() {
-    return this.remove(0);
-  }
-  removeLast() {
-    return this.remove(this.size - 1);
-  }
-  removeElement(val: T) {
-    const index = this.find(val);
-    if (index !== -1) {
-      this.remove(index);
-      return true;
-    }
-    return false;
-  }
-  set(index: number, val: T) {
-    if (index < 0 || index >= this.size) throw new Error("error");
-    this.data[index] = val;
+  isEmpty() {
+    return this.getSize() === 0;
   }
   toString() {
-    let res = `MyArray: capacity=${this.getCapacity()}, size=${this.getSize()}\r\n`;
-    res += "[";
-    for (let i = 0; i < this.size; i++) {
-      res += JSON.stringify(this.data[i]) + ",";
+    return this.items.toString();
+  }
+}
+
+export function isValid(s: string) {
+  if (s.length % 2 !== 0) return false;
+  const map = new Map<string, string>();
+  map.set("(", ")");
+  map.set("[", "]");
+  map.set("{", "}");
+  const stack: string[] = [];
+  for (let item of s) {
+    if (map.has(item)) {
+      stack.push(item);
+    } else {
+      const prev = stack.pop()!;
+      if (!prev || map.get(prev) !== item) return false;
     }
-    res = res.slice(0, -1) + "]";
-    return res;
+  }
+  return stack.length === 0;
+}
+
+export class MinStack {
+  items: number[];
+  queue: number[];
+  constructor() {
+    this.items = [];
+    this.queue = [];
+  }
+  push(item: number) {
+    // todo
   }
 }
 
@@ -356,8 +309,104 @@ export function threeSumClosest(nums: number[], target: number) {
   nums.sort((a, b) => a - b);
   let res = 0;
   let diff = Infinity;
-  for(let i = 0; i < nums.length - 2; i++) {
+  for (let i = 0; i < nums.length - 2; i++) {
     const current = nums[i];
-    // todo
+    let isEqual = false;
+    if (i > 0 && current === nums[i]) continue;
+    let l = i + 1,
+      r = nums.length - 1;
+    while (l < r) {
+      const left = nums[l];
+      const right = nums[r];
+      const sum = left + right + current;
+      const newDiff = Math.abs(sum - target);
+      if (newDiff < diff) {
+        diff = newDiff;
+        res = sum;
+        if (sum > target) {
+          while (l < r) {
+            r--;
+            if (nums[r] !== right) break;
+          }
+        } else if (sum < target) {
+          while (l < r) {
+            l++;
+            if (nums[l] !== left) break;
+          }
+        } else {
+          isEqual = true;
+          break;
+        }
+      } else {
+        if (sum > target) {
+          while (l < r) {
+            r--;
+            if (nums[r] !== right) break;
+          }
+        } else {
+          while (l < r) {
+            l++;
+            if (nums[l] !== left) break;
+          }
+        }
+      }
+    }
+    if (isEqual) {
+      break;
+    }
   }
+  return res;
+}
+
+export function fourSum(nums: number[], target: number) {
+  nums.sort((a, b) => a - b);
+  const res: number[][] = [];
+  for (let i = 0; i < nums.length - 3; i++) {
+    const current = nums[i];
+    if (i > 0 && current === nums[i - 1]) continue;
+    if (current + nums[i + 1] + nums[i + 2] + nums[i + 3] > target) break;
+    if (
+      current +
+      nums[nums.length - 1] +
+      nums[nums.length - 2] +
+      nums[nums.length - 3]
+    )
+      break;
+    for (let j = i + 1; j < nums.length - 2; j++) {
+      const currentj = nums[j];
+      if (currentj > i + 1 && currentj === nums[j - 1]) continue;
+      if (currentj + current + nums[j + 1] + nums[j + 2] > target) break;
+      if (current + currentj + nums[nums.length - 1] + nums[nums.length - 2])
+        break;
+      let l = j + 1,
+        r = nums.length - 1;
+      while (l < r) {
+        const left = nums[l];
+        const right = nums[r];
+        const sum = left + right + current + currentj;
+        if (sum === target) {
+          res.push([left, right, currentj, current]);
+          while (l < r) {
+            l++;
+            if (nums[l] !== left) break;
+          }
+          while (l < r) {
+            r--;
+            if (nums[r] !== right) break;
+          }
+        } else if (sum > target) {
+          while (l < r) {
+            r--;
+            if (nums[r] !== right) break;
+          }
+        } else {
+          while (l < r) {
+            l++;
+            if (nums[l] !== left) break;
+          }
+        }
+      }
+    }
+  }
+  return res;
 }

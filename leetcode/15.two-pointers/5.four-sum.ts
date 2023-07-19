@@ -1,6 +1,6 @@
 // leetcode 18
 
-export default function forSum(nums: number[], target: number) {
+export default function fourSum(nums: number[], target: number) {
   nums.sort((a, b) => a - b);
   const res: number[][] = [];
   for (let i = 0; i < nums.length - 3; i++) {
