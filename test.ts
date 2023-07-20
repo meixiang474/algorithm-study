@@ -110,125 +110,81 @@ export class MinStack {
     this.queue = [];
   }
   push(item: number) {
-    // todo
-  }
-}
-
-// hot 49 - 52
-export function wordBreak(s: string, wordDict: string[]) {
-  const dp = [true];
-  const set = new Set(wordDict);
-  for (let i = 1; i <= s.length; i++) {
-    dp[i] = false;
-    for (let j = 0; j < i; j++) {
-      if (dp[j] && set.has(s.slice(j, i))) {
-        dp[i] = true;
-        break;
-      }
+    this.items.push(item);
+    if (this.queue.length === 0 || item <= this.queue[0]) {
+      this.queue.unshift(item);
     }
   }
-  return dp[s.length];
-}
-
-export function hasCycle(head: ListNode | null) {
-  let slow: ListNode | null = head;
-  let fast: ListNode | null = head;
-  while (slow && fast && fast.next) {
-    slow = slow.next;
-    fast = fast.next.next;
-    if (slow === fast) return true;
+  pop() {
+    if (this.items.length === 0) throw new Error("error");
+    const res = this.items.pop()!;
+    if (res === this.queue[0]) this.queue.shift();
+    return res;
   }
-  return false;
-}
-
-export function detectCycle(head: ListNode | null) {
-  let slow = head;
-  let fast = head;
-  let hasCycle = false;
-  while (slow && fast && fast.next) {
-    slow = slow.next;
-    fast = fast.next.next;
-    if (slow === fast) {
-      hasCycle = true;
-      break;
-    }
+  top() {
+    if (this.items.length === 0) throw new Error("error");
+    return this.items[this.items.length - 1];
   }
-  if (!hasCycle) return null;
-  let p = head;
-  while (p && slow) {
-    if (p === slow) return p;
-    p = p.next;
-    slow = slow.next;
+  min() {
+    if (this.items.length === 0) throw new Error("error");
+    return this.queue[0];
   }
 }
 
-export class DLinkedListNode {
-  key: number;
-  value: number;
-  next: DLinkedListNode | null;
-  prev: DLinkedListNode | null;
-  constructor(key: number, value: number) {
-    this.key = key;
-    this.value = value;
-    this.next = null;
-    this.prev = null;
+export class CustomStack {
+  items: number[];
+  maxSize: number;
+  constructor(maxSize: number) {
+    this.items = [];
+    this.maxSize = maxSize;
   }
-}
-
-export class LRUCache {
-  capacity: number;
-  size: number;
-  head: DLinkedListNode;
-  tail: DLinkedListNode;
-  cache: Map<number, DLinkedListNode>;
-  constructor(capacity: number) {
-    this.capacity = capacity;
-    this.size = 0;
-    this.head = new DLinkedListNode(-1, -1);
-    this.tail = new DLinkedListNode(-1, -1);
-    this.head.next = this.tail;
-    this.tail.prev = this.head;
-    this.cache = new Map();
+  push(item: number) {
+    if (this.items.length >= this.maxSize) return;
+    this.items.push(item);
   }
-  get(key: number) {
-    const cacheNode = this.cache.get(key);
-    if (!cacheNode) return -1;
-    this.moveToHead(cacheNode);
-    return cacheNode.value;
+  pop() {
+    if (this.items.length === 0) return -1;
+    return this.items.pop()!;
   }
-  removeNode(node: DLinkedListNode) {
-    node.prev!.next = node.next;
-    node.next!.prev = node.prev;
-  }
-  addToHead(node: DLinkedListNode) {
-    node.next = this.head.next;
-    this.head.next = node;
-    node.prev = this.head;
-    node.next!.prev = node;
-  }
-  moveToHead(node: DLinkedListNode) {
-    this.removeNode(node);
-    this.addToHead(node);
-  }
-  put(key: number, value: number) {
-    const cacheNode = this.cache.get(key);
-    if (!cacheNode) {
-      const node = new DLinkedListNode(key, value);
-      this.addToHead(node);
-      this.cache.set(key, node);
-      this.size++;
-      if (this.size > this.capacity) {
-        const tail = this.tail.prev!;
-        this.removeNode(tail);
-        this.cache.delete(tail.key);
-        this.size--;
-      }
+  inc(k: number, val: number) {
+    if (this.items.length <= k) {
+      this.items = this.items.map((item) => (item += val));
     } else {
-      cacheNode.value = value;
-      this.removeNode(cacheNode);
+      for (let i = 0; i < k; i++) {
+        this.items[i] += val;
+      }
     }
   }
 }
+
+export function preorderTraversal(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  const stack: TreeNode[] = [root];
+  while (stack.length) {
+    const current = stack.pop()!;
+    res.push(current.val);
+    if (current.right) {
+      stack.push(current.right);
+    }
+    if (current.left) {
+      stack.push(current.left);
+    }
+  }
+}
+
+export function decToBi(num: number) {
+  if (num === 0) return 0;
+  const arr: number[] = [];
+  while (num) {
+    arr.unshift(num % 2);
+    num = Math.floor(num / 2);
+  }
+  return parseFloat(arr.join(""));
+}
+
+// hot 53 - 56
+
 
 // two pointers 1 - 5
 export function longestSubstring(s: string) {
