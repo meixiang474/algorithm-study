@@ -184,7 +184,85 @@ export function decToBi(num: number) {
 }
 
 // hot 53 - 56
+export function sortList(head: ListNode | null) {
+  if (!head || !head.next) return head;
+  let slow: ListNode | null = head,
+    fast: ListNode | null = head;
+  while (slow && fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
+  }
+  const next = slow!.next;
+  slow!.next = null;
+  const l1 = sortList(head);
+  const l2 = sortList(next);
+  const res = new ListNode(-1);
+  let p1 = l1,
+    p2 = l2,
+    p3 = res;
+  while (p1 && p2) {
+    if (p1.val < p2.val) {
+      p3.next = p1;
+      p1 = p1.next;
+    } else {
+      p3.next = p2;
+      p2 = p2.next;
+    }
+    p3 = p3.next;
+  }
+  if (p1) p3.next = p1;
+  if (p2) p3.next = p2;
+  return res.next;
+}
 
+export function maxProduct(nums: number[]) {
+  const dpMax = [nums[0]];
+  const dpMin = [nums[0]];
+  for (let i = 1; i < nums.length; i++) {
+    dpMax[i] = Math.max(
+      dpMax[i - 1] * nums[i],
+      dpMin[i - 1] * nums[i],
+      nums[i]
+    );
+    dpMin[i] = Math.min(
+      dpMax[i - 1] * nums[i],
+      dpMin[i - 1] * nums[i],
+      nums[i]
+    );
+  }
+  return Math.max(...dpMax);
+}
+
+export class MinStack1 {
+  items: number[];
+  queue: number[];
+  constructor() {
+    this.items = [];
+    this.queue = [];
+  }
+  push(item: number) {
+    this.items.push(item);
+    if (!this.queue.length || item <= this.queue[0]) {
+      this.queue.unshift(item);
+    }
+  }
+  pop() {
+    if (this.items.length === 0) throw new Error("error");
+    const res = this.items.pop();
+    if (res === this.queue[0]) this.queue.shift();
+    return res;
+  }
+  top() {
+    if (this.items.length === 0) throw new Error("error");
+    return this.items[this.items.length - 1];
+  }
+  getMin() {
+    if (this.items.length === 0) throw new Error("error");
+    return this.queue[0];
+  }
+}
+
+// todo
 
 // two pointers 1 - 5
 export function longestSubstring(s: string) {
