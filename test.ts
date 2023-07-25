@@ -262,185 +262,25 @@ export class MinStack1 {
   }
 }
 
-// todo
-
-// two pointers 1 - 5
-export function longestSubstring(s: string) {
-  let res = 0;
-  const map = new Map<string, number>();
-  let l = 0,
-    r = 0;
-  while (r < s.length) {
-    const currentr = s[r];
-    if (map.has(currentr) && map.get(currentr)! >= l) {
-      l = map.get(currentr)! + 1;
-    }
-    res = Math.max(res, r - l + 1);
-    map.set(currentr, r);
-    r++;
+export function getIntersectionNode(
+  headA: ListNode | null,
+  headB: ListNode | null
+) {
+  let p1 = headA,
+    p2 = headB;
+  while (p1 !== p2) {
+    p1 = p1 ? p1.next : headB;
+    p2 = p2 ? p2.next : headA;
   }
-  return res;
+  return p1;
 }
 
-export function maxArea(nums: number[]) {
-  let l = 0,
-    r = nums.length - 1;
-  let res = 0;
-  while (l < r) {
-    const left = nums[l];
-    const right = nums[r];
-    res = Math.min(left, right) * (r - l);
-    if (left < right) {
-      l++;
-    } else {
-      r--;
-    }
+// union find 1 - 5
+export function solve(board: string[][]) {
+  if(board.length === 0 || board[0].length === 0) return;
+  const m = board.length;
+  const n = board[0].length;
+  const dfs = (r: number, c: number) => {
+    // todo
   }
-  return res;
-}
-
-export function threeSum(nums: number[]) {
-  nums.sort((a, b) => a - b);
-  const res: number[][] = [];
-  for (let i = 0; i < nums.length - 2; i++) {
-    const current = nums[i];
-    if (current + nums[i + 1] + nums[i + 2] > 0) break;
-    if (i > 0 && current === nums[i - 1]) continue;
-    if (current + nums[nums.length - 2] + nums[nums.length - 1] < 0) break;
-    let l = i + 1,
-      r = nums.length - 1;
-    while (l < r) {
-      const left = nums[l];
-      const right = nums[r];
-      const sum = left + right + current;
-      if (sum === 0) {
-        res.push([current, left, right]);
-        while (l < r) {
-          l++;
-          if (nums[l] !== left) break;
-        }
-        while (l < r) {
-          r--;
-          if (nums[r] !== right) break;
-        }
-      } else if (sum > 0) {
-        while (l < r) {
-          l++;
-          if (nums[l] !== left) break;
-        }
-      } else {
-        while (l < r) {
-          r--;
-          if (nums[r] !== right) break;
-        }
-      }
-    }
-  }
-  return res;
-}
-
-export function threeSumClosest(nums: number[], target: number) {
-  nums.sort((a, b) => a - b);
-  let res = 0;
-  let diff = Infinity;
-  for (let i = 0; i < nums.length - 2; i++) {
-    const current = nums[i];
-    let isEqual = false;
-    if (i > 0 && current === nums[i]) continue;
-    let l = i + 1,
-      r = nums.length - 1;
-    while (l < r) {
-      const left = nums[l];
-      const right = nums[r];
-      const sum = left + right + current;
-      const newDiff = Math.abs(sum - target);
-      if (newDiff < diff) {
-        diff = newDiff;
-        res = sum;
-        if (sum > target) {
-          while (l < r) {
-            r--;
-            if (nums[r] !== right) break;
-          }
-        } else if (sum < target) {
-          while (l < r) {
-            l++;
-            if (nums[l] !== left) break;
-          }
-        } else {
-          isEqual = true;
-          break;
-        }
-      } else {
-        if (sum > target) {
-          while (l < r) {
-            r--;
-            if (nums[r] !== right) break;
-          }
-        } else {
-          while (l < r) {
-            l++;
-            if (nums[l] !== left) break;
-          }
-        }
-      }
-    }
-    if (isEqual) {
-      break;
-    }
-  }
-  return res;
-}
-
-export function fourSum(nums: number[], target: number) {
-  nums.sort((a, b) => a - b);
-  const res: number[][] = [];
-  for (let i = 0; i < nums.length - 3; i++) {
-    const current = nums[i];
-    if (i > 0 && current === nums[i - 1]) continue;
-    if (current + nums[i + 1] + nums[i + 2] + nums[i + 3] > target) break;
-    if (
-      current +
-      nums[nums.length - 1] +
-      nums[nums.length - 2] +
-      nums[nums.length - 3]
-    )
-      break;
-    for (let j = i + 1; j < nums.length - 2; j++) {
-      const currentj = nums[j];
-      if (currentj > i + 1 && currentj === nums[j - 1]) continue;
-      if (currentj + current + nums[j + 1] + nums[j + 2] > target) break;
-      if (current + currentj + nums[nums.length - 1] + nums[nums.length - 2])
-        break;
-      let l = j + 1,
-        r = nums.length - 1;
-      while (l < r) {
-        const left = nums[l];
-        const right = nums[r];
-        const sum = left + right + current + currentj;
-        if (sum === target) {
-          res.push([left, right, currentj, current]);
-          while (l < r) {
-            l++;
-            if (nums[l] !== left) break;
-          }
-          while (l < r) {
-            r--;
-            if (nums[r] !== right) break;
-          }
-        } else if (sum > target) {
-          while (l < r) {
-            r--;
-            if (nums[r] !== right) break;
-          }
-        } else {
-          while (l < r) {
-            l++;
-            if (nums[l] !== left) break;
-          }
-        }
-      }
-    }
-  }
-  return res;
 }
