@@ -327,26 +327,116 @@ export function solve(board: string[][]) {
 }
 
 export function numIslands(grid: string[][]) {
-  if(grid.length === 0 || grid[0].length === 0) return 0;
+  if (grid.length === 0 || grid[0].length === 0) return 0;
   const m = grid.length;
   const n = grid[0].length;
   const dfs = (r: number, c: number) => {
-    grid[r][c] = '0';
+    grid[r][c] = "0";
     [
       [r + 1, c],
       [r - 1, c],
       [r, c + 1],
       [r, c - 1],
     ].forEach(([nextR, nextC]) => {
-      if(nextR >= 0 && nextR < m && nextC >= 0 && nextC < n && grid[nextR][nextC] === '1') {
+      if (
+        nextR >= 0 &&
+        nextR < m &&
+        nextC >= 0 &&
+        nextC < n &&
+        grid[nextR][nextC] === "1"
+      ) {
         dfs(nextR, nextC);
       }
-    })
-  }
+    });
+  };
   let res = 0;
-  for(let r = 0; r < m; r++) {
-    for(let c = 0; c < n; c++) {
-      // todo
+  for (let r = 0; r < m; r++) {
+    for (let c = 0; c < n; c++) {
+      if (grid[r][c] === "1") {
+        res++;
+        dfs(r, c);
+      }
     }
   }
+  return res;
 }
+
+export function calcEquation(
+  equations: string[][],
+  values: number[],
+  queries: string[][]
+) {
+  const map = new Map<string, number>();
+  let nodeCount = 0;
+  for (let i = 0; i < equations.length; i++) {
+    const current = equations[i];
+    if (!map.has(current[0])) {
+      map.set(current[0], nodeCount++);
+    }
+    if (!map.has(current[1])) {
+      map.set(current[1], nodeCount++);
+    }
+  }
+  const graph: [number, number][][] = new Array(nodeCount).fill(null);
+  for (let i = 0; i < graph.length; i++) {
+    graph[i] = [];
+  }
+  for (let i = 0; i < equations.length; i++) {
+    const node1 = map.get(equations[i][0])!;
+    const node2 = map.get(equations[i][1])!;
+    graph[node1].push([node2, values[i]]);
+    graph[node2].push([node1, 1 / values[i]]);
+  }
+  const res: number[] = [];
+  for (let i = 0; i < queries.length; i++) {
+    const node1 = map.get(queries[i][0]);
+    const node2 = map.get(queries[i][1]);
+    if (node1 == null || node2 == null) {
+      res[i] = -1;
+      continue;
+    }
+    if (node1 === node2) {
+      res[i] = 1;
+      continue;
+    }
+    const ratios: number[] = new Array(nodeCount).fill(-1);
+    ratios[node1] = 1;
+    const queue: number[] = [node1];
+    while (queue.length && ratios[node2] === -1) {
+      const current = queue.shift()!;
+      for (let i = 0; i < graph[current].length; i++) {
+        const [node, value] = graph[current][i];
+        if (ratios[node] === -1) {
+          ratios[node] = value * ratios[current];
+          queue.push(node);
+        }
+      }
+    }
+    res.push(ratios[node2]);
+  }
+  return res;
+}
+
+export function findCircleNum(isConnected: number[][]) {
+  if (isConnected.length === 0) return 0;
+  const m = isConnected.length;
+  const visited = new Set<number>();
+  const dfs = (r: number) => {
+    for (let c = 0; c < m; c++) {
+      if (isConnected[r][c] === 1 && !visited.has(c)) {
+        visited.add(c);
+        dfs(c);
+      }
+    }
+  };
+  let res = 0;
+  for (let i = 0; i < m; i++) {
+    if (!visited.has(i)) {
+      res++;
+      dfs(i);
+    }
+  }
+  return res;
+}
+
+// todo
