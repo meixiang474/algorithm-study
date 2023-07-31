@@ -21,40 +21,18 @@ export class ListNode<T = number> {
   }
 }
 
-// offer 48 49
-export function lengthOfLongestSubstring(s: string) {
+// offer 50 51
+export function firstUniqueChar(s: string) {
   const map = new Map<string, number>();
-  let res = 0;
-  let l = 0,
-    r = 0;
-  while (r < s.length) {
-    const current = s[r];
-    if (map.has(current) && map.get(current)! >= l) {
-      l = map.get(current)! + 1;
-    }
-    res = Math.max(res, r - l + 1);
-    map.set(current, r);
-    r++;
+  for (let item of s) {
+    map.set(item, map.has(item) ? map.get(item)! + 1 : 1);
   }
-  return res;
+  for (let item of s) {
+    if (map.get(item) === 1) return item;
+  }
 }
 
-export function nthUglyNumber(n: number) {
-  const dp = [1];
-  let a = 0;
-  let b = 0;
-  let c = 0;
-  for (let i = 1; i < n; i++) {
-    const n1 = dp[a] * 2;
-    const n2 = dp[b] * 3;
-    const n3 = dp[c] * 5;
-    dp[i] = Math.min(n1, n2, n3);
-    if (dp[i] === n1) a++;
-    if (dp[i] === n2) b++;
-    if (dp[i] === n3) c++;
-  }
-  return dp[n - 1];
-}
+// todo
 
 // stack
 export class Stack<T> {
@@ -439,4 +417,22 @@ export function findCircleNum(isConnected: number[][]) {
   return res;
 }
 
-// todo
+export function longestConsecutive(nums: number[]) {
+  const set = new Set<number>();
+  for (let item of nums) {
+    set.add(item);
+  }
+  let res = 0;
+  for (let item of nums) {
+    if (!set.has(item - 1)) {
+      let length = 1;
+      let current = item;
+      while (set.has(current + 1)) {
+        length++;
+        current = item + 1;
+      }
+      res = Math.max(res, length);
+    }
+  }
+  return res;
+}
