@@ -671,5 +671,6 @@ export function isSymmetric(head: ListNode | null) {
   let prev = null, current = slow;
   while(current) {
     // todo
+    
   }
 }
