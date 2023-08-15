@@ -659,18 +659,220 @@ export function isCircle(head: ListNode | null) {
 }
 
 export function isSymmetric(head: ListNode | null) {
-  if(!head || !head.next) return true;
-  let slow: ListNode | null = head, fast: ListNode | null = head;
-  while(slow && fast && fast.next) {
+  if (!head || !head.next) return true;
+  let slow: ListNode | null = head,
+    fast: ListNode | null = head;
+  while (slow && fast && fast.next) {
     slow = slow.next;
     fast = fast.next.next;
   }
-  if(fast) {
+  if (fast) {
     slow = slow!.next;
   }
-  let prev = null, current = slow;
-  while(current) {
-    // todo
-    
+  let prev = null,
+    current = slow;
+  while (current) {
+    const next = current.next;
+    current.next = prev;
+    prev = current;
+    current = next;
   }
+  let p1: ListNode | null = head;
+  let p2 = prev;
+  while (p2) {
+    if (p2.val !== p1!.val) return false;
+    p1 = p1!.next;
+    p2 = p2.next;
+  }
+  return true;
+}
+
+export function binarySearch(nums: number[], target: number) {
+  const searchData = (
+    nums: number[],
+    l: number,
+    r: number,
+    target: number
+  ): number => {
+    if (l > r) return -1;
+    const mid = Math.floor(l + (r - l) / 2);
+    if (nums[mid] === target) {
+      return mid;
+    } else if (nums[mid] > target) {
+      return searchData(nums, l, mid - 1, target);
+    } else {
+      return searchData(nums, mid + 1, r, target);
+    }
+  };
+  return searchData(nums, 0, nums.length - 1, target);
+}
+
+export function binarySearch1(nums: number[], target: number) {
+  let l = 0,
+    r = nums.length;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    if (nums[mid] === target) {
+      return mid;
+    } else if (nums[mid] > target) {
+      r = mid;
+    } else {
+      l = mid + 1;
+    }
+  }
+  return -1;
+}
+
+export function upper(nums: number[], target: number) {
+  let l = 0,
+    r = nums.length;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    if (mid <= target) {
+      l = mid + 1;
+    } else {
+      r = mid;
+    }
+  }
+  return l;
+}
+
+export function ceil(nums: number[], target: number) {
+  const index = upper(nums, target);
+  if (index - 1 >= 0 && nums[index - 1] === target) {
+    return index - 1;
+  }
+  return index;
+}
+
+export function lowerCeil(nums: number[], target: number) {
+  let l = 0,
+    r = nums.length;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l) / 2);
+    if (nums[mid] >= target) {
+      r = mid;
+    } else {
+      l = mid + 1;
+    }
+  }
+  return l;
+}
+
+export function lower(nums: number[], target: number) {
+  let l = -1,
+    r = nums.length - 1;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l + 1) / 2);
+    if (nums[mid] >= target) {
+      r = mid - 1;
+    } else {
+      l = mid;
+    }
+  }
+  return l;
+}
+
+export function upperFloor(nums: number[], target: number) {
+  let l = -1,
+    r = nums.length - 1;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l + 1) / 2);
+    if (nums[mid] <= target) {
+      l = mid;
+    } else {
+      r = mid - 1;
+    }
+  }
+  return l;
+}
+
+export function lowerFloor(nums: number[], target: number) {
+  const index = lower(nums, target);
+  if (index + 1 < nums.length && nums[index + 1] === target) {
+    return index + 1;
+  }
+  return index;
+}
+
+export function fn(x: number) {
+  let l = 0,
+    r = x;
+  while (l < r) {
+    const mid = Math.floor(l + (r - l + 1) / 2);
+    if (mid ** 2 > x) {
+      r = mid - 1;
+    } else {
+      l = mid;
+    }
+  }
+  return l;
+}
+
+export function maxDepth(root: TreeNode | null) {
+  if (!root) return 0;
+  let res = 0;
+  const dfs = (node: TreeNode, level: number) => {
+    if (!node.left && !node.right) {
+      res = Math.max(res, level);
+    }
+    if (node.left) dfs(node.left, level + 1);
+    if (node.right) dfs(node.right, level + 1);
+  };
+  dfs(root, 1);
+  return res;
+}
+
+export function minDepth(root: TreeNode | null) {
+  if (!root) return 0;
+  const queue: [TreeNode, number][] = [[root, 1]];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    if (!current.right && current.left) return level;
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
+  }
+}
+
+export function levelOrder(root: TreeNode | null) {
+  if (!root) return [];
+  const queue: [TreeNode, number][] = [[root, 0]];
+  const res: number[][] = [];
+  while (queue.length) {
+    const [current, level] = queue.shift()!;
+    const arr = res[level] || (res[level] = []);
+    arr.push(current.val);
+    if (current.left) queue.push([current.left, level + 1]);
+    if (current.right) queue.push([current.right, level + 1]);
+  }
+  return res;
+}
+
+export function inorderTraversal(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  const dfs = (node: TreeNode) => {
+    if (node.left) dfs(node.left);
+    res.push(node.val);
+    if (node.right) dfs(node.right);
+  };
+  dfs(root);
+  return res;
+}
+
+export function inorderTraversal1(root: TreeNode | null) {
+  if (!root) return [];
+  const stack: TreeNode[] = [];
+  let p: TreeNode | null = root;
+  const res: number[] = [];
+  while (p || stack.length) {
+    while (p) {
+      stack.push(p);
+      p = p.left;
+    }
+    const current = stack.pop()!;
+    res.push(current.val);
+    p = current.right;
+  }
+  return res;
 }
