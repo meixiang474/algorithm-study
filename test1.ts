@@ -876,3 +876,155 @@ export function inorderTraversal1(root: TreeNode | null) {
   }
   return res;
 }
+
+export function hasPathSum(root: TreeNode | null, target: number) {
+  if (!root) return false;
+  let res = false;
+  const dfs = (node: TreeNode, sum: number) => {
+    if (res) return;
+    if (!node.left && !node.right && sum === target) {
+      res = true;
+      return;
+    }
+    if (node.left) dfs(node.left, node.left.val + sum);
+    if (node.right) dfs(node.right, node.right.val + sum);
+  };
+  dfs(root, root.val);
+  return res;
+}
+
+export function postOrderTraversal(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  const dfs = (node: TreeNode) => {
+    if (node.left) dfs(node.left);
+    if (node.right) dfs(node.right);
+    res.push(node.val);
+  };
+  dfs(root);
+  return res;
+}
+
+export function postOrderTraversal1(root: TreeNode | null) {
+  if (!root) return [];
+  const res: number[] = [];
+  const stack: TreeNode[] = [];
+  let p: TreeNode | null = root;
+  let prevRight: TreeNode | null = null;
+  while (p || stack.length) {
+    while (p) {
+      stack.push(p);
+      p = p.left;
+    }
+    const current = stack.pop()!;
+    if (!current.right || prevRight === current.right) {
+      res.push(current.val);
+      prevRight = current;
+    } else {
+      stack.push(current);
+      p = current.right;
+    }
+  }
+  return res;
+}
+
+export function intersection(nums1: number[], nums2: number[]) {
+  return [...new Set(nums1)].filter((item) => nums2.includes(item));
+}
+
+export function intersection1(nums1: number[], nums2: number[]) {
+  const map = new Map<number, boolean>();
+  for (let item of nums1) {
+    map.set(item, true);
+  }
+  const res: number[] = [];
+  for (let item of nums2) {
+    if (map.has(item)) {
+      res.push(item);
+      map.delete(item);
+    }
+  }
+  return res;
+}
+
+export function twoSum(nums: number[], target: number) {
+  const map = new Map<number, number>();
+  for (let i = 0; i < nums.length; i++) {
+    const current = nums[i];
+    const rest = target - current;
+    if (map.has(rest)) {
+      return [i, map.get(rest)!];
+    } else {
+      map.set(current, i);
+    }
+  }
+}
+
+export function longestSubstring(s: string) {
+  const map = new Map<string, number>();
+  let res = 0;
+  let l = 0,
+    r = 0;
+  while (r < s.length) {
+    const currentr = s[r];
+    if (map.has(currentr) && map.get(currentr)! >= l) {
+      l = map.get(currentr)! + 1;
+    }
+    res = Math.max(res, r - l + 1);
+    map.set(currentr, r);
+    r++;
+  }
+  return res;
+}
+
+export function fn1(s: string, t: string) {}
+
+export class DLinkedListNode {
+  key: number;
+  val: number;
+  prev: DLinkedListNode | null;
+  next: DLinkedListNode | null;
+  constructor(key: number, val: number) {
+    this.key = key;
+    this.val = val;
+    this.prev = null;
+    this.next = null;
+  }
+}
+
+export class LRUCache {
+  capacity: number;
+  size: number;
+  head: DLinkedListNode;
+  tail: DLinkedListNode;
+  cache: Map<number, DLinkedListNode>;
+  constructor(capacity: number) {
+    this.capacity = capacity;
+    this.size = 0;
+    this.head = new DLinkedListNode(-1, -1);
+    this.tail = new DLinkedListNode(-1, -1);
+    this.head.prev = this.tail;
+    this.tail.next = this.head;
+    this.cache = new Map();
+  }
+  get(key: number) {
+    const cacheNode = this.cache.get(key);
+    if (!cacheNode) return -1;
+    this.moveToHead(cacheNode);
+    return cacheNode.val;
+  }
+  addToHead(node: DLinkedListNode) {
+    node.prev = this.head;
+    node.next = this.head.next;
+    this.head.next = node;
+    node.next!.prev = node;
+  }
+  removeNode(node: DLinkedListNode) {
+    node.prev!.next = node.next;
+    node.next!.prev = node.prev;
+  }
+  moveToHead(node: DLinkedListNode) {
+    this.removeNode(node);
+    this.addToHead(node);
+  }
+}
